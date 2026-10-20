@@ -648,7 +648,8 @@ function render(){
   let sd = 0, st = 0;
   if (shop) {
     $("shopList").innerHTML = shop.map((x,i) => `
-      <li class="${x.d?'is-done':''}">
+      <li class="${x.d?'is-done':''}" data-i="${i}">
+        <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
         <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="${T("bought")}">
         <input class="txt edit" type="text" id="eshop-${i}" data-eshop="${i}" value="${esc(x.t)}" aria-label="${T("editShop")}">
         <button class="del" type="button" data-delshop="${i}" aria-label="${T("removeShop")}">×</button>
@@ -1492,48 +1493,51 @@ $("itemForm").addEventListener("submit", e => {
   state.cats[c].items.push({t:v,q:$("itemQty").value.trim(),d:false});
   $("itemInput").value=""; $("itemQty").value=""; save(); render(); $("itemCat").value=c;
 });
-// Drag & drop for to-dos (mouse + touch)
-let drag = null;
-$("todoList").addEventListener("pointerdown", e => {
-  const h = e.target.closest(".handle"); if (!h) return;
-  e.preventDefault();
-  const li = h.closest("li");
-  drag = { li, id: e.pointerId };
-  h.setPointerCapture(e.pointerId);
-  li.classList.add("dragging"); $("todoList").classList.add("is-dragging");
-});
-$("todoList").addEventListener("pointermove", e => {
-  if (!drag || e.pointerId !== drag.id) return;
-  const list = $("todoList");
-  const others = [...list.children].filter(el => el !== drag.li);
-  let before = null;
-  for (const el of others) {
-    const r = el.getBoundingClientRect();
-    if (e.clientY < r.top + r.height/2) { before = el; break; }
-  }
-  if (before !== drag.li.nextElementSibling) list.insertBefore(drag.li, before);
-});
-function endDrag(e){
-  if (!drag || e.pointerId !== drag.id) return;
-  const order = [...$("todoList").children].map(el => +el.dataset.i);
-  state.todos = order.map(i => state.todos[i]);
-  const newIdx = order.indexOf(+drag.li.dataset.i);
-  drag = null; $("todoList").classList.remove("is-dragging");
-  save(); render();
-  const h = document.querySelector(`[data-handle="${newIdx}"]`); if (h) h.focus({preventScroll:true});
+// Sorting for the simple lists (to-dos, shopping list): drag with mouse/touch, or Alt + arrow up/down on the handle
+function makeSortable(listId, key){
+  const list = $(listId);
+  let drag = null;
+  list.addEventListener("pointerdown", e => {
+    const h = e.target.closest(".handle"); if (!h) return;
+    e.preventDefault();
+    const li = h.closest("li");
+    drag = { li, id: e.pointerId };
+    h.setPointerCapture(e.pointerId);
+    li.classList.add("dragging"); list.classList.add("is-dragging");
+  });
+  list.addEventListener("pointermove", e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const others = [...list.children].filter(el => el !== drag.li);
+    let before = null;
+    for (const el of others) {
+      const r = el.getBoundingClientRect();
+      if (e.clientY < r.top + r.height/2) { before = el; break; }
+    }
+    if (before !== drag.li.nextElementSibling) list.insertBefore(drag.li, before);
+  });
+  const end = e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const order = [...list.children].map(el => +el.dataset.i);
+    state[key] = order.map(i => state[key][i]);
+    const newIdx = order.indexOf(+drag.li.dataset.i);
+    drag = null; list.classList.remove("is-dragging");
+    save(); render();
+    const h = list.querySelector(`[data-handle="${newIdx}"]`); if (h) h.focus({preventScroll:true});
+  };
+  list.addEventListener("pointerup", end);
+  list.addEventListener("pointercancel", end);
+  list.addEventListener("keydown", e => {
+    const h = e.target.closest(".handle"); if (!h || !e.altKey) return;
+    const i = +h.dataset.handle, j = e.key === "ArrowUp" ? i-1 : e.key === "ArrowDown" ? i+1 : -1;
+    if (j < 0 || j >= state[key].length) return;
+    e.preventDefault();
+    [state[key][i], state[key][j]] = [state[key][j], state[key][i]];
+    save(); render();
+    list.querySelector(`[data-handle="${j}"]`).focus();
+  });
 }
-$("todoList").addEventListener("pointerup", endDrag);
-$("todoList").addEventListener("pointercancel", endDrag);
-// Keyboard: Alt + arrow up/down on the handle
-$("todoList").addEventListener("keydown", e => {
-  const h = e.target.closest(".handle"); if (!h || !e.altKey) return;
-  const i = +h.dataset.handle, j = e.key === "ArrowUp" ? i-1 : e.key === "ArrowDown" ? i+1 : -1;
-  if (j < 0 || j >= state.todos.length) return;
-  e.preventDefault();
-  [state.todos[i], state.todos[j]] = [state.todos[j], state.todos[i]];
-  save(); render();
-  document.querySelector(`[data-handle="${j}"]`).focus();
-});
+makeSortable("todoList", "todos");
+makeSortable("shopList", "shop");
 
 // Drag & drop for the packing list (also across categories)
 let pdrag = null;

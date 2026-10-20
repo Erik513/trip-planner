@@ -11,8 +11,8 @@ It works offline, without an account and without a server.
 
 1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
-2. **Shopping list** – only appears after clicking "Shopping" (in the to-do row), disappears with "Shopping done".
-3. **To-dos**
+2. **Shopping list** – only appears after clicking "Shopping" (in the to-do row), disappears with "Shopping done". Items can be reordered by dragging the handle (or Alt + arrow keys).
+3. **To-dos** – reorderable the same way (shared code: `makeSortable`).
 4. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
    "Load suggestions" adds typical items without quantities.
 
