@@ -1,4 +1,4 @@
-<title>Reiseplaner</title>
+<title>Trip Planner</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
@@ -268,7 +268,7 @@ td.x{width:40px;text-align:right}
       <p class="sub" data-i18n="subtitle">Reise, Einkauf, To-dos und Koffer an einem Ort</p>
     </div>
     <div class="head-right">
-    <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Sprache"><button type="button" data-lang="de" aria-pressed="true">DE</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+    <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="de" aria-pressed="false">DE</button></div>
     <button type="button" class="ghost sm icon-btn" id="shareBtn" data-i18n-attr="aria-label:shareTitle;title:shareTitle" aria-label="Reiseplaner teilen" title="Reiseplaner teilen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
     <button type="button" class="ghost sm icon-btn" id="dlBtn" data-i18n-attr="aria-label:dl;title:dlTitle" aria-label="Reiseplaner herunterladen" title="Reiseplaner als Datei herunterladen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></button>
     <div class="tag" aria-live="polite">
@@ -368,11 +368,15 @@ td.x{width:40px;text-align:right}
 const PAGE_SRC = "<!doctype html>\n" + document.documentElement.outerHTML;
 const KEY = "packliste-v2";
 // Languages: texts live in I18N, T("key", {placeholders}) returns the text in the active language.
-// Default = browser language (German, otherwise English); the choice is remembered per device in localStorage.
+// Default = English; the choice is remembered per device in localStorage.
 const LANG_KEY = "trip-planner-lang";
 let langStored = null;
 try { langStored = localStorage.getItem(LANG_KEY); } catch(e){}
-let lang = langStored === "de" || langStored === "en" ? langStored : ((navigator.language || "").toLowerCase().startsWith("de") ? "de" : "en");
+// A shared link may carry its language (#lang=de&…); it is adopted only if this device has no own choice yet
+const hashLang = ((location.hash.slice(1).match(/(?:^|&)lang=(de|en)(?:&|$)/) || [])[1]) || null;
+const adoptHashLang = !langStored && !!hashLang;
+let lang = langStored === "de" || langStored === "en" ? langStored : (hashLang || "en");
+if (adoptHashLang) { langStored = lang; try { localStorage.setItem(LANG_KEY, lang); } catch(e){} }
 const li = () => lang === "en" ? 1 : 0; // index into bilingual lists [de, en]
 const I18N = {
   de: {
@@ -749,8 +753,8 @@ function migrate(s){
   if (s.infoCollapsed !== undefined) { s.collapsed = s.collapsed || {}; s.collapsed.info = s.infoCollapsed; delete s.infoCollapsed; }
 }
 migrate(state);
-// First start without a chosen language: translate existing default names into the browser language
-if (!langStored) translateDefaults(lang);
+// First start without a chosen language: translate existing German default names into English
+if (!langStored || adoptHashLang) translateDefaults(lang);
 
 // Links to Google Maps / Apple Maps: location for the meeting point, route for legs
 const MAPS = what => `<span class="maps" data-maps hidden><span class="sr">${what}:</span><a target="_blank" rel="noopener" data-map="g">Google Maps</a><a target="_blank" rel="noopener" data-map="a">${T("appleMaps")}</a></span>`;
@@ -1174,12 +1178,12 @@ document.addEventListener("keydown", e => {
 document.addEventListener("input", e => { if (e.target.type === "date") refreshDates(); });
 document.addEventListener("change", e => { if (e.target.type === "date") refreshDates(); });
 
-// Share: link to the page (with the trip info as a code after "#", if present) via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
+// Share: link to the page (with the language and, if present, the trip info code after "#") via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
 $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
   const note = t => { b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
   const base = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] : null;
-  const url = base && (Object.keys(pack(state.info)).length ? base + "#" + makeCode() : base);
+  const url = base && base + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
   try {
     if (navigator.share) {
       if (url) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
@@ -1206,8 +1210,9 @@ function showLinkPanel(){
   $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
 }
 function readLink(){
-  const raw = location.hash.slice(1); if (!raw.startsWith("URLAUB")) return;
-  let txt = raw; try { txt = decodeURIComponent(raw); } catch(e){}
+  const raw = location.hash.slice(1), at = raw.indexOf("URLAUB");
+  if (at < 0) { if (/^lang=/.test(raw)) clearHash(); return; }
+  let txt = raw.slice(at); try { txt = decodeURIComponent(txt); } catch(e){}
   const d = readCode(txt);
   if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
 }

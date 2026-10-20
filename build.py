@@ -26,7 +26,7 @@ title = re.search(r"<title>.*?</title>", s).group(0)
 s = s.replace(title + "\n", "", 1).replace(title, "", 1)
 
 head = f"""<!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
