@@ -583,6 +583,7 @@ const SUGGEST = [
   [["Gesundheit", "Health"], [[["Eigene Medikamente", "Own medication"]], [["Schmerztabletten", "Painkillers"]], [["Pflaster", "Plasters"]]]],
   [["Technik", "Tech"], [[["Handy + Ladekabel", "Phone + charging cable"]], [["Powerbank", "Power bank"]], [["Kopfhörer", "Headphones"]]]],
   [["Dokumente & Geld", "Documents & money"], [[["Personalausweis", "ID card / passport"]], [["Bankkarte & etwas Bargeld", "Bank card & some cash"]], [["Krankenkassenkarte", "Health insurance card"]], [["Buchungsbestätigung", "Booking confirmation"]], [["Führerschein", "Driver's licence"]]]],
+  [["Handgepäck", "Hand luggage"], [[["Flüssigkeiten im Klarsichtbeutel (max. 100 ml)", "Liquids in a clear bag (max. 100 ml)"]], [["Nackenkissen", "Neck pillow"]], [["Schlafmaske & Ohrstöpsel", "Sleep mask & earplugs"]], [["Wechselkleidung", "Spare clothes"]], [["Leere Trinkflasche", "Empty water bottle"]], [["Buch / E-Reader", "Book / e-reader"]]]],
   [["Lebensmittel", "Food"], [[["Snacks für die Fahrt", "Snacks for the trip"]], [["Wasserflasche / Getränke", "Water bottle / drinks"]], [["Obst", "Fruit"]], [["Brotdose / Proviant", "Lunch box / packed meal"]], [["Kaffee / Tee", "Coffee / tea"]], [["Frühstücksvorrat", "Breakfast supplies"]]]],
   [["Sonstiges", "Misc"], [[["Tagesrucksack", "Daypack"]], [["Beutel für Schmutzwäsche", "Bag for dirty laundry"]], [["Regenschirm", "Umbrella"]]]]
 ];
@@ -876,14 +877,20 @@ function migrate(s){
   if (s.collapsed) Object.entries(LEGACY_COLLAPSED_KEYS).forEach(([o, n]) => { if (o in s.collapsed) { if (!(n in s.collapsed)) s.collapsed[n] = s.collapsed[o]; delete s.collapsed[o]; } });
   if ((i.tort || i.tdat || i.tzeit) && !i.outMeet) i.outMeet = {place: i.tort || "", date: i.tdat || "", time: i.tzeit || ""};
   ["tort", "tdat", "tzeit", "mit", "zeit", "rzeit"].forEach(k => delete i[k]);
-  // One-off: add the category "Food" ("Lebensmittel") before "Misc" ("Sonstiges")
-  if (!s.v2cats) {
-    if (Array.isArray(s.cats) && !s.cats.some(c => ["lebensmittel", "food"].includes((c.name || "").trim().toLowerCase()))) {
-      const at = s.cats.findIndex(c => ["sonstiges", "misc"].includes((c.name || "").trim().toLowerCase()));
-      s.cats.splice(at < 0 ? s.cats.length : at, 0, {name: SUGGEST[5][0][li()], items: []});
+  // One-off: add default categories that were introduced later to existing data
+  // [flag, German name, English name, names it is inserted in front of]
+  if (Array.isArray(s.cats)) [
+    ["v2cats", "Lebensmittel", "Food", ["sonstiges", "misc"]],
+    ["v3cats", "Handgepäck", "Hand luggage", ["lebensmittel", "food", "sonstiges", "misc"]]
+  ].forEach(([flag, de, en, before]) => {
+    if (s[flag]) return;
+    const norm = x => (x || "").trim().toLowerCase();
+    if (!s.cats.some(c => [norm(de), norm(en)].includes(norm(c.name)))) {
+      const at = s.cats.findIndex(c => before.includes(norm(c.name)));
+      s.cats.splice(at < 0 ? s.cats.length : at, 0, {name: li() ? en : de, items: []});
     }
-    s.v2cats = true;
-  }
+    s[flag] = true;
+  });
   if (Array.isArray(s.cats)) {
     s.cats.forEach(c => { c.items = (c.items || []).filter(x => x && String(x.t || "").trim()); });
     s.cats = s.cats.filter(c => String(c.name || "").trim() || c.items.length);

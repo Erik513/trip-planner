@@ -14,7 +14,7 @@ It works offline, without an account and without a server.
 2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
    to the visible list and focuses it (an entry left empty is removed again); "Uncheck all" and "Clear all" in the section header act on the visible list.
    Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
-3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
+3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Hand luggage, Food, Misc);
    "Load suggestions" adds typical items without quantities.
    The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
    The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).
@@ -69,6 +69,7 @@ copy of the HTML file (files opened from the file manager have no reliable stora
 ## Storage
 
 - `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`) – per browser, device and address.
+- Default categories introduced later (Food, Hand luggage) are added once to existing data by `migrate` (flags `v2cats`, `v3cats`); a deleted one does not come back.
 - `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
   when changing the data model, extend it there instead of breaking old data.
 - The code also contains a path for the Claude Artifact database (`window.claude.use("db")`). Outside Claude, `window.claude`
