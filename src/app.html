@@ -429,7 +429,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    dlFile: "Reiseplaner.html", dlSaved: "Gespeichert ✓", dlFail: "Nicht möglich",
+    dlFile: "Reiseplaner.html", dlSaved: "Gespeichert ✓", dlFail: "Nicht möglich", dlStarted: "Download gestartet – siehe Downloads bzw. Dateien-App",
     suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", shopOpenConfirm: "Noch {n} offen – trotzdem abschließen?",
     syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
   },
@@ -482,7 +482,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    dlFile: "Trip-Planner.html", dlSaved: "Saved ✓", dlFail: "Not possible",
+    dlFile: "Trip-Planner.html", dlSaved: "Saved ✓", dlFail: "Not possible", dlStarted: "Download started – check your Downloads or Files app",
     suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", shopOpenConfirm: "{n} still open – finish anyway?",
     syncSaving: "Saving …", syncSaved: "Saved ✓", syncFail: "Saving failed – retrying …", syncLocal: "Saved on this device"
   }
@@ -1010,10 +1010,15 @@ document.addEventListener("click", e => {
   setTimeout(() => {
     if (JSON.stringify(state) === before) return; // only armed, nothing deleted
     undoState = JSON.parse(before);
-    $("toastMsg").textContent = T(hit[1]); $("toast").hidden = false;
+    $("toastMsg").textContent = T(hit[1]); $("undoBtn").hidden = false; $("toast").hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; undoState = null; }, 7000);
   });
 }, true);
+// Plain message in the toast (no undo); phones show no tooltips, so button feedback goes here
+function notify(msg){
+  undoState = null; $("toastMsg").textContent = msg; $("undoBtn").hidden = true; $("toast").hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; }, 4000);
+}
 $("undoBtn").addEventListener("click", () => {
   if (!undoState) return;
   state = undoState; undoState = null; $("toast").hidden = true; clearTimeout(toastTimer);
@@ -1190,7 +1195,7 @@ document.addEventListener("change", e => { if (e.target.type === "date") refresh
 // Share: link to the page (with the language and, if present, the trip info code after "#") via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
 $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
-  const note = t => { b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
+  const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
   const base = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] : null;
   const url = base && base + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
   try {
@@ -1236,7 +1241,7 @@ $("linkDismiss").addEventListener("click", () => { linkData = null; clearHash();
 // Download: save the page as a standalone file (e.g. to open it in the browser from an app preview)
 $("dlBtn").addEventListener("click", async e => {
   const b = e.currentTarget, label = T("dlTitle");
-  const note = t => { b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
+  const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
   try {
     const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
     if (dl) { await dl.save({filename: T("dlFile"), data: PAGE_SRC}); note(T("dlSaved")); return; }
@@ -1246,6 +1251,7 @@ $("dlBtn").addEventListener("click", async e => {
     const a = document.createElement("a"); a.href = url; a.download = T("dlFile");
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
+    notify(T("dlStarted"));
   } catch (err) { note(T("dlFail")); }
 });
 
