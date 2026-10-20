@@ -122,12 +122,17 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .dbox:focus-within{border-color:var(--accent)}
 .dbox:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pair .dbox{flex:1.5 1 0}
+.langsw{display:inline-flex;align-self:flex-start;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.langsw button{font:inherit;font-size:.72rem;font-weight:600;line-height:1;border:0;background:transparent;color:var(--muted);padding:6px 8px;cursor:pointer;transition:background .15s, color .15s}
+.langsw button + button{border-left:1px solid var(--line)}
+.langsw button:hover{color:var(--fg);background:var(--accent-soft)}
+.langsw button[aria-pressed="true"]{background:var(--accent-soft);color:var(--fg)}
 .icon-btn{display:inline-grid;place-items:center;padding:6px!important;line-height:0}
 .icon-btn.ok{color:var(--accent);border-color:var(--accent)}
-.head-right{display:flex;flex-direction:row-reverse;align-items:stretch;gap:8px}
-.head-right .icon-btn{align-self:stretch;padding:0 9px!important;border-radius:10px;border-style:dashed;border-color:var(--accent);color:var(--accent)}
-.head-right .icon-btn:hover{background:var(--accent-soft);color:var(--accent)}
-@media (max-width:600px){.head-right{width:100%}.head-right .tag{flex:1}}
+.head-right{display:flex;align-items:stretch;gap:8px}
+.head-right .icon-btn{align-self:flex-start;padding:5px 7px!important;border-radius:6px}
+.head-right .icon-btn svg{width:14px;height:14px}
+@media (max-width:600px){.head-right{width:100%;flex-wrap:wrap;justify-content:flex-end}.head-right .tag{flex:1 1 100%;order:1}}
 .lbl-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .maps{display:inline-flex;gap:10px;align-items:baseline}
 .maps a{color:var(--accent);text-decoration:none;font-weight:700;text-transform:none;letter-spacing:0;font-size:.8rem}
@@ -259,13 +264,14 @@ td.x{width:40px;text-align:right}
 <div class="wrap">
   <header>
     <div>
-      <h1>Reiseplaner</h1>
-      <p class="sub">Reise, Einkauf, To-dos und Koffer an einem Ort</p>
+      <h1 data-i18n="title">Reiseplaner</h1>
+      <p class="sub" data-i18n="subtitle">Reise, Einkauf, To-dos und Koffer an einem Ort</p>
     </div>
     <div class="head-right">
-    <button type="button" class="ghost sm icon-btn" id="dlBtn" aria-label="Reiseplaner herunterladen" title="Reiseplaner als Datei herunterladen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></button>
+    <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Sprache"><button type="button" data-lang="de" aria-pressed="true">DE</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+    <button type="button" class="ghost sm icon-btn" id="dlBtn" data-i18n-attr="aria-label:dl;title:dlTitle" aria-label="Reiseplaner herunterladen" title="Reiseplaner als Datei herunterladen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></button>
     <div class="tag" aria-live="polite">
-      <span>Fortschritt gesamt</span>
+      <span data-i18n="progress">Fortschritt gesamt</span>
       <b id="total">0 / 0</b>
       <div class="bar"><i id="totalBar"></i></div>
       <span class="sync" id="sync"></span>
@@ -274,90 +280,237 @@ td.x{width:40px;text-align:right}
   </header>
 
   <section data-col="info">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>Reise-Infos</button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="exportBtn">Exportieren</button><button type="button" class="ghost sm" id="importBtn">Importieren</button><button type="button" class="ghost sm" data-clear="info">Inhalt leeren</button></div></div><span class="count" id="countdown"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="tripInfo">Reise-Infos</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="exportBtn" data-i18n="export">Exportieren</button><button type="button" class="ghost sm" id="importBtn" data-i18n="import">Importieren</button><button type="button" class="ghost sm" data-clear="info" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="countdown"></span></div>
     <div class="share" id="sharePanel" hidden>
-      <div class="share-head"><strong id="shareTitle"></strong><button type="button" class="del" id="shareClose" aria-label="Schließen" title="Schließen">×</button></div>
+      <div class="share-head"><strong id="shareTitle"></strong><button type="button" class="del" id="shareClose" data-i18n-attr="aria-label:close;title:close" aria-label="Schließen" title="Schließen">×</button></div>
       <p class="share-hint" id="shareHint"></p>
-      <textarea class="fld share-code" id="shareCode" rows="4" spellcheck="false" aria-label="Reise-Infos Code"></textarea>
-      <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy">Kopieren</button><button type="button" class="tdone" id="importApply">Übernehmen</button></div>
+      <textarea class="fld share-code" id="shareCode" rows="4" spellcheck="false" data-i18n-attr="aria-label:codeLabel" aria-label="Reise-Infos Code"></textarea>
+      <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy" data-i18n="copy">Kopieren</button><button type="button" class="tdone" id="importApply" data-i18n="apply">Übernehmen</button></div>
     </div>
     <div class="info-grid" id="infoGrid">
-      <div class="grp" data-col="reise"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>Reise &amp; Unterkunft</button></h3></div><div class="sub">
-        <div class="f"><div class="lbl-row"><span>Reisezielort</span><span class="maps" id="wx" hidden><a target="_blank" rel="noopener" id="wxLink">Wetter</a></span></div><input class="fld" id="i-ziel" data-info="ziel" type="text" aria-label="Reisezielort"></div>
-        <label class="f"><span>Unterkunft</span><input class="fld" id="i-unterkunft" data-info="unterkunft" type="text"></label>
-        <label class="f wide"><span>Zieladresse</span><input class="fld" id="i-adresse" data-info="adresse" type="text"></label>
-        <div class="f"><span>Check-in</span><div class="pair"><input class="fld" id="i-cin" data-info="cin" type="date" aria-label="Check-in Datum"><input class="fld" id="i-cinz" data-info="cinz" type="time" aria-label="Check-in Uhrzeit"></div></div>
-        <div class="f"><span>Check-out</span><div class="pair"><input class="fld" id="i-cout" data-info="cout" type="date" aria-label="Check-out Datum"><input class="fld" id="i-coutz" data-info="coutz" type="time" aria-label="Check-out Uhrzeit"></div></div>
-        <div class="f wide note-col" data-col="notiz"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span>Notizen</span></button></div><textarea class="fld" id="i-notiz" data-info="notiz" rows="3" aria-label="Notizen"></textarea></div>
+      <div class="grp" data-col="reise"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3></div><div class="sub">
+        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span><span class="maps" id="wx" hidden><a target="_blank" rel="noopener" id="wxLink" data-i18n="weather">Wetter</a></span></div><input class="fld" id="i-ziel" data-info="ziel" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
+        <label class="f"><span data-i18n="lodging">Unterkunft</span><input class="fld" id="i-unterkunft" data-info="unterkunft" type="text"></label>
+        <label class="f wide"><span data-i18n="address">Zieladresse</span><input class="fld" id="i-adresse" data-info="adresse" type="text"></label>
+        <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-cin" data-info="cin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-cinz" data-info="cinz" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
+        <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-cout" data-info="cout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-coutz" data-info="coutz" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
+        <div class="f wide note-col" data-col="notiz"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld" id="i-notiz" data-info="notiz" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
-      <div class="grp" data-col="hin"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>Hinfahrt</button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="hin">Haken entfernen</button></div></div><span class="count" id="sum-hin"></span></div>
-        <label class="f trip-date"><span>Datum</span><input class="fld" id="i-ab" data-info="ab" type="date"></label>
+      <div class="grp" data-col="hin"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="hin" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-hin"></span></div>
+        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ab" data-info="ab" type="date"></label>
         <div class="legs" id="legs-hin"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="hin">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="hin">Etappe hinzufügen</button></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addmeet="hin" data-i18n="addMeet">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="hin" data-i18n="addLeg">Etappe hinzufügen</button></div>
       </div>
-      <div class="grp" data-col="rueck"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>Rückfahrt</button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromHin">Aus Hinfahrt übernehmen</button><button type="button" class="ghost sm" data-uncheck="rueck">Haken entfernen</button></div></div><span class="count" id="sum-rueck"></span></div>
-        <label class="f trip-date"><span>Datum</span><input class="fld" id="i-rueck" data-info="rueck" type="date"></label>
+      <div class="grp" data-col="rueck"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromHin" data-i18n="fromOut">Aus Hinfahrt übernehmen</button><button type="button" class="ghost sm" data-uncheck="rueck" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-rueck"></span></div>
+        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-rueck" data-info="rueck" type="date"></label>
         <div class="legs" id="legs-rueck"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="rueck">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="rueck">Etappe hinzufügen</button></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addmeet="rueck" data-i18n="addMeet">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="rueck" data-i18n="addLeg">Etappe hinzufügen</button></div>
       </div>
-      <datalist id="modes"><option value="Auto"><option value="Bahn"><option value="Bus"><option value="Flugzeug"><option value="Fähre"><option value="Taxi"><option value="Mitfahrgelegenheit"><option value="Fahrrad"><option value="Zu Fuß"></datalist>
+      <datalist id="modes"></datalist>
     </div>
   </section>
 
   <section id="shopSec" data-col="shop" hidden>
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>Einkaufsliste</button></h2><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="shop">Haken entfernen</button><button type="button" class="ghost sm" data-clear="shop">Inhalt leeren</button></div></div><span class="count" id="shopCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="shopping">Einkaufsliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="shop" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" data-clear="shop" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="shopCount"></span></div>
     <ul class="todos" id="shopList"></ul>
     <form class="add" id="shopForm">
-      <input type="text" id="shopInput" placeholder="Was muss gekauft werden?" aria-label="Neuer Einkauf">
-      <button type="submit">Hinzufügen</button>
+      <input type="text" id="shopInput" data-i18n-attr="placeholder:shopPh;aria-label:shopNew" placeholder="Was muss gekauft werden?" aria-label="Neuer Einkauf">
+      <button type="submit" data-i18n="add">Hinzufügen</button>
     </form>
-    <div class="actions"><button type="button" class="ghost" id="shopDone">Einkauf abgeschlossen</button></div>
+    <div class="actions"><button type="button" class="ghost" id="shopDone" data-i18n="shopDone">Einkauf abgeschlossen</button></div>
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>To-dos</button></h2><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="todos">Haken entfernen</button><button type="button" class="ghost sm" data-clear="todos">Inhalt leeren</button></div></div><span class="count" id="todoCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todos">To-dos</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="todos" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" data-clear="todos" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="todoCount"></span></div>
     <ul class="todos" id="todoList"></ul>
     <form class="add" id="todoForm">
-      <input type="text" id="todoInput" placeholder="Eigenes To-do hinzufügen" aria-label="Neues To-do">
-      <button type="button" class="ghost" id="shopStart">Einkaufen</button>
-      <button type="submit">Hinzufügen</button>
+      <input type="text" id="todoInput" data-i18n-attr="placeholder:todoPh;aria-label:todoNew" placeholder="Eigenes To-do hinzufügen" aria-label="Neues To-do">
+      <button type="button" class="ghost" id="shopStart" data-i18n="shopStart">Einkaufen</button>
+      <button type="submit" data-i18n="add">Hinzufügen</button>
     </form>
   </section>
 
   <section data-col="pack">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span>Packliste</button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest">Vorschläge laden</button><button type="button" class="ghost sm" data-uncheck="pack">Haken entfernen</button><button type="button" class="ghost sm" data-clear="pack">Inhalt leeren</button></div></div><span class="count" id="packCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest">Vorschläge laden</button><button type="button" class="ghost sm" data-uncheck="pack" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" data-clear="pack" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="packCount"></span></div>
     <div class="table-box">
       <table>
         <colgroup><col class="cc"><col><col class="cq"><col class="cx"></colgroup>
-        <thead><tr><th scope="col">✓</th><th scope="col">Was</th><th scope="col">Anzahl</th><th scope="col"><span hidden>Löschen</span></th></tr></thead>
+        <thead><tr><th scope="col">✓</th><th scope="col" data-i18n="colItem">Was</th><th scope="col" data-i18n="colQty">Anzahl</th><th scope="col"><span hidden data-i18n="clear">Löschen</span></th></tr></thead>
         <tbody id="packBody"></tbody>
       </table>
     </div>
     <form class="add" id="itemForm">
-      <select id="itemCat" aria-label="Kategorie"></select>
-      <input type="text" id="itemInput" placeholder="Gegenstand" aria-label="Neuer Gegenstand">
-      <input type="text" id="itemQty" class="qty" placeholder="Anz." aria-label="Anzahl">
-      <button type="submit">Hinzufügen</button>
+      <select id="itemCat" data-i18n-attr="aria-label:category" aria-label="Kategorie"></select>
+      <input type="text" id="itemInput" data-i18n-attr="placeholder:itemPh;aria-label:itemNew" placeholder="Gegenstand" aria-label="Neuer Gegenstand">
+      <input type="text" id="itemQty" class="qty" data-i18n-attr="placeholder:qtyPh;aria-label:qty" placeholder="Anz." aria-label="Anzahl">
+      <button type="submit" data-i18n="add">Hinzufügen</button>
     </form>
     <form class="add" id="catForm">
-      <input type="text" id="catInput" placeholder="Neue Kategorie" aria-label="Neue Kategorie">
-      <button type="submit">Kategorie anlegen</button>
+      <input type="text" id="catInput" data-i18n-attr="placeholder:catPh;aria-label:catPh" placeholder="Neue Kategorie" aria-label="Neue Kategorie">
+      <button type="submit" data-i18n="catBtn">Kategorie anlegen</button>
     </form>
   </section>
 
 </div>
 
-<div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button type="button" id="undoBtn">Rückgängig</button></div>
+<div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button type="button" id="undoBtn" data-i18n="undo">Rückgängig</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script>
 // Unveränderter Quelltext der Seite (vor dem ersten Rendern) – für "Herunterladen"
 const PAGE_SRC = "<!doctype html>\n" + document.documentElement.outerHTML;
 const KEY = "packliste-v2";
+// Sprachen: Texte stehen in I18N, T("schlüssel", {platzhalter}) liefert den Text der aktiven Sprache.
+// Standard = Browsersprache (Deutsch, sonst Englisch); die Wahl wird pro Gerät in localStorage gemerkt.
+const LANG_KEY = "trip-planner-lang";
+let langStored = null;
+try { langStored = localStorage.getItem(LANG_KEY); } catch(e){}
+let lang = langStored === "de" || langStored === "en" ? langStored : ((navigator.language || "").toLowerCase().startsWith("de") ? "de" : "en");
+const li = () => lang === "en" ? 1 : 0; // Index in zweisprachigen Listen [de, en]
+const I18N = {
+  de: {
+    title: "Reiseplaner", subtitle: "Reise, Einkauf, To-dos und Koffer an einem Ort", lang: "Sprache",
+    dl: "Reiseplaner herunterladen", dlTitle: "Reiseplaner als Datei herunterladen", progress: "Fortschritt gesamt",
+    tripInfo: "Reise-Infos", export: "Exportieren", import: "Importieren", clearAll: "Inhalt leeren", clearSure: "Wirklich leeren?",
+    close: "Schließen", copy: "Kopieren", apply: "Übernehmen", codeLabel: "Reise-Infos Code",
+    grpTrip: "Reise & Unterkunft", destination: "Reisezielort", lodging: "Unterkunft", address: "Zieladresse",
+    checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in Datum", checkinTime: "Check-in Uhrzeit",
+    checkoutDate: "Check-out Datum", checkoutTime: "Check-out Uhrzeit", notes: "Notizen", weather: "Wetter",
+    outbound: "Hinfahrt", ret: "Rückfahrt", date: "Datum", uncheck: "Haken entfernen", unchecked: "Haken entfernt ✓",
+    addMeet: "Treffpunkt hinzufügen", addLeg: "Etappe hinzufügen", fromOut: "Aus Hinfahrt übernehmen", replaceRet: "Rückfahrt ersetzen?",
+    shopping: "Einkaufsliste", shopPh: "Was muss gekauft werden?", shopNew: "Neuer Einkauf", add: "Hinzufügen", shopDone: "Einkauf abgeschlossen",
+    todos: "To-dos", todoPh: "Eigenes To-do hinzufügen", todoNew: "Neues To-do", shopStart: "Einkaufen",
+    pack: "Packliste", suggest: "Vorschläge laden", colItem: "Was", colQty: "Anzahl", clear: "Löschen",
+    category: "Kategorie", itemPh: "Gegenstand", itemNew: "Neuer Gegenstand", qtyPh: "Anz.", qty: "Anzahl",
+    catPh: "Neue Kategorie", catBtn: "Kategorie anlegen", undo: "Rückgängig",
+    move: "Verschieben (Alt + Pfeiltasten)", dragTitle: "Ziehen zum Sortieren", done: "Erledigt",
+    editTodo: "To-do bearbeiten", removeTodo: "To-do entfernen", todoEmpty: "Noch keine To-dos. Füg unten dein erstes hinzu.",
+    bought: "Gekauft", editShop: "Einkauf bearbeiten", removeShop: "Einkauf entfernen", shopEmpty: "Noch nichts auf der Liste.",
+    shopCount: "{d} / {n} gekauft", todoCount: "{d} / {n} erledigt", packCount: "{d} / {n} gepackt",
+    renameCat: "Kategorie umbenennen", delCat: "Kategorie mit Inhalt löschen", delCatTitle: "Kategorie löschen",
+    clickAgain: "Nochmal klicken zum Löschen", stillEmpty: "Noch leer", packedAria: "{x} gepackt",
+    editItem: "Gegenstand bearbeiten", editQty: "Anzahl bearbeiten", removeItem: "Gegenstand entfernen",
+    packEmpty: "Leg unten eine Kategorie an, um loszulegen.", catFallback: "Kategorie",
+    hr: "Std", min: "Min", hourLbl: "Stunde", minLbl: "Minute", finish: "Fertig", time: "Uhrzeit",
+    meet: "Treffpunkt", meetPlace: "Treffpunkt Ort", meetTime: "Treffpunkt Uhrzeit", mapLbl: "Karte", routeLbl: "Route",
+    appleMaps: "Apple Karten", removeMeet: "Treffpunkt entfernen", meetReached: "Treffpunkt erreicht",
+    start: "Start", mode: "Fortbewegung", duration: "Dauer", legDest: "Ziel", arrival: "Ankunft",
+    legMove: "Etappe {n} verschieben (Alt + Pfeiltasten)", legStart: "Etappe {n} Start", legTime: "Etappe {n} Uhrzeit",
+    legDur: "Etappe {n} Dauer, Stunden und Minuten, z. B. 4:05", durTitle: "z. B. 4:05 = 4 Std 5 Min, auch 90m oder 1,5 möglich",
+    unitLbl: "Std:Min", legTo: "Etappe {n} Ziel", removeLeg: "Etappe {n} entfernen", removeLegTitle: "Etappe entfernen", legDone: "Etappe {n} erledigt",
+    fillMeetTitle: "Treffpunkt als Start übernehmen", fillDest: "Reiseziel", fillDestStart: "Zieladresse als Start übernehmen",
+    fillPrev: "Vorheriges Ziel", fillPrevTitle: "Ziel der vorherigen Etappe als Start übernehmen", fillDestEnd: "Zieladresse als Ziel übernehmen",
+    legsEmptyOut: "Noch keine Etappe. Z. B. von zu Hause zum Bahnhof.", legsEmptyRet: "Noch keine Etappe. Z. B. von der Unterkunft zum Bahnhof.",
+    approx: "ca.", daySg: "Tag", dayPl: "Tage", enterTimeDur: "Uhrzeit und Dauer eintragen",
+    totalApprox: "Gesamt ca. {x}", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
+    cdDays: "Noch {n} Tage", cdTomorrow: "Morgen geht's los", cdToday: "Heute geht's los", cdBon: "Gute Reise!", nightSg: "Nacht", nightPl: "Nächte",
+    exportTitle: "Reise-Infos exportieren",
+    exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
+    importTitle: "Reise-Infos importieren",
+    importHint: "Füge hier den Code ein, den du bekommen hast. Deine aktuellen Reise-Infos werden dabei ersetzt.",
+    copied: "In die Zwischenablage kopiert ✓",
+    copyBlocked: "Kopieren wurde vom Browser blockiert – der Code ist markiert, bitte selbst kopieren (Strg/Cmd + C oder lange tippen).",
+    invalidCode: "Der Code ist ungültig oder unvollständig. Bitte komplett kopieren und erneut einfügen.", replaceInfo: "Reise-Infos ersetzen?",
+    uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
+    uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
+    dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
+    dlFile: "Reiseplaner.html", dlSaved: "Gespeichert ✓", dlFail: "Nicht möglich",
+    suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", shopOpenConfirm: "Noch {n} offen – trotzdem abschließen?",
+    syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
+  },
+  en: {
+    title: "Trip Planner", subtitle: "Trip, shopping, to-dos and luggage in one place", lang: "Language",
+    dl: "Download trip planner", dlTitle: "Save trip planner as a file", progress: "Overall progress",
+    tripInfo: "Trip info", export: "Export", import: "Import", clearAll: "Clear all", clearSure: "Really clear?",
+    close: "Close", copy: "Copy", apply: "Apply", codeLabel: "Trip info code",
+    grpTrip: "Trip & accommodation", destination: "Destination", lodging: "Accommodation", address: "Address",
+    checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in date", checkinTime: "Check-in time",
+    checkoutDate: "Check-out date", checkoutTime: "Check-out time", notes: "Notes", weather: "Weather",
+    outbound: "Outbound trip", ret: "Return trip", date: "Date", uncheck: "Uncheck all", unchecked: "Unchecked ✓",
+    addMeet: "Add meeting point", addLeg: "Add leg", fromOut: "Copy from outbound", replaceRet: "Replace return trip?",
+    shopping: "Shopping list", shopPh: "What needs to be bought?", shopNew: "New shopping item", add: "Add", shopDone: "Shopping done",
+    todos: "To-dos", todoPh: "Add your own to-do", todoNew: "New to-do", shopStart: "Shopping",
+    pack: "Packing list", suggest: "Load suggestions", colItem: "Item", colQty: "Qty", clear: "Clear",
+    category: "Category", itemPh: "Item", itemNew: "New item", qtyPh: "Qty", qty: "Quantity",
+    catPh: "New category", catBtn: "Add category", undo: "Undo",
+    move: "Move (Alt + arrow keys)", dragTitle: "Drag to reorder", done: "Done",
+    editTodo: "Edit to-do", removeTodo: "Remove to-do", todoEmpty: "No to-dos yet. Add your first one below.",
+    bought: "Bought", editShop: "Edit shopping item", removeShop: "Remove shopping item", shopEmpty: "Nothing on the list yet.",
+    shopCount: "{d} / {n} bought", todoCount: "{d} / {n} done", packCount: "{d} / {n} packed",
+    renameCat: "Rename category", delCat: "Delete category and its items", delCatTitle: "Delete category",
+    clickAgain: "Click again to delete", stillEmpty: "Still empty", packedAria: "{x} packed",
+    editItem: "Edit item", editQty: "Edit quantity", removeItem: "Remove item",
+    packEmpty: "Add a category below to get started.", catFallback: "Category",
+    hr: "Hr", min: "Min", hourLbl: "Hour", minLbl: "Minute", finish: "Done", time: "Time",
+    meet: "Meeting point", meetPlace: "Meeting point location", meetTime: "Meeting point time", mapLbl: "Map", routeLbl: "Route",
+    appleMaps: "Apple Maps", removeMeet: "Remove meeting point", meetReached: "Meeting point reached",
+    start: "Start", mode: "Transport", duration: "Duration", legDest: "Destination", arrival: "Arrival",
+    legMove: "Move leg {n} (Alt + arrow keys)", legStart: "Leg {n} start", legTime: "Leg {n} time",
+    legDur: "Leg {n} duration, hours and minutes, e.g. 4:05", durTitle: "e.g. 4:05 = 4 h 5 min; 90m or 1.5 also work",
+    unitLbl: "H:MM", legTo: "Leg {n} destination", removeLeg: "Remove leg {n}", removeLegTitle: "Remove leg", legDone: "Leg {n} done",
+    fillMeetTitle: "Use meeting point as start", fillDest: "Destination", fillDestStart: "Use address as start",
+    fillPrev: "Previous destination", fillPrevTitle: "Use previous leg's destination as start", fillDestEnd: "Use address as destination",
+    legsEmptyOut: "No legs yet. E.g. from home to the station.", legsEmptyRet: "No legs yet. E.g. from the accommodation to the station.",
+    approx: "approx.", daySg: "day", dayPl: "days", enterTimeDur: "Enter time and duration",
+    totalApprox: "Total approx. {x}", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
+    cdDays: "{n} days to go", cdTomorrow: "Off tomorrow", cdToday: "Off today", cdBon: "Have a great trip!", nightSg: "night", nightPl: "nights",
+    exportTitle: "Export trip info",
+    exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off legs are not included.",
+    importTitle: "Import trip info",
+    importHint: "Paste the code you received here. Your current trip info will be replaced.",
+    copied: "Copied to clipboard ✓",
+    copyBlocked: "Copying was blocked by the browser – the code is selected, please copy it yourself (Ctrl/Cmd + C or long-press).",
+    invalidCode: "The code is invalid or incomplete. Please copy it in full and paste it again.", replaceInfo: "Replace trip info?",
+    uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
+    uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
+    dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
+    dlFile: "Trip-Planner.html", dlSaved: "Saved ✓", dlFail: "Not possible",
+    suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", shopOpenConfirm: "{n} still open – finish anyway?",
+    syncSaving: "Saving …", syncSaved: "Saved ✓", syncFail: "Saving failed – retrying …", syncLocal: "Saved on this device"
+  }
+};
+const T = (k, v) => {
+  let s = I18N[lang][k] ?? I18N.de[k] ?? k;
+  if (v) for (const x in v) s = s.split("{" + x + "}").join(v[x]);
+  return s;
+};
+const plusDays = d => d ? ` (+${d} ${T(d > 1 ? "dayPl" : "daySg")})` : "";
+// Packlisten-Vorschläge zweisprachig: [Kategorie [de, en], [[Gegenstand [de, en]], …]]; die Kategorien sind zugleich die Standard-Kategorien
+const SUGGEST = [
+  [["Kleidung", "Clothing"], [[["Unterhosen", "Underwear"]], [["Socken", "Socks"]], [["T-Shirts / Oberteile", "T-shirts / tops"]], [["Pullover / Hoodie", "Sweater / hoodie"]], [["Hosen", "Trousers"]], [["Schlafsachen", "Sleepwear"]], [["Jacke (wetterfest)", "Jacket (weatherproof)"]], [["Bequeme Schuhe", "Comfortable shoes"]]]],
+  [["Hygiene & Bad", "Toiletries"], [[["Zahnbürste & Zahnpasta", "Toothbrush & toothpaste"]], [["Duschgel / Shampoo", "Shower gel / shampoo"]], [["Deo", "Deodorant"]], [["Haarbürste / Kamm", "Hairbrush / comb"]], [["Rasierer", "Razor"]], [["Handtuch", "Towel"]]]],
+  [["Gesundheit", "Health"], [[["Eigene Medikamente", "Own medication"]], [["Schmerztabletten", "Painkillers"]], [["Pflaster", "Plasters"]]]],
+  [["Technik", "Tech"], [[["Handy + Ladekabel", "Phone + charging cable"]], [["Powerbank", "Power bank"]], [["Kopfhörer", "Headphones"]]]],
+  [["Dokumente & Geld", "Documents & money"], [[["Personalausweis", "ID card / passport"]], [["Bankkarte & etwas Bargeld", "Bank card & some cash"]], [["Krankenkassenkarte", "Health insurance card"]], [["Buchungsbestätigung", "Booking confirmation"]], [["Führerschein", "Driver's licence"]]]],
+  [["Lebensmittel", "Food"], [[["Snacks für die Fahrt", "Snacks for the trip"]], [["Wasserflasche / Getränke", "Water bottle / drinks"]], [["Obst", "Fruit"]], [["Brotdose / Proviant", "Lunch box / packed meal"]], [["Kaffee / Tee", "Coffee / tea"]], [["Frühstücksvorrat", "Breakfast supplies"]]]],
+  [["Sonstiges", "Misc"], [[["Tagesrucksack", "Daypack"]], [["Beutel für Schmutzwäsche", "Bag for dirty laundry"]], [["Regenschirm", "Umbrella"]]]]
+];
+// Fortbewegungsmittel für die Vorschlagsliste im Feld "Fortbewegung" [de, en]
+const MODES = [["Auto", "Car"], ["Bahn", "Train"], ["Bus", "Bus"], ["Flugzeug", "Plane"], ["Fähre", "Ferry"], ["Taxi", "Taxi"], ["Mitfahrgelegenheit", "Carpool"], ["Fahrrad", "Bike"], ["Zu Fuß", "On foot"]];
+// Beim Sprachwechsel werden Standard-Kategorien, Vorschlags-Gegenstände und Fortbewegungsmittel mit übersetzt; selbst Eingetipptes bleibt
+function translateDefaults(to){
+  const f = to === "en" ? 0 : 1, g = 1 - f, norm = s => (s || "").trim().toLowerCase();
+  const pick = x => { for (const [, its] of SUGGEST) { const h = its.find(([n]) => norm(n[f]) === norm(x.t)); if (h) return h[0][g]; } };
+  state.cats.forEach(c => {
+    const m = SUGGEST.find(([n]) => norm(n[f]) === norm(c.name));
+    if (m && !state.cats.some(o => norm(o.name) === norm(m[0][g]))) c.name = m[0][g];
+    c.items.forEach(x => { const n = pick(x); if (n) x.t = n; });
+  });
+  const info = state.info || {};
+  ["legs", "rlegs"].forEach(k => (info[k] || []).forEach(l => { const m = MODES.find(x => norm(x[f]) === norm(l.mode)); if (m) l.mode = m[g]; }));
+}
+// Feste Texte der Seite: data-i18n = Textinhalt, data-i18n-attr = "attribut:schlüssel;…"
+function applyStatic(){
+  document.documentElement.lang = lang; document.title = T("title");
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-attr]").forEach(el => el.dataset.i18nAttr.split(";").forEach(p => { const [a, k] = p.split(":"); el.setAttribute(a, T(k)); }));
+  document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang ? "true" : "false"));
+  const modes = document.getElementById("modes"); if (modes) modes.innerHTML = MODES.map(m => `<option value="${m[li()]}">`).join("");
+}
 const defaults = {
   info: {},
   todos: [],
-  cats: ["Kleidung","Hygiene & Bad","Gesundheit","Technik","Dokumente & Geld","Lebensmittel","Sonstiges"].map(name => ({name, items: []}))
+  cats: SUGGEST.map(([n]) => ({name: n[li()], items: []}))
 };
 
 let state;
@@ -366,11 +519,12 @@ if (!state || !state.todos || !state.cats) state = structuredClone(defaults);
 // Speichern: sofort lokal, dazu automatisch in der Artifact-Datenbank (geräteübergreifend)
 let synced = null; // zuletzt bekannter Stand in der Datenbank (für Teil-Updates)
 let dbRef = null, writing = false, dirty = false, timer = null, needsRender = false;
-const setSync = t => { const el = document.getElementById("sync"); if (el) el.textContent = t; };
+let syncKey = "";
+const setSync = k => { syncKey = k; const el = document.getElementById("sync"); if (el) el.textContent = k ? T(k) : ""; };
 const save = () => {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
   if (!dbRef) return;
-  dirty = true; setSync("Speichert …");
+  dirty = true; setSync("syncSaving");
   clearTimeout(timer); timer = setTimeout(flush, 500);
 };
 function diffPatch(a, b, top){
@@ -391,11 +545,11 @@ async function flush(){
     const body = JSON.parse(JSON.stringify(state));
     if (synced) { const patch = diffPatch(synced, body, true); if (Object.keys(patch).length) await dbRef.update(patch); }
     else await dbRef.set(body);
-    synced = body; setSync(dirty ? "Speichert …" : "Gespeichert ✓"); }
+    synced = body; setSync(dirty ? "syncSaving" : "syncSaved"); }
   catch(e){
     if (e && ["invalid_argument","not_granted","revoked","capability_disabled","capability_removed"].includes(e.code)) {
-      dbRef = null; dirty = false; setSync("Auf diesem Gerät gespeichert");
-    } else { dirty = true; setSync("Speichern fehlgeschlagen – neuer Versuch …"); clearTimeout(timer); timer = setTimeout(flush, 4000); }
+      dbRef = null; dirty = false; setSync("syncLocal");
+    } else { dirty = true; setSync("syncFail"); clearTimeout(timer); timer = setTimeout(flush, 4000); }
   }
   finally { writing = false; if (dirty) { clearTimeout(timer); timer = setTimeout(flush, 500); } }
 }
@@ -407,11 +561,11 @@ function render(){
   // To-dos
   $("todoList").innerHTML = state.todos.map((x,i) => `
     <li class="${x.d?'is-done':''}" data-i="${i}">
-      <button class="handle" type="button" data-handle="${i}" aria-label="Verschieben (Alt + Pfeiltasten)" title="Ziehen zum Sortieren">⋮⋮</button>
-      <input type="checkbox" id="todo-${i}" data-todo="${i}" ${x.d?'checked':''} aria-label="Erledigt">
-      <input class="txt edit" type="text" id="etodo-${i}" data-etodo="${i}" value="${esc(x.t)}" aria-label="To-do bearbeiten">
-      <button class="del" type="button" data-deltodo="${i}" aria-label="To-do entfernen">×</button>
-    </li>`).join("") || `<li class="empty">Noch keine To-dos. Füg unten dein erstes hinzu.</li>`;
+      <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
+      <input type="checkbox" id="todo-${i}" data-todo="${i}" ${x.d?'checked':''} aria-label="${T("done")}">
+      <input class="txt edit" type="text" id="etodo-${i}" data-etodo="${i}" value="${esc(x.t)}" aria-label="${T("editTodo")}">
+      <button class="del" type="button" data-deltodo="${i}" aria-label="${T("removeTodo")}">×</button>
+    </li>`).join("") || `<li class="empty">${T("todoEmpty")}</li>`;
   // Einkaufsliste
   const shop = Array.isArray(state.shop) ? state.shop : null;
   $("shopSec").hidden = !shop; $("shopStart").hidden = !!shop;
@@ -419,15 +573,15 @@ function render(){
   if (shop) {
     $("shopList").innerHTML = shop.map((x,i) => `
       <li class="${x.d?'is-done':''}">
-        <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="Gekauft">
-        <input class="txt edit" type="text" id="eshop-${i}" data-eshop="${i}" value="${esc(x.t)}" aria-label="Einkauf bearbeiten">
-        <button class="del" type="button" data-delshop="${i}" aria-label="Einkauf entfernen">×</button>
-      </li>`).join("") || `<li class="empty">Noch nichts auf der Liste.</li>`;
+        <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="${T("bought")}">
+        <input class="txt edit" type="text" id="eshop-${i}" data-eshop="${i}" value="${esc(x.t)}" aria-label="${T("editShop")}">
+        <button class="del" type="button" data-delshop="${i}" aria-label="${T("removeShop")}">×</button>
+      </li>`).join("") || `<li class="empty">${T("shopEmpty")}</li>`;
     sd = shop.filter(x=>x.d).length; st = shop.length;
-    $("shopCount").textContent = `${sd} / ${st} gekauft`;
+    $("shopCount").textContent = T("shopCount", {d: sd, n: st});
   }
   const td = state.todos.filter(x=>x.d).length;
-  $("todoCount").textContent = `${td} / ${state.todos.length} erledigt`;
+  $("todoCount").textContent = T("todoCount", {d: td, n: state.todos.length});
 
   // Packliste
   let rows = "", pd = 0, pt = 0;
@@ -435,22 +589,22 @@ function render(){
     const done = c.items.filter(x=>x.d).length;
     pd += done; pt += c.items.length;
     rows += `<tr class="cat" data-cat="${ci}"><th colspan="4" scope="colgroup"><div class="cat-row">
-      <input class="edit" type="text" id="ecat-${ci}" data-ecat="${ci}" value="${esc(c.name)}" aria-label="Kategorie umbenennen">
+      <input class="edit" type="text" id="ecat-${ci}" data-ecat="${ci}" value="${esc(c.name)}" aria-label="${T("renameCat")}">
       <span class="count">${done}/${c.items.length}</span>
-      <button class="del" type="button" data-delcat="${ci}" aria-label="Kategorie mit Inhalt löschen" title="Kategorie löschen">×</button></div></th></tr>`;
-    if (!c.items.length) rows += `<tr class="ph"><td></td><td colspan="3" class="empty">Noch leer</td></tr>`;
+      <button class="del" type="button" data-delcat="${ci}" aria-label="${T("delCat")}" title="${T("delCatTitle")}">×</button></div></th></tr>`;
+    if (!c.items.length) rows += `<tr class="ph"><td></td><td colspan="3" class="empty">${T("stillEmpty")}</td></tr>`;
     c.items.forEach((x,ii) => {
       rows += `<tr class="${x.d?'is-done':''}" data-ci="${ci}" data-ii="${ii}">
-        <td class="c"><div class="cell"><button class="handle" type="button" data-ihandle="${ci}-${ii}" aria-label="Verschieben (Alt + Pfeiltasten)" title="Ziehen zum Sortieren">⋮⋮</button><input type="checkbox" id="item-${ci}-${ii}" data-item="${ci}-${ii}" ${x.d?'checked':''} aria-label="${esc(x.t)} gepackt"></div></td>
-        <td><input class="txt edit" type="text" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" value="${esc(x.t)}" aria-label="Gegenstand bearbeiten"></td>
-        <td class="q"><input class="edit" type="text" size="4" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="Anzahl bearbeiten"></td>
-        <td class="x"><button class="del" type="button" data-delitem="${ci}-${ii}" aria-label="Gegenstand entfernen">×</button></td>
+        <td class="c"><div class="cell"><button class="handle" type="button" data-ihandle="${ci}-${ii}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button><input type="checkbox" id="item-${ci}-${ii}" data-item="${ci}-${ii}" ${x.d?'checked':''} aria-label="${esc(T("packedAria", {x: x.t}))}"></div></td>
+        <td><input class="txt edit" type="text" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" value="${esc(x.t)}" aria-label="${T("editItem")}"></td>
+        <td class="q"><input class="edit" type="text" size="4" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
+        <td class="x"><button class="del" type="button" data-delitem="${ci}-${ii}" aria-label="${T("removeItem")}">×</button></td>
       </tr>`;
     });
   });
-  $("packBody").innerHTML = rows || `<tr class="ph"><td colspan="4" class="empty">Leg unten eine Kategorie an, um loszulegen.</td></tr>`;
+  $("packBody").innerHTML = rows || `<tr class="ph"><td colspan="4" class="empty">${T("packEmpty")}</td></tr>`;
   $("itemForm").hidden = !state.cats.length;
-  $("packCount").textContent = `${pd} / ${pt} gepackt`;
+  $("packCount").textContent = T("packCount", {d: pd, n: pt});
   $("itemCat").innerHTML = state.cats.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join("");
 
   const all = state.todos.length + pt + st, allDone = td + pd + sd;
@@ -458,6 +612,7 @@ function render(){
   const info = state.info || {};
   document.querySelectorAll("[data-info]").forEach(el => { if (document.activeElement !== el) el.value = info[el.dataset.info] || ""; });
   renderTrips();
+  applyStatic();
   document.querySelectorAll(".tpick").forEach(syncPick);
   updateCountdown();
   updateButtons();
@@ -489,14 +644,14 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("focusout", e => {
   const t = e.target;
-  if (t.dataset && t.dataset.ecat !== undefined && !t.value.trim()) { state.cats[t.dataset.ecat].name = "Kategorie"; t.value = "Kategorie"; save(); }
+  if (t.dataset && t.dataset.ecat !== undefined && !t.value.trim()) { state.cats[t.dataset.ecat].name = T("catFallback"); t.value = T("catFallback"); save(); }
 });
 // Knöpfe, die gerade nichts bewirken würden, sind deaktiviert
 function updateButtons(){
   const set = (sel, off) => {
     const b = document.querySelector(sel); if (!b) return;
     b.disabled = off;
-    if (off && b.dataset.armed === "1") { b.dataset.armed = "0"; if (b.dataset.clear) b.textContent = "Inhalt leeren"; }
+    if (off && b.dataset.armed === "1") { b.dataset.armed = "0"; if (b.dataset.clear) b.textContent = T("clearAll"); }
   };
   const items = state.cats.flatMap(c => c.items), shop = state.shop || [], info = state.info || {};
   const norm = s => s.trim().toLowerCase();
@@ -511,7 +666,7 @@ function updateButtons(){
   set('[data-clear="todos"]', !state.todos.length);
   set('[data-clear="shop"]', !shop.length);
   set('[data-clear="pack"]', !items.length);
-  set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t)))));
+  set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Übernehmen-Knöpfe in den Etappen nur zeigen, wenn es etwas zu übernehmen gibt
   document.querySelectorAll("[data-fill]").forEach(b => {
     b.hidden = !fillValue(b).trim();
@@ -519,7 +674,7 @@ function updateButtons(){
   set("#fromHin", !tripLegs("hin").length);
   const zo = (info.ziel || "").trim();
   $("wx").hidden = !zo;
-  if (zo) $("wxLink").href = `https://www.wetter.com/suche/?q=${encodeURIComponent(zo)}`;
+  if (zo) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(zo)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(zo)}`;
   [["todoForm","todoInput"],["shopForm","shopInput"],["itemForm","itemInput"],["catForm","catInput"]].forEach(([f, i]) => {
     $(f).querySelector("button[type=submit]").disabled = !$(i).value.trim();
   });
@@ -531,20 +686,20 @@ document.addEventListener("input", e => {
 // Uhrzeit-Auswahl: ein Feld, das zwei Listen öffnet – Stunden 00–23 und Minuten 00–55 (5er-Schritte),
 // jede Spalte für sich scrollbar und begrenzt
 const pad = n => String(n).padStart(2, "0");
-function pickInner(id, label){
-  const col = (part, lab, vals) => `<div class="tcol" role="listbox" aria-label="${lab}" data-part="${part}"><div class="tcol-head" aria-hidden="true">${part === "h" ? "Std" : "Min"}</div>${vals.map(v => `<button type="button" class="opt" role="option" data-v="${v}" aria-selected="false">${v}</button>`).join("")}</div>`;
+function pickInner(id, label, key){
+  const col = (part, lab, vals) => `<div class="tcol" role="listbox" aria-label="${T(lab)}" data-i18n-attr="aria-label:${lab}" data-part="${part}"><div class="tcol-head" aria-hidden="true" data-i18n="${part === "h" ? "hr" : "min"}">${T(part === "h" ? "hr" : "min")}</div>${vals.map(v => `<button type="button" class="opt" role="option" data-v="${v}" aria-selected="false">${v}</button>`).join("")}</div>`;
   const H = Array.from({length: 24}, (_, i) => pad(i)), M = Array.from({length: 12}, (_, i) => pad(i * 5));
-  return `<button type="button" class="fld tbtn is-empty" id="${id}" aria-haspopup="listbox" aria-expanded="false" aria-label="${label}">--:--</button>
+  return `<button type="button" class="fld tbtn is-empty" id="${id}" aria-haspopup="listbox" aria-expanded="false" aria-label="${label}"${key ? ` data-i18n-attr="aria-label:${key}"` : ""}>--:--</button>
       <div class="tpop" hidden>
-        <div class="tcols">${col("h", "Stunde", H)}${col("m", "Minute", M)}</div>
-        <div class="tfoot"><button type="button" class="ghost sm" data-tclear>Löschen</button><button type="button" class="tdone">Fertig</button></div>
+        <div class="tcols">${col("h", "hourLbl", H)}${col("m", "minLbl", M)}</div>
+        <div class="tfoot"><button type="button" class="ghost sm" data-tclear data-i18n="clear">${T("clear")}</button><button type="button" class="tdone" data-i18n="finish">${T("finish")}</button></div>
       </div>`;
 }
 function buildTimePickers(){
   document.querySelectorAll('input[type=time][data-info]').forEach(inp => {
     const p = document.createElement("div");
     p.className = "tpick"; p.dataset.time = inp.dataset.info;
-    p.innerHTML = pickInner(inp.id, inp.getAttribute("aria-label") || "Uhrzeit");
+    p.innerHTML = pickInner(inp.id, inp.getAttribute("aria-label") || T("time"), (inp.dataset.i18nAttr || "").split(":")[1]);
     inp.replaceWith(p);
   });
 }
@@ -572,24 +727,26 @@ function migrate(s){
   ["tort", "tdat", "tzeit", "mit", "zeit", "rzeit"].forEach(k => delete i[k]);
   // Einmalig: Kategorie "Lebensmittel" vor "Sonstiges" ergänzen
   if (!s.v2cats) {
-    if (Array.isArray(s.cats) && !s.cats.some(c => (c.name || "").trim().toLowerCase() === "lebensmittel")) {
-      const at = s.cats.findIndex(c => (c.name || "").trim().toLowerCase() === "sonstiges");
-      s.cats.splice(at < 0 ? s.cats.length : at, 0, {name: "Lebensmittel", items: []});
+    if (Array.isArray(s.cats) && !s.cats.some(c => ["lebensmittel", "food"].includes((c.name || "").trim().toLowerCase()))) {
+      const at = s.cats.findIndex(c => ["sonstiges", "misc"].includes((c.name || "").trim().toLowerCase()));
+      s.cats.splice(at < 0 ? s.cats.length : at, 0, {name: SUGGEST[5][0][li()], items: []});
     }
     s.v2cats = true;
   }
   if (s.infoCollapsed !== undefined) { s.collapsed = s.collapsed || {}; s.collapsed.info = s.infoCollapsed; delete s.infoCollapsed; }
 }
 migrate(state);
+// Erster Start ohne gewählte Sprache: vorhandene Standardnamen in die Browsersprache übersetzen
+if (!langStored) translateDefaults(lang);
 
 // Links zu Google Maps / Apple Karten: Standort beim Treffpunkt, Route bei Etappen
-const MAPS = what => `<span class="maps" data-maps hidden><span class="sr">${what}:</span><a target="_blank" rel="noopener" data-map="g">Google Maps</a><a target="_blank" rel="noopener" data-map="a">Apple Karten</a></span>`;
+const MAPS = what => `<span class="maps" data-maps hidden><span class="sr">${what}:</span><a target="_blank" rel="noopener" data-map="g">Google Maps</a><a target="_blank" rel="noopener" data-map="a">${T("appleMaps")}</a></span>`;
 function travelMode(mode){
   const m = (mode || "").toLowerCase();
-  if (/auto|taxi|mitfahr|pkw|wagen/.test(m)) return ["driving", "d"];
-  if (/bahn|zug|bus|fähre|tram|s-bahn|u-bahn|öpnv/.test(m)) return ["transit", "r"];
-  if (/fuß|fuss|laufen|gehen/.test(m)) return ["walking", "w"];
-  if (/rad|bike/.test(m)) return ["bicycling", ""];
+  if (/auto|taxi|mitfahr|pkw|wagen|car|drive|driving|cab/.test(m)) return ["driving", "d"];
+  if (/bahn|zug|bus|fähre|tram|s-bahn|u-bahn|öpnv|train|ferry|subway|metro|transit|rail|tube/.test(m)) return ["transit", "r"];
+  if (/fuß|fuss|laufen|gehen|foot|walk|hike/.test(m)) return ["walking", "w"];
+  if (/rad|bike|cycl/.test(m)) return ["bicycling", ""];
   return ["", ""];
 }
 function updateMaps(){
@@ -617,27 +774,27 @@ function renderTrips(){
     <div class="leg meet" data-trip="${t}">
       <span class="leg-no" aria-hidden="true">◉</span>
       <div class="leg-grid">
-        <div class="f c-from"><div class="lbl-row"><span>Treffpunkt</span>${MAPS("Karte")}</div><input class="fld" type="text" id="meet-${t}-ort" data-meetf="ort" value="${esc(meet.ort || "")}" aria-label="Treffpunkt Ort"></div>
-        <label class="f"><span>Datum</span><input class="fld" type="date" id="meet-${t}-date" data-meetf="date" value="${esc(meet.date || "")}"></label>
-        <div class="f"><span>Uhrzeit</span><div class="tpick" data-meet="${t}">${pickInner(`meet-${t}-time`, "Treffpunkt Uhrzeit")}</div></div>
+        <div class="f c-from"><div class="lbl-row"><span>${T("meet")}</span>${MAPS(T("mapLbl"))}</div><input class="fld" type="text" id="meet-${t}-ort" data-meetf="ort" value="${esc(meet.ort || "")}" aria-label="${T("meetPlace")}"></div>
+        <label class="f"><span>${T("date")}</span><input class="fld" type="date" id="meet-${t}-date" data-meetf="date" value="${esc(meet.date || "")}"></label>
+        <div class="f"><span>${T("time")}</span><div class="tpick" data-meet="${t}">${pickInner(`meet-${t}-time`, T("meetTime"))}</div></div>
       </div>
-      <div class="leg-side"><button class="del" type="button" data-delmeet="${t}" aria-label="Treffpunkt entfernen" title="Treffpunkt entfernen">×</button><input type="checkbox" class="leg-chk" id="meet-${t}-done" data-legdone ${meet.d ? "checked" : ""} aria-label="Treffpunkt erreicht" title="Erledigt"></div>
+      <div class="leg-side"><button class="del" type="button" data-delmeet="${t}" aria-label="${T("removeMeet")}" title="${T("removeMeet")}">×</button><input type="checkbox" class="leg-chk" id="meet-${t}-done" data-legdone ${meet.d ? "checked" : ""} aria-label="${T("meetReached")}" title="${T("done")}"></div>
     </div>`;
     html += legs.map((l, i) => `
     <div class="leg" data-trip="${t}" data-leg="${i}">
-      <button type="button" class="leg-no leg-handle" data-lhandle aria-label="Etappe ${i + 1} verschieben (Alt + Pfeiltasten)" title="Ziehen zum Sortieren">${i + 1}</button>
+      <button type="button" class="leg-no leg-handle" data-lhandle aria-label="${T("legMove", {n: i + 1})}" title="${T("dragTitle")}">${i + 1}</button>
       <div class="leg-grid">
-        <div class="f c-from"><div class="lbl-row"><span>Start</span>${MAPS("Route")}</div><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="Etappe ${i + 1} Start">${i === 0 ? `<button type="button" class="unit" data-fill="meet" data-field="from" hidden title="Treffpunkt als Start übernehmen">Treffpunkt</button>${t === "rueck" ? `<button type="button" class="unit" data-fill="dest" data-field="from" hidden title="Zieladresse als Start übernehmen">Reiseziel</button>` : ""}` : `<button type="button" class="unit" data-fill="prev" data-field="from" hidden title="Ziel der vorherigen Etappe als Start übernehmen">Vorheriges Ziel</button>`}</div></div>
-        <label class="f"><span>Fortbewegung</span><input class="fld" type="text" id="leg-${t}-${i}-mode" data-legf="mode" list="modes" value="${esc(l.mode || "")}"></label>
-        <div class="f"><span>Uhrzeit</span><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, `Etappe ${i + 1} Uhrzeit`)}</div></div>
-        <div class="f"><span>Dauer</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="Etappe ${i + 1} Dauer, Stunden und Minuten, z. B. 4:05" title="z. B. 4:05 = 4 Std 5 Min, auch 90m oder 1,5 möglich"><span class="unit-lbl" aria-hidden="true">Std:Min</span></div></div>
-        <div class="f c-to"><span>Ziel</span><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="Etappe ${i + 1} Ziel">${t === "hin" ? `<button type="button" class="unit" data-fill="dest" data-field="to" hidden title="Zieladresse als Ziel übernehmen">Reiseziel</button>` : ""}</div></div>
-        <div class="f c-arr"><span>Ankunft</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>
+        <div class="f c-from"><div class="lbl-row"><span>${T("start")}</span>${MAPS(T("routeLbl"))}</div><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="${T("legStart", {n: i + 1})}">${i === 0 ? `<button type="button" class="unit" data-fill="meet" data-field="from" hidden title="${T("fillMeetTitle")}">${T("meet")}</button>${t === "rueck" ? `<button type="button" class="unit" data-fill="dest" data-field="from" hidden title="${T("fillDestStart")}">${T("fillDest")}</button>` : ""}` : `<button type="button" class="unit" data-fill="prev" data-field="from" hidden title="${T("fillPrevTitle")}">${T("fillPrev")}</button>`}</div></div>
+        <label class="f"><span>${T("mode")}</span><input class="fld" type="text" id="leg-${t}-${i}-mode" data-legf="mode" list="modes" value="${esc(l.mode || "")}"></label>
+        <div class="f"><span>${T("time")}</span><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
+        <div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>
+        <div class="f c-to"><span>${T("legDest")}</span><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}">${t === "hin" ? `<button type="button" class="unit" data-fill="dest" data-field="to" hidden title="${T("fillDestEnd")}">${T("fillDest")}</button>` : ""}</div></div>
+        <div class="f c-arr"><span>${T("arrival")}</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>
       </div>
-      <div class="leg-side"><button class="del" type="button" data-delleg="${i}" aria-label="Etappe ${i + 1} entfernen" title="Etappe entfernen">×</button><input type="checkbox" class="leg-chk" id="leg-${t}-${i}-done" data-legdone ${l.d ? "checked" : ""} aria-label="Etappe ${i + 1} erledigt" title="Erledigt"></div>
+      <div class="leg-side"><button class="del" type="button" data-delleg="${i}" aria-label="${T("removeLeg", {n: i + 1})}" title="${T("removeLegTitle")}">×</button><input type="checkbox" class="leg-chk" id="leg-${t}-${i}-done" data-legdone ${l.d ? "checked" : ""} aria-label="${T("legDone", {n: i + 1})}" title="${T("done")}"></div>
     </div>`).join("");
     setTimeout(updateCurrent);
-    box.innerHTML = html || `<div class="empty">Noch keine Etappe. ${t === "hin" ? "Z. B. von zu Hause zum Bahnhof." : "Z. B. von der Unterkunft zum Bahnhof."}</div>`;
+    box.innerHTML = html || `<div class="empty">${T(t === "hin" ? "legsEmptyOut" : "legsEmptyRet")}</div>`;
   });
   updateLegSummary();
 }
@@ -647,7 +804,7 @@ function parseDur(s, unit){
   let r;
   if ((r = s.match(/^(\d+):(\d{1,2})$/))) return +r[1] * 60 + Math.min(59, +r[2]);
   if ((r = s.match(/^\d+([.,]\d+)?$/))) { const n = parseFloat(s.replace(",", ".")); return Math.round(unit === "min" ? n : n * 60); }
-  if ((r = s.match(/^(?:(\d+(?:[.,]\d+)?)\s*(?:h|std|stunden?))?\s*(?:(\d+)\s*(?:m|min|minuten?))?$/)) && (r[1] || r[2]))
+  if ((r = s.match(/^(?:(\d+(?:[.,]\d+)?)\s*(?:h|hrs?|hours?|std|stunden?))?\s*(?:(\d+)\s*(?:m|mins?|minutes?|minuten?))?$/)) && (r[1] || r[2]))
     return Math.round(parseFloat((r[1] || "0").replace(",", ".")) * 60) + (+r[2] || 0);
   return null;
 }
@@ -676,15 +833,15 @@ function updateLegSummary(){
       const d = dur(l), arr = start !== null && d > 0 ? start + d : null;
       prev = arr; if (arr !== null) endArr = arr;
       if (el) {
-        if (arr === null) { el.textContent = "–"; el.title = "Uhrzeit und Dauer eintragen"; }
-        else { const f = fmtT(arr); el.innerHTML = `ca. <b>${f.t}</b>${f.days ? ` (+${f.days} Tag${f.days > 1 ? "e" : ""})` : ""}`; el.title = ""; }
+        if (arr === null) { el.textContent = "–"; el.title = T("enterTimeDur"); }
+        else { const f = fmtT(arr); el.innerHTML = `${T("approx")} <b>${f.t}</b>${plusDays(f.days)}`; el.title = ""; }
       }
     });
     const total = legs.reduce((s, l) => s + dur(l), 0);
-    const fmt = mins => { const hh = Math.floor(mins / 60), mm = mins % 60; return hh && mm ? `${hh} Std ${mm} Min` : hh ? `${hh} Std` : `${mm} Min`; };
+    const fmt = mins => { const hh = Math.floor(mins / 60), mm = mins % 60; return hh && mm ? T("hm", {h: hh, m: mm}) : hh ? T("hOnly", {h: hh}) : T("mOnly", {m: mm}); };
     const out = [];
-    if (total > 0) out.push(`Gesamt ca. ${fmt(total)}`);
-    if (legs.length && prev !== null) { const f = fmtT(prev); out.push(`Ankunft ca. ${f.t}${f.days ? ` (+${f.days} Tag${f.days > 1 ? "e" : ""})` : ""}`); }
+    if (total > 0) out.push(T("totalApprox", {x: fmt(total)}));
+    if (legs.length && prev !== null) { const f = fmtT(prev); out.push(T("arrivalApprox", {x: f.t + plusDays(f.days)})); }
     $("sum-" + t).textContent = out.join(" · ");
   });
 }
@@ -720,8 +877,8 @@ document.addEventListener("click", e => {
   const obj = d.delmeet ? state.info[t + "Meet"] : tripLegs(t)[d.delleg];
   const filled = obj && Object.values(obj).some(v => v && String(v).trim());
   if (filled && d.armed !== "1") {
-    d.armed = "1"; b.title = "Nochmal klicken zum Löschen";
-    setTimeout(() => { if (b.isConnected) { d.armed = "0"; b.title = d.delmeet ? "Treffpunkt entfernen" : "Etappe entfernen"; } }, 3000);
+    d.armed = "1"; b.title = T("clickAgain");
+    setTimeout(() => { if (b.isConnected) { d.armed = "0"; b.title = d.delmeet ? T("removeMeet") : T("removeLegTitle"); } }, 3000);
     return;
   }
   if (d.delmeet) delete state.info[t + "Meet"]; else tripLegs(t).splice(+d.delleg, 1);
@@ -764,11 +921,11 @@ document.addEventListener("click", e => {
   const r = tripLegs("rueck");
   const filled = r.some(l => Object.values(l).some(v => v && String(v).trim()));
   if (filled && b.dataset.armed !== "1") {
-    b.dataset.armed = "1"; b.textContent = "Rückfahrt ersetzen?";
-    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = "Aus Hinfahrt übernehmen"; }, 4000);
+    b.dataset.armed = "1"; b.textContent = T("replaceRet");
+    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = T("fromOut"); }, 4000);
     return;
   }
-  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = "Aus Hinfahrt übernehmen";
+  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = T("fromOut");
   const rev = tripLegs("hin").slice().reverse().map(l => ({from: l.to || "", to: l.from || "", mode: l.mode || "", dur: l.dur || "", time: ""}));
   r.splice(0, r.length, ...rev);
   save(); render();
@@ -817,9 +974,9 @@ document.addEventListener("keydown", e => {
 
 // Rückgängig: nach Löschen/Leeren kurz die Möglichkeit zum Wiederherstellen anbieten
 const UNDO = [
-  ["[data-deltodo]", "To-do gelöscht"], ["[data-delshop]", "Einkauf gelöscht"], ["[data-delitem]", "Gegenstand gelöscht"],
-  ["[data-delcat]", "Kategorie gelöscht"], ["[data-delleg]", "Etappe gelöscht"], ["[data-delmeet]", "Treffpunkt gelöscht"],
-  ["[data-clear]", "Inhalt geleert"], ["#importApply", "Reise-Infos importiert"], ["#shopDone", "Einkaufsliste abgeschlossen"], ["#fromHin", "Rückfahrt ersetzt"]
+  ["[data-deltodo]", "uTodo"], ["[data-delshop]", "uShop"], ["[data-delitem]", "uItem"],
+  ["[data-delcat]", "uCat"], ["[data-delleg]", "uLeg"], ["[data-delmeet]", "uMeet"],
+  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#shopDone", "uShopDone"], ["#fromHin", "uRet"]
 ];
 let undoState = null, toastTimer;
 document.addEventListener("click", e => {
@@ -829,7 +986,7 @@ document.addEventListener("click", e => {
   setTimeout(() => {
     if (JSON.stringify(state) === before) return; // nur scharf geschaltet, nichts gelöscht
     undoState = JSON.parse(before);
-    $("toastMsg").textContent = hit[1]; $("toast").hidden = false;
+    $("toastMsg").textContent = T(hit[1]); $("toast").hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; undoState = null; }, 7000);
   });
 }, true);
@@ -915,15 +1072,15 @@ function openShare(mode){
   if (state.collapsed.info) { state.collapsed.info = false; save(); applyCollapse(); }
   const P = $("sharePanel"), code = $("shareCode"), msg = $("shareMsg");
   P.hidden = false; P.dataset.mode = mode; msg.textContent = ""; msg.classList.remove("err");
-  const ap = $("importApply"); ap.dataset.armed = "0"; ap.textContent = "Übernehmen";
+  const ap = $("importApply"); ap.dataset.armed = "0"; ap.textContent = T("apply");
   if (mode === "export") {
-    $("shareTitle").textContent = "Reise-Infos exportieren";
-    $("shareHint").textContent = "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.";
+    $("shareTitle").textContent = T("exportTitle");
+    $("shareHint").textContent = T("exportHint");
     code.value = makeCode(); code.readOnly = true;
     $("shareCopy").hidden = false; ap.hidden = true;
   } else {
-    $("shareTitle").textContent = "Reise-Infos importieren";
-    $("shareHint").textContent = "Füge hier den Code ein, den du bekommen hast. Deine aktuellen Reise-Infos werden dabei ersetzt.";
+    $("shareTitle").textContent = T("importTitle");
+    $("shareHint").textContent = T("importHint");
     code.value = ""; code.readOnly = false; code.placeholder = CODE_PREFIX + "…";
     $("shareCopy").hidden = true; ap.hidden = false;
     code.focus();
@@ -931,9 +1088,9 @@ function openShare(mode){
 }
 function copyCode(){
   const code = $("shareCode"), msg = $("shareMsg");
-  const ok = () => { msg.textContent = "In die Zwischenablage kopiert ✓"; };
+  const ok = () => { msg.textContent = T("copied"); };
   const selectAll = () => { const ro = code.readOnly; code.readOnly = false; code.focus(); code.select(); code.setSelectionRange(0, code.value.length); code.readOnly = ro; };
-  const manual = () => { selectAll(); msg.textContent = "Kopieren wurde vom Browser blockiert – der Code ist markiert, bitte selbst kopieren (Strg/Cmd + C oder lange tippen)."; };
+  const manual = () => { selectAll(); msg.textContent = T("copyBlocked"); };
   // 1. Klassischer Weg über die Markierung: funktioniert auch in eingebetteten Seiten und lokal geöffneten Dateien
   let done = false;
   try { selectAll(); done = document.execCommand("copy"); } catch (e) { done = false; }
@@ -950,15 +1107,15 @@ $("shareCode").addEventListener("focus", e => { if (e.target.readOnly) e.target.
 $("importApply").addEventListener("click", e => {
   const b = e.currentTarget, msg = $("shareMsg");
   const data = readCode($("shareCode").value);
-  if (!data || !Object.keys(data).length) { msg.textContent = "Der Code ist ungültig oder unvollständig. Bitte komplett kopieren und erneut einfügen."; msg.classList.add("err"); return; }
+  if (!data || !Object.keys(data).length) { msg.textContent = T("invalidCode"); msg.classList.add("err"); return; }
   msg.classList.remove("err");
   const info = state.info || {}, has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
   if (has(info) && b.dataset.armed !== "1") {
-    b.dataset.armed = "1"; b.textContent = "Reise-Infos ersetzen?";
-    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = "Übernehmen"; }, 4000);
+    b.dataset.armed = "1"; b.textContent = T("replaceInfo");
+    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = T("apply"); }, 4000);
     return;
   }
-  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = "Übernehmen";
+  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = T("apply");
   state.info = data;
   if (document.activeElement) document.activeElement.blur();
   save(); render();
@@ -968,6 +1125,7 @@ $("importApply").addEventListener("click", e => {
 // Datumsfelder: Anzeige im Format "Do, 22.10.2026"; ein Klick öffnet die normale Datumsauswahl des Geräts
 function fmtDate(v){
   const d = v ? new Date(v + "T12:00:00") : null; if (!d || isNaN(d)) return "";
+  if (lang === "en") return `${d.toLocaleDateString("en-GB", {weekday: "short"})}, ${d.getDate()} ${d.toLocaleDateString("en-GB", {month: "short"})} ${d.getFullYear()}`;
   const wd = d.toLocaleDateString("de-DE", {weekday: "short"}).replace(".", "");
   return `${wd}, ${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
 }
@@ -977,13 +1135,13 @@ function refreshDates(){
     if (!box.classList.contains("dbox")) {
       box = document.createElement("div");
       box.className = "fld dbox"; box.tabIndex = 0; box.setAttribute("role", "button");
-      box.setAttribute("aria-label", (inp.getAttribute("aria-label") || "Datum") + " wählen");
       inp.classList.remove("fld"); inp.tabIndex = -1;
       inp.replaceWith(box);
       box.innerHTML = '<span class="dtext"></span>'; box.appendChild(inp);
     }
     const t = fmtDate(inp.value), sp = box.querySelector(".dtext");
-    sp.textContent = t || "TT.MM.JJJJ"; box.classList.toggle("is-empty", !t);
+    sp.textContent = t || T("datePh"); box.classList.toggle("is-empty", !t);
+    box.setAttribute("aria-label", T("choose", {x: inp.getAttribute("aria-label") || T("dateDefault")}));
   });
 }
 function openDate(box){
@@ -1005,18 +1163,18 @@ document.addEventListener("change", e => { if (e.target.type === "date") refresh
 
 // Herunterladen: die Seite als eigenständige Datei speichern (z. B. um sie aus einer App-Vorschau heraus im Browser zu öffnen)
 $("dlBtn").addEventListener("click", async e => {
-  const b = e.currentTarget, label = "Reiseplaner als Datei herunterladen";
-  const note = t => { b.title = t; b.classList.toggle("ok", t.startsWith("Gespeichert")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
+  const b = e.currentTarget, label = T("dlTitle");
+  const note = t => { b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
   try {
     const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
-    if (dl) { await dl.save({filename: "Reiseplaner.html", data: PAGE_SRC}); note("Gespeichert ✓"); return; }
+    if (dl) { await dl.save({filename: T("dlFile"), data: PAGE_SRC}); note(T("dlSaved")); return; }
   } catch (err) { if (err && err.code === "declined") return; }
   try {
     const url = URL.createObjectURL(new Blob([PAGE_SRC], {type: "text/html"}));
-    const a = document.createElement("a"); a.href = url; a.download = "Reiseplaner.html";
+    const a = document.createElement("a"); a.href = url; a.download = T("dlFile");
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
-  } catch (err) { note("Nicht möglich"); }
+  } catch (err) { note(T("dlFail")); }
 });
 
 // Ein- und Ausklappen aller Überschriften
@@ -1097,12 +1255,12 @@ function updateCountdown(){
   const n = new Date(), today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())/864e5;
   if (i.ab) {
     const diff = day(i.ab) - today, back = i.rueck ? day(i.rueck) - today : null;
-    if (diff > 1) out.push(`Noch ${diff} Tage`);
-    else if (diff === 1) out.push("Morgen geht's los");
-    else if (diff === 0) out.push("Heute geht's los");
-    else if (back !== null && back >= 0) out.push("Gute Reise!");
+    if (diff > 1) out.push(T("cdDays", {n: diff}));
+    else if (diff === 1) out.push(T("cdTomorrow"));
+    else if (diff === 0) out.push(T("cdToday"));
+    else if (back !== null && back >= 0) out.push(T("cdBon"));
   }
-  if (i.ab && i.rueck) { const nights = day(i.rueck) - day(i.ab); if (nights > 0) out.push(`${nights} ${nights === 1 ? "Nacht" : "Nächte"}`); }
+  if (i.ab && i.rueck) { const nights = day(i.rueck) - day(i.ab); if (nights > 0) out.push(`${nights} ${T(nights === 1 ? "nightSg" : "nightPl")}`); }
   $("countdown").textContent = out.join(" · ");
 }
 document.addEventListener("input", e => {
@@ -1126,16 +1284,16 @@ document.addEventListener("click", e => {
     if (k === "hin" || k === "rueck") { tripLegs(k).forEach(x => x.d = false); const m = state.info[k + "Meet"]; if (m) m.d = false; }
     save(); render();
     const nb = document.querySelector(`[data-uncheck="${k}"]`);
-    nb.textContent = "Haken entfernt ✓"; setTimeout(() => nb.textContent = "Haken entfernen", 2000);
+    nb.textContent = T("unchecked"); setTimeout(() => nb.textContent = T("uncheck"), 2000);
     return;
   }
   const k = b.dataset.clear;
   if (b.dataset.armed !== "1") {
-    b.dataset.armed = "1"; b.textContent = "Wirklich leeren?";
-    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = "Inhalt leeren"; }, 4000);
+    b.dataset.armed = "1"; b.textContent = T("clearSure");
+    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = T("clearAll"); }, 4000);
     return;
   }
-  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = "Inhalt leeren";
+  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = T("clearAll");
   if (k === "info") state.info = {};
   if (k === "todos") state.todos = [];
   if (k === "shop") state.shop = [];
@@ -1143,30 +1301,23 @@ document.addEventListener("click", e => {
   save(); render();
 });
 
-// Vorschläge: fügt typische Gegenstände hinzu, ohne Doppelte
-const SUGGEST = [
-  ["Kleidung", [["Unterhosen","pro Tag 1"],["Socken","pro Tag 1"],["T-Shirts / Oberteile",""],["Pullover / Hoodie",""],["Hosen",""],["Schlafsachen","1"],["Jacke (wetterfest)","1"],["Bequeme Schuhe","1 Paar"]]],
-  ["Hygiene & Bad", [["Zahnbürste & Zahnpasta","1"],["Duschgel / Shampoo","1"],["Deo","1"],["Haarbürste / Kamm","1"],["Rasierer",""],["Handtuch","falls nicht gestellt"]]],
-  ["Gesundheit", [["Eigene Medikamente",""],["Schmerztabletten",""],["Pflaster",""]]],
-  ["Technik", [["Handy + Ladekabel","1"],["Powerbank","1"],["Kopfhörer","1"]]],
-  ["Dokumente & Geld", [["Personalausweis","1"],["Bankkarte & etwas Bargeld",""],["Krankenkassenkarte","1"],["Buchungsbestätigung",""],["Führerschein",""]]],
-  ["Lebensmittel", [["Snacks für die Fahrt",""],["Wasserflasche / Getränke",""],["Obst",""],["Brotdose / Proviant",""],["Kaffee / Tee",""],["Frühstücksvorrat",""]]],
-  ["Sonstiges", [["Tagesrucksack","1"],["Beutel für Schmutzwäsche","1"],["Regenschirm","1"]]]
-];
+// Vorschläge: fügt typische Gegenstände hinzu, ohne Doppelte (Liste SUGGEST oben)
 let suggestTimer;
 $("suggest").addEventListener("click", e => {
   const norm = s => s.trim().toLowerCase();
   let added = 0;
-  SUGGEST.forEach(([name, items]) => {
+  SUGGEST.forEach(([names, items]) => {
+    const name = names[li()];
     let cat = state.cats.find(c => norm(c.name) === norm(name));
     if (!cat) { cat = {name, items: []}; state.cats.push(cat); }
-    items.forEach(([t]) => {
+    items.forEach(([names2]) => {
+      const t = names2[li()];
       if (!state.cats.some(c => c.items.some(x => norm(x.t) === norm(t)))) { cat.items.push({t,q:"",d:false}); added++; }
     });
   });
   if (added) { save(); render(); }
-  const b = e.currentTarget; b.textContent = added ? `${added} Vorschläge eingefügt` : "Schon alles drin";
-  clearTimeout(suggestTimer); suggestTimer = setTimeout(() => b.textContent = "Vorschläge laden", 2500);
+  const b = e.currentTarget; b.textContent = added ? T("suggestAdded", {n: added}) : T("suggestNone");
+  clearTimeout(suggestTimer); suggestTimer = setTimeout(() => b.textContent = T("suggest"), 2500);
 });
 
 $("shopStart").addEventListener("click", () => {
@@ -1181,11 +1332,11 @@ $("shopDone").addEventListener("click", e => {
   const b = e.currentTarget;
   const open = (state.shop||[]).filter(x=>!x.d).length;
   if (open && b.dataset.armed !== "1") {
-    b.dataset.armed = "1"; b.textContent = `Noch ${open} offen – trotzdem abschließen?`;
-    shopTimer = setTimeout(()=>{ b.dataset.armed="0"; b.textContent="Einkauf abgeschlossen"; }, 4000);
+    b.dataset.armed = "1"; b.textContent = T("shopOpenConfirm", {n: open});
+    shopTimer = setTimeout(()=>{ b.dataset.armed="0"; b.textContent = T("shopDone"); }, 4000);
     return;
   }
-  clearTimeout(shopTimer); b.dataset.armed = "0"; b.textContent = "Einkauf abgeschlossen";
+  clearTimeout(shopTimer); b.dataset.armed = "0"; b.textContent = T("shopDone");
   state.shop = null; save(); render();
 });
 $("catForm").addEventListener("submit", e => {
@@ -1211,8 +1362,8 @@ document.addEventListener("click", e => {
   if (b.dataset.delcat !== undefined) {
     if (b.dataset.armed === "1") { state.cats.splice(b.dataset.delcat,1); save(); render(); }
     else {
-      b.dataset.armed = "1"; b.setAttribute("aria-label", "Nochmal klicken zum Löschen"); b.title = "Nochmal klicken zum Löschen";
-      setTimeout(() => { if (b.isConnected) { b.dataset.armed = "0"; b.setAttribute("aria-label", "Kategorie mit Inhalt löschen"); b.title = "Kategorie löschen"; } }, 3000);
+      b.dataset.armed = "1"; b.setAttribute("aria-label", T("clickAgain")); b.title = T("clickAgain");
+      setTimeout(() => { if (b.isConnected) { b.dataset.armed = "0"; b.setAttribute("aria-label", T("delCat")); b.title = T("delCatTitle"); } }, 3000);
     }
   }
   if (b.dataset.delitem) { const [c,i] = b.dataset.delitem.split("-"); state.cats[c].items.splice(i,1); save(); render(); }
@@ -1329,8 +1480,20 @@ body.addEventListener("keydown", e => {
   save(); render(); focusItem(item);
 });
 
+// Sprache umschalten: Standardnamen mit übersetzen, alles neu zeichnen
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-lang]"); if (!b || b.dataset.lang === lang) return;
+  if (document.activeElement) document.activeElement.blur();
+  translateDefaults(b.dataset.lang);
+  lang = b.dataset.lang; langStored = lang;
+  try { localStorage.setItem(LANG_KEY, lang); } catch(err){}
+  document.querySelectorAll("[data-armed]").forEach(x => { x.dataset.armed = "0"; });
+  $("sharePanel").hidden = true; $("toast").hidden = true; undoState = null;
+  save(); render(); setSync(syncKey);
+});
+
 render();
-setSync("Auf diesem Gerät gespeichert");
+setSync("syncLocal");
 
 (async () => {
   // Jede Person bekommt ihre eigene, private Liste
@@ -1352,12 +1515,12 @@ setSync("Auf diesem Gerät gespeichert");
         const a = document.activeElement;
         if (a && a.matches && a.matches(".edit, .fld, .seg")) needsRender = true; else render();
       }
-      setSync("Gespeichert ✓");
+      setSync("syncSaved");
     } else if (first) {
       setSync("");
     }
     first = false;
-  }, () => setSync("Auf diesem Gerät gespeichert"));
+  }, () => setSync("syncLocal"));
 })();
 document.addEventListener("focusout", () => { if (needsRender) { needsRender = false; setTimeout(render, 0); } });
 </script>

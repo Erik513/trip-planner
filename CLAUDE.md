@@ -2,7 +2,17 @@
 
 Ein einseitiger Reiseplaner als **eine HTML-Datei** (kein Framework, kein Build-Tool außer `build.py`).
 Gehostet über GitHub Pages: https://erik513.github.io/trip-planner/
-Sprache der Oberfläche und der Code-Kommentare: **Deutsch**.
+Oberfläche **zweisprachig (Deutsch/Englisch)**, Umschalter „DE | EN“ oben rechts; Code-Kommentare auf **Deutsch**.
+
+## Sprachen (i18n)
+
+- Alle Texte stehen in `I18N` (`de`/`en`) am Anfang des Skripts in `src/app.html`; Zugriff über `T("schlüssel", {platzhalter})`.
+  **Neue Texte immer in beiden Sprachen eintragen** – nie Text fest in HTML/JS schreiben.
+- Feste HTML-Texte: `data-i18n="schlüssel"` (Textinhalt) bzw. `data-i18n-attr="aria-label:schlüssel;title:schlüssel"`; `applyStatic()` setzt sie (läuft bei jedem `render()`).
+- Gewählte Sprache: `localStorage` `trip-planner-lang`; Standard = Browsersprache (de, sonst en).
+- `SUGGEST` (Standard-Kategorien + Packvorschläge) und `MODES` (Fortbewegungsmittel) sind zweisprachige Listen `[de, en]`;
+  `translateDefaults()` übersetzt beim Sprachwechsel Standardnamen mit, selbst Eingetipptes bleibt.
+- Datenformat, Speicherschlüssel `packliste-v2` und Export-Präfix `URLAUB:` sind sprachunabhängig und bleiben unverändert.
 
 ## Struktur
 
