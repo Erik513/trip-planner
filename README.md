@@ -1,7 +1,87 @@
-﻿# Reiseplaner
+# Reiseplaner / Trip Planner
 
-Reise-Infos, Einkaufsliste, To-dos und Packliste in einer Seite.
+Reise-Infos, Einkaufsliste, To-dos und Packliste in einer Seite – auf Deutsch und Englisch (Umschalter „DE | EN“).
+Trip info, shopping list, to-dos and packing list in one page – in German and English.
 
 **Online:** https://erik513.github.io/trip-planner/
 
-Entwickeln in `src/app.html`, danach `python3 build.py` ausführen und `index.html` committen.
+Ein einseitiger Reiseplaner als **eine HTML-Datei** (kein Framework, kein Build-Tool außer `build.py`), gehostet über GitHub Pages.
+Läuft offline, ohne Konto und ohne Server.
+
+## Kapitel der Seite
+
+1. **Reise-Infos** – Reise & Unterkunft (Reisezielort mit Wetter-Link, Unterkunft, Zieladresse, Check-in/-out, ausklappbare Notizen),
+   **Hinfahrt** und **Rückfahrt** (Datum, optionaler Treffpunkt, Etappen). Export/Import als Code (siehe „Teilen“).
+2. **Einkaufsliste** – erscheint nur nach Klick auf „Einkaufen“ (in der To-do-Zeile), weg mit „Einkauf abgeschlossen“.
+3. **To-dos**
+4. **Packliste** – Tabelle nach Kategorien (Standard: Kleidung, Hygiene & Bad, Gesundheit, Technik, Dokumente & Geld, Lebensmittel,
+   Sonstiges), „Vorschläge laden“ füllt typische Gegenstände ohne Anzahl.
+
+### Etappen (Hin-/Rückfahrt)
+
+- Zeile 1 Start, Zeile 2 Ziel (volle Breite), Zeile 3 Fortbewegung · Uhrzeit · Dauer · berechnete Ankunft.
+- Dauer als `H:MM` (versteht auch `1,5`, `90m`, `2h 15m`); Ankunft = eigene Uhrzeit bzw. Ankunft der vorigen Etappe/Treffpunkt + Dauer.
+- Neue Etappe übernimmt Ziel und (auf 5 Min. aufgerundete) Ankunft der vorigen als Start/Uhrzeit.
+- Übernehmen-Knöpfe im Feld: Etappe 1 „Treffpunkt“ (+ bei Rückfahrt „Reiseziel“ im Start), ab Etappe 2 „Vorheriges Ziel“;
+  bei der Hinfahrt „Reiseziel“ im Ziel. Links zu Google Maps / Apple Karten.
+- Abhaken pro Box; grün markiert ist die erste offene Box – erst über die ganze Hinfahrt, dann die Rückfahrt.
+- „Aus Hinfahrt übernehmen“ legt die Rückfahrt umgekehrt an. Sortieren per Drag an der Nummer (Alt+Pfeile).
+
+## Teilen
+
+- Kopf: kleine Knöpfe links vom Fortschritt – „DE | EN“, Teilen (Ketten-Symbol), Herunterladen. Bewusst klein und dezent
+  (`.langsw`, `.icon-btn`), nicht im Stil der Fortschrittsanzeige.
+- **Teilen-Knopf:** teilt die Seiten-Adresse per `navigator.share`, sonst Zwischenablage. Sind Reise-Infos vorhanden, hängt
+  `#` + Export-Code an die Adresse. Lokal geöffnet (`file://`) wird die HTML-Datei geteilt, falls das Gerät es kann.
+- **Link öffnen** (`#URLAUB…`): oben erscheint „Übernehmen?“ / „Verwerfen“; erst nach Bestätigung werden die Reise-Infos
+  ersetzt (mit „Rückgängig“), danach wird der Hash entfernt.
+- **Export/Import:** Code `URLAUB:` + lz-string `compressToEncodedURIComponent` eines kompakten JSON. Alte Formate `URLAUB-INFO:` /
+  `URLAUB-B:` werden beim Import weiter unterstützt. Haken werden nicht mitgegeben.
+- Geteilt werden nur die Reise-Infos; Einkaufsliste, To-dos und Packliste bleiben lokal. Es gibt keine Synchronisation zwischen
+  Geräten – wer etwas ändert, teilt neu. Backup/Export der übrigen Listen und Echtzeit-Sync sind bewusst nicht vorgesehen.
+
+## Speicherung
+
+- `localStorage` im Browser (Schlüssel `packliste-v2`, Sprache `trip-planner-lang`) – pro Browser, Gerät und Adresse.
+- `migrate(state)` hebt alte Datenstände an – bei Datenmodell-Änderungen dort ergänzen statt alte Daten zu brechen.
+- Der Code enthält zusätzlich einen Pfad für die Claude-Artifact-Datenbank (`window.claude.use("db")`) und den Claude-Download
+  (`use("downloads")`). Außerhalb von Claude ist `window.claude` nicht vorhanden, diese Zweige werden übersprungen.
+  Nicht entfernen, solange die Claude-Version weiter genutzt wird.
+
+## Entwickeln
+
+```
+src/app.html      Quelltext (HTML + CSS + JS in einer Datei) – hier wird entwickelt
+build.py          baut daraus index.html: Schriften + lz-string eingebettet, läuft offline
+vendor/           lz-string.min.js (1.5.0) und woff2-Schriften (Bricolage Grotesque, Figtree, JetBrains Mono)
+index.html        Ergebnis für GitHub Pages – NICHT von Hand bearbeiten, immer neu bauen
+```
+
+Nach jeder Änderung an `src/app.html`: `python3 build.py`, dann `index.html` mitcommitten. Code-Kommentare sind auf Deutsch.
+
+### Sprachen (i18n)
+
+- Alle Texte stehen in `I18N` (`de`/`en`) am Anfang des Skripts in `src/app.html`; Zugriff über `T("schlüssel", {platzhalter})`.
+  **Neue Texte immer in beiden Sprachen eintragen** – nie Text fest in HTML/JS schreiben.
+- Feste HTML-Texte: `data-i18n="schlüssel"` (Textinhalt) bzw. `data-i18n-attr="aria-label:schlüssel;title:schlüssel"`;
+  `applyStatic()` setzt sie (läuft bei jedem `render()`).
+- Gewählte Sprache: `localStorage` `trip-planner-lang`; Standard = Browsersprache (Deutsch, sonst Englisch).
+- `SUGGEST` (Standard-Kategorien + Packvorschläge) und `MODES` (Fortbewegungsmittel) sind zweisprachige Listen `[de, en]`;
+  `translateDefaults()` übersetzt beim Sprachwechsel Standardnamen mit, selbst Eingetipptes bleibt.
+- Datenformat, Speicherschlüssel `packliste-v2` und Export-Präfix `URLAUB:` sind sprachunabhängig und bleiben unverändert.
+
+### Bedien-Konventionen (bitte beibehalten)
+
+- **Alles speichert automatisch** (`save()`), Zustand liegt in `state`; `render()` zeichnet alles neu.
+- Knöpfe, die gerade nichts bewirken, sind **deaktiviert** (`updateButtons()`).
+- Destruktive Aktionen: erster Klick „scharf“ (rot), zweiter Klick führt aus; danach Toast mit **Rückgängig**.
+- Jede Überschrift ist **ein-/ausklappbar** (`data-col`), eingeklappt sind die Knöpfe daneben ausgeblendet.
+- Uhrzeiten: eigenes Feld mit zwei Listen (Std 00–23, Min 00–55 in 5er-Schritten).
+- Datumsfelder zeigen „Do, 22.10.2026“ bzw. „Thu, 22 Oct 2026“ (natives Datumsfeld unsichtbar darüber).
+- Einheitliches Design: Farben nur über CSS-Variablen in `:root` (heller + dunkler Modus), Checkboxen eigen gestylt,
+  kleine Knöpfe `.ghost.sm`. Muss auf dem Handy (390 px) ohne seitliches Scrollen funktionieren.
+
+### Testen
+
+Kein Test-Framework. Bewährt: Playwright (Python) gegen `index.html` öffnen, Abläufe durchklicken, Desktop (900 px) und
+Handy (390 px) sowie Dunkelmodus per Screenshot prüfen, `pageerror` abfangen – jeweils in beiden Sprachen.
