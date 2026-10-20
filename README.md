@@ -15,7 +15,7 @@ It works offline, without an account and without a server.
 3. **To-dos** – reorderable the same way (shared code: `makeSortable`).
 4. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
    "Load suggestions" adds typical items without quantities.
-   The "+" button left of a category name appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
+   The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
    The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).
    Items can be dragged within and across categories; whole categories can be reordered with the handle at the left of the category row
    (drag, or Alt + arrow keys) – the items move with their category.

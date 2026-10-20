@@ -692,8 +692,8 @@ function render(){
     pd += done; pt += c.items.length;
     rows += `<tr class="cat" data-cat="${ci}"><th colspan="4" scope="colgroup"><div class="cat-row">
       <button class="chandle" type="button" data-chandle="${ci}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
-      <button class="add-item" type="button" data-additem="${ci}" aria-label="${T("addItem")}" title="${T("addItem")}">+</button>
       <input class="edit" type="text" id="ecat-${ci}" data-ecat="${ci}" value="${esc(c.name)}" aria-label="${T("renameCat")}">
+      <button class="add-item" type="button" data-additem="${ci}" aria-label="${T("addItem")}" title="${T("addItem")}">+</button>
       <span class="count">${done}/${c.items.length}</span>
       <button class="del" type="button" data-delcat="${ci}" aria-label="${T("delCat")}" title="${T("delCatTitle")}">×</button></div></th></tr>`;
     if (!c.items.length) rows += `<tr class="ph"><td></td><td colspan="3" class="empty">${T("stillEmpty")}</td></tr>`;
