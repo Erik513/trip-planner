@@ -249,6 +249,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .f span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .fld{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%;box-sizing:border-box}
 textarea.fld{resize:vertical;min-height:4.5em;line-height:1.45}
+textarea.auto-grow{resize:none;overflow:hidden}
 .fld:focus{outline:none;border-color:var(--accent)}
 .foot{gap:8px;flex-wrap:wrap}
 .sec-head{flex-wrap:wrap}
@@ -384,7 +385,7 @@ td.x{width:40px;text-align:right}
         <label class="f wide"><span data-i18n="address">Zieladresse</span><input class="fld" id="i-address" data-info="address" type="text"></label>
         <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-checkin" data-info="checkin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-checkin-time" data-info="checkinTime" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
-        <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
+        <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld auto-grow" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
       <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="out" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-out"></span></div>
         <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label>
@@ -758,9 +759,10 @@ document.addEventListener("change", e => {
 // Long texts wrap instead of being cut off: the fields are textareas that grow with their content
 function autoGrow(el){
   if (!el.offsetParent) return; // hidden (other tab, collapsed): measured again when shown
-  el.style.height = "auto"; el.style.height = el.scrollHeight + "px";
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + (el.offsetHeight - el.clientHeight) + "px"; // content + borders
 }
-const growAll = () => document.querySelectorAll("textarea.edit").forEach(autoGrow);
+const growAll = () => document.querySelectorAll("textarea.edit, textarea.auto-grow").forEach(autoGrow);
 // Trip info: text that is longer than its field scrolls back and forth, but only while the field is not focused
 const marqueeItems = new Map(); // field -> start time
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -796,7 +798,7 @@ document.addEventListener("input", e => {
   if (t.matches && t.matches("textarea.edit")) {
     if (t.value.includes("\n")) t.value = t.value.replace(/\s*\n\s*/g, " "); // single-line texts: pasted line breaks become spaces
     autoGrow(t);
-  }
+  } else if (t.matches && t.matches("textarea.auto-grow")) autoGrow(t); // notes: several lines allowed
   const v = t.value;
   if (t.dataset.etodo !== undefined) state.todos[t.dataset.etodo].t = v;
   else if (t.dataset.eitem) { const [c,i] = t.dataset.eitem.split("-"); state.cats[c].items[i].t = v; }
