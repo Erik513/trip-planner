@@ -31,18 +31,19 @@ It works offline, without an account and without a server.
 - Header: small buttons to the left of the progress tag – "EN | DE", share (chain icon), download. Deliberately small and subtle
   (`.langsw`, `.icon-btn`), not styled like the progress tag.
 - **Share button:** shares the page address via `navigator.share`, otherwise copies it to the clipboard. The address always carries
-  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&URLAUB:…`). When opened locally (`file://`), the HTML file is shared if the device supports it.
+  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). When opened locally (`file://`), the HTML file is shared if the device supports it.
 - **Opening a link:** the language from the link is adopted only if the device has no own language choice yet. If it contains trip info, a notice at the top asks "Apply?" / "Dismiss"; only after confirmation the trip info is
   replaced (with "Undo"), then the hash is removed.
-- **Export/import:** code `URLAUB:` + lz-string `compressToEncodedURIComponent` of a compact JSON. Old formats `URLAUB-INFO:` /
-  `URLAUB-B:` are still accepted on import. Ticks are not included.
+- **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
+  (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
 - Only the trip info is shared; shopping list, to-dos and packing list stay local. There is no synchronisation between devices –
   whoever changes something shares again. Backup/export of the other lists and real-time sync are intentionally not provided.
 
 ## Storage
 
-- `localStorage` in the browser (key `packliste-v2`, language `trip-planner-lang`) – per browser, device and address.
-- `migrate(state)` upgrades old data – when changing the data model, extend it there instead of breaking old data.
+- `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`) – per browser, device and address.
+- `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
+  when changing the data model, extend it there instead of breaking old data.
 - The code also contains a path for the Claude Artifact database (`window.claude.use("db")`) and Claude downloads
   (`use("downloads")`). Outside Claude, `window.claude` does not exist and these branches are skipped.
   Do not remove them as long as the Claude version is still used.
@@ -68,7 +69,9 @@ Code comments are written in English.
 - Chosen language: `localStorage` `trip-planner-lang`; default = English.
 - `SUGGEST` (default categories + packing suggestions) and `MODES` (transport modes) are bilingual lists `[de, en]`;
   `translateDefaults()` translates default names on language switch, anything typed by the user stays.
-- Data format, storage key `packliste-v2` and export prefix `URLAUB:` are language-independent and must not change.
+- Data format, storage key `trip-planner-v1` and export prefix `TRIP:` are language-independent and must not change.
+- Code identifiers (functions, variables, CSS classes, ids, data keys) are English; German appears only in UI texts and in the
+  legacy-migration code.
 
 ### Interaction conventions (please keep)
 
