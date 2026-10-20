@@ -407,7 +407,7 @@ td.x{width:40px;text-align:right}
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listUncheck" data-uncheck="todos" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" id="listClear" data-clear="todos" data-i18n="clearAll">Inhalt leeren</button></div></div></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listUncheck" data-uncheck="todos" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" id="listClear" data-clear="todos">Inhalt leeren</button></div></div></div>
     <div class="list-tabs" role="tablist">
       <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
       <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
@@ -482,7 +482,7 @@ const I18N = {
     linkTitle: "Reise-Infos im Link", linkHint: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Übernehmen?",
     linkHintReplace: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Deine aktuellen Reise-Infos werden dabei ersetzt. Übernehmen?", dismiss: "Verwerfen",
     progress: "Fortschritt gesamt",
-    tripInfo: "Reise-Infos", export: "Exportieren", import: "Importieren", clearAll: "Inhalt leeren", clearSure: "Wirklich leeren?",
+    tripInfo: "Reise-Infos", export: "Exportieren", import: "Importieren", clearAll: "Inhalt leeren", clearSure: "Wirklich leeren?", clearTodos: "To-dos leeren", clearTodosSure: "To-dos wirklich leeren?", clearShop: "Einkauf leeren", clearShopSure: "Einkauf wirklich leeren?",
     close: "Schließen", copy: "Kopieren", apply: "Übernehmen", codeLabel: "Reise-Infos Code",
     grpTrip: "Reise & Unterkunft", destination: "Reisezielort", lodging: "Unterkunft", address: "Zieladresse",
     checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in Datum", checkinTime: "Check-in Uhrzeit",
@@ -540,7 +540,7 @@ const I18N = {
     linkTitle: "Trip info in link", linkHint: "This link contains trip info (trip, accommodation, outbound and return trip). Apply it?",
     linkHintReplace: "This link contains trip info (trip, accommodation, outbound and return trip). Your current trip info will be replaced. Apply it?", dismiss: "Dismiss",
     progress: "Overall progress",
-    tripInfo: "Trip info", export: "Export", import: "Import", clearAll: "Clear all", clearSure: "Really clear?",
+    tripInfo: "Trip info", export: "Export", import: "Import", clearAll: "Clear all", clearSure: "Really clear?", clearTodos: "Clear to-dos", clearTodosSure: "Really clear to-dos?", clearShop: "Clear shopping", clearShopSure: "Really clear shopping?",
     close: "Close", copy: "Copy", apply: "Apply", codeLabel: "Trip info code",
     grpTrip: "Trip & accommodation", destination: "Destination", lodging: "Accommodation", address: "Address",
     checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in date", checkinTime: "Check-in time",
@@ -598,6 +598,8 @@ const T = (k, v) => {
   if (v) for (const x in v) s = s.split("{" + x + "}").join(v[x]);
   return s;
 };
+// Label of a "clear" button: the to-do / shopping button names the list it acts on
+const clearLabel = (b, sure) => T(({todos: ["clearTodos", "clearTodosSure"], shop: ["clearShop", "clearShopSure"]}[b.dataset.clear] || ["clearAll", "clearSure"])[sure ? 1 : 0]);
 const plusDays = d => d ? ` (+${d} ${T(d > 1 ? "dayPl" : "daySg")})` : "";
 // Bilingual packing suggestions: [category [de, en], [[item [de, en]], …]]; the categories are also the default categories
 const SUGGEST = [
@@ -687,7 +689,7 @@ function render(){
     <li class="${x.d?'is-done':''}" data-i="${i}">
       <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
       <input type="checkbox" id="todo-${i}" data-todo="${i}" ${x.d?'checked':''} aria-label="${T("done")}">
-      <textarea class="txt edit" rows="1" id="etodo-${i}" data-etodo="${i}" aria-label="${T("editTodo")}">${esc(x.t)}</textarea>
+      <textarea class="txt edit" enterkeyhint="done" rows="1" id="etodo-${i}" data-etodo="${i}" aria-label="${T("editTodo")}">${esc(x.t)}</textarea>
       <button class="del" type="button" data-deltodo="${i}" aria-label="${T("removeTodo")}">×</button>
     </li>`).join("") || `<li class="empty">${T("todoEmpty")}</li>`;
   // Shopping list
@@ -696,7 +698,7 @@ function render(){
     <li class="${x.d?'is-done':''}" data-i="${i}">
       <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
       <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="${T("bought")}">
-      <textarea class="txt edit" rows="1" id="eshop-${i}" data-eshop="${i}" aria-label="${T("editShop")}">${esc(x.t)}</textarea>
+      <textarea class="txt edit" enterkeyhint="done" rows="1" id="eshop-${i}" data-eshop="${i}" aria-label="${T("editShop")}">${esc(x.t)}</textarea>
       <button class="del" type="button" data-delshop="${i}" aria-label="${T("removeShop")}">×</button>
     </li>`).join("") || `<li class="empty">${T("shopEmpty")}</li>`;
   const sd = shop.filter(x=>x.d).length, st = shop.length;
@@ -707,6 +709,7 @@ function render(){
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
   $("todoList").hidden = tab !== "todos"; $("shopList").hidden = tab !== "shop";
   $("listUncheck").dataset.uncheck = tab; $("listClear").dataset.clear = tab;
+  $("listClear").textContent = clearLabel($("listClear"), $("listClear").dataset.armed === "1");
 
   // Packing list
   let rows = "", pd = 0, pt = 0;
@@ -715,7 +718,7 @@ function render(){
     pd += done; pt += c.items.length;
     rows += `<tr class="cat" data-cat="${ci}"><th colspan="4" scope="colgroup"><div class="cat-row">
       <button class="chandle" type="button" data-chandle="${ci}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
-      <textarea class="edit" rows="1" id="ecat-${ci}" data-ecat="${ci}" aria-label="${T("renameCat")}">${esc(c.name)}</textarea>
+      <textarea class="edit" enterkeyhint="done" rows="1" id="ecat-${ci}" data-ecat="${ci}" aria-label="${T("renameCat")}">${esc(c.name)}</textarea>
       <button class="add-item" type="button" data-additem="${ci}" aria-label="${T("addItem")}" title="${T("addItem")}">+</button>
       <span class="count">${done}/${c.items.length}</span>
       <button class="del" type="button" data-delcat="${ci}" aria-label="${T("delCat")}" title="${T("delCatTitle")}">×</button></div></th></tr>`;
@@ -723,8 +726,8 @@ function render(){
     c.items.forEach((x,ii) => {
       rows += `<tr class="${x.d?'is-done':''}" data-ci="${ci}" data-ii="${ii}">
         <td class="c"><div class="cell"><button class="handle" type="button" data-ihandle="${ci}-${ii}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button><input type="checkbox" id="item-${ci}-${ii}" data-item="${ci}-${ii}" ${x.d?'checked':''} aria-label="${esc(T("packedAria", {x: x.t}))}"></div></td>
-        <td><textarea class="txt edit" rows="1" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" aria-label="${T("editItem")}">${esc(x.t)}</textarea></td>
-        <td class="q"><input class="edit" type="text" inputmode="numeric" autocomplete="off" size="4" placeholder="–" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
+        <td><textarea class="txt edit" enterkeyhint="done" rows="1" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" aria-label="${T("editItem")}">${esc(x.t)}</textarea></td>
+        <td class="q"><input class="edit" type="text" inputmode="numeric" enterkeyhint="done" autocomplete="off" size="4" placeholder="–" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
         <td class="x"><button class="del" type="button" data-delitem="${ci}-${ii}" aria-label="${T("removeItem")}">×</button></td>
       </tr>`;
     });
@@ -826,7 +829,7 @@ function updateButtons(){
   const set = (sel, off) => {
     const b = document.querySelector(sel); if (!b) return;
     b.hidden = off; // hide instead of disabling: fewer controls on small screens
-    if (off && b.dataset.armed === "1") { b.dataset.armed = "0"; if (b.dataset.clear) b.textContent = T("clearAll"); }
+    if (off && b.dataset.armed === "1") { b.dataset.armed = "0"; if (b.dataset.clear) b.textContent = clearLabel(b); }
   };
   const items = state.cats.flatMap(c => c.items), shop = state.shop || [], info = state.info || {};
   const norm = s => s.trim().toLowerCase();
@@ -1563,11 +1566,11 @@ document.addEventListener("click", e => {
   }
   const k = b.dataset.clear;
   if (b.dataset.armed !== "1") {
-    b.dataset.armed = "1"; b.textContent = T("clearSure");
-    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = T("clearAll"); }, 4000);
+    b.dataset.armed = "1"; b.textContent = clearLabel(b, true);
+    clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.armed = "0"; b.textContent = clearLabel(b); }, 4000);
     return;
   }
-  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = T("clearAll");
+  clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = clearLabel(b);
   if (k === "info") state.info = {};
   if (k === "todos") state.todos = [];
   if (k === "shop") state.shop = [];
@@ -1596,7 +1599,7 @@ $("suggest").addEventListener("click", e => {
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-tab]"); if (!b) return;
   state.tab = b.dataset.tab;
-  const clr = $("listClear"); clearTimeout(clr._t); clr.dataset.armed = "0"; clr.textContent = T("clearAll");
+  const clr = $("listClear"); clearTimeout(clr._t); clr.dataset.armed = "0";
   save(); render();
 });
 // "+" appends an empty entry to the visible list and focuses it; leaving it empty removes it again (see focusout)

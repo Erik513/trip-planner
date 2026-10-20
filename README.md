@@ -12,7 +12,7 @@ It works offline, without an account and without a server.
 1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
 2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
-   to the visible list and focuses it (an entry left empty is removed again); "Uncheck all" and "Clear all" in the section header act on the visible list.
+   to the visible list and focuses it (an entry left empty is removed again); the header buttons act on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
    Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
 3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Hand luggage, Food, Misc);
    "Load suggestions" adds typical items without quantities.
@@ -114,6 +114,7 @@ Code comments are written in English.
   The trip notes are a multi-line textarea that also grows with its content (`.auto-grow`, no manual resize handle), at least 3 lines high.
 - Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
+- Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.
