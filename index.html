@@ -868,8 +868,11 @@ function updateButtons(){
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
+  // ... and not when the field already has that content
   document.querySelectorAll("[data-fill]").forEach(b => {
-    b.hidden = !fillValue(b).trim();
+    const v = fillValue(b).trim().toLowerCase(), o = legOf(b), l = o && tripLegs(o.t)[o.i];
+    const field = (l && l[b.dataset.field || (b.dataset.fill === "meet" ? "from" : "to")] || "").trim().toLowerCase();
+    b.hidden = !v || v === field;
   });
   set("#fromOut", !tripLegs("out").length);
   const dest = (info.destination || "").trim();
@@ -1161,7 +1164,7 @@ document.addEventListener("click", e => {
   const f = b.dataset.field || (b.dataset.fill === "meet" ? "from" : "to");
   l[f] = fillValue(b);
   const inp = $(`leg-${o.t}-${o.i}-${f}`); if (inp) inp.value = l[f];
-  save(); updateLegSummary();
+  save(); updateLegSummary(); updateButtons();
 });
 
 // Transport picker: a button opens a list of common modes plus a field for anything else
