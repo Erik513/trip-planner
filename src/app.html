@@ -50,9 +50,10 @@ input[type=checkbox]:checked::after{opacity:1}
 .edit:hover{border-bottom-color:var(--line)}
 .edit:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--fg)}
 td.q .edit{font-family:var(--mono);color:var(--muted);width:3ch;text-align:right}
+td.q .edit::placeholder{color:var(--done);opacity:.7}
 .todos .edit{flex:1}
-.handle{border:0;background:none;color:var(--muted);cursor:grab;padding:4px 2px;font-size:1.05rem;line-height:1;touch-action:none;border-radius:6px;letter-spacing:-.15em}
-.handle:hover{color:var(--fg)}
+.handle,.chandle{border:0;background:none;color:var(--muted);cursor:grab;padding:4px 2px;font-size:1.05rem;line-height:1;touch-action:none;border-radius:6px;letter-spacing:-.15em}
+.handle:hover,.chandle:hover{color:var(--fg)}
 .todos li.dragging{background:var(--accent-soft);box-shadow:0 4px 14px rgba(0,0,0,.15);position:relative;z-index:2}
 .todos.is-dragging, .todos.is-dragging *{cursor:grabbing;user-select:none}
 .del{border:0;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:2px 6px;border-radius:6px}
@@ -77,7 +78,13 @@ col.cx{width:44px}
 th,td{text-align:left;padding:9px 14px;border-top:1px solid var(--line);vertical-align:middle}
 thead th{border-top:0;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 tr.cat th{background:var(--accent-soft);color:var(--fg);font-family:var(--display);font-weight:600;font-size:1rem;letter-spacing:0;text-transform:none}
-tr.cat .cat-row{display:flex;align-items:center;gap:10px}
+tr.cat .cat-row{display:flex;align-items:center;gap:8px}
+tr.cat .chandle{flex:none;color:color-mix(in srgb, var(--fg) 55%, var(--accent-soft))}
+tr.newcat td{padding:8px}
+.add-cat{width:100%;font:inherit;font-weight:600;color:var(--accent);background:transparent;border:1.5px dashed var(--line);border-radius:8px;padding:8px;cursor:pointer;transition:background .15s}
+.add-cat:hover{background:var(--accent-soft)}
+.add-item{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--accent);font:inherit;font-size:1.15rem;font-weight:600;line-height:1;cursor:pointer}
+.add-item:hover{background:var(--accent-soft)}
 tr.cat .cat-row .edit{font-family:var(--display);font-weight:600;font-size:1rem;flex:1}
 tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .ghost{font:inherit;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:8px 14px;cursor:pointer}
@@ -245,7 +252,7 @@ td.c .cell{display:flex;align-items:center;gap:6px}
 #packBody td.q{padding-left:0;padding-right:2px;text-align:right}
 #packBody td.q .edit{margin-left:auto;display:block}
 thead th:nth-child(3){text-align:right;padding-left:0;padding-right:2px}
-#packBody tr.dragging td{background:var(--accent-soft)}
+#packBody tr.dragging td,#packBody tr.dragging th{background:var(--accent-soft)}
 #packBody tr.dragging{box-shadow:0 4px 14px rgba(0,0,0,.15);position:relative;z-index:2}
 #packBody.is-dragging, #packBody.is-dragging *{cursor:grabbing;user-select:none}
 td.x{width:40px;text-align:right}
@@ -376,16 +383,6 @@ td.x{width:40px;text-align:right}
         <tbody id="packBody"></tbody>
       </table>
     </div>
-    <form class="add" id="itemForm">
-      <select id="itemCat" data-i18n-attr="aria-label:category" aria-label="Kategorie"></select>
-      <input type="text" id="itemInput" data-i18n-attr="placeholder:itemPh;aria-label:itemNew" placeholder="Gegenstand" aria-label="Neuer Gegenstand">
-      <input type="text" inputmode="numeric" autocomplete="off" id="itemQty" class="qty" data-i18n-attr="placeholder:qtyPh;aria-label:qty" placeholder="Anz." aria-label="Anzahl">
-      <button type="submit" data-i18n="add">Hinzufügen</button>
-    </form>
-    <form class="add" id="catForm">
-      <input type="text" id="catInput" data-i18n-attr="placeholder:catPh;aria-label:catPh" placeholder="Neue Kategorie" aria-label="Neue Kategorie">
-      <button type="submit" data-i18n="catBtn">Kategorie anlegen</button>
-    </form>
   </section>
 
 </div>
@@ -449,8 +446,7 @@ const I18N = {
     shopping: "Einkaufsliste", shopPh: "Was muss gekauft werden?", shopNew: "Neuer Einkauf", add: "Hinzufügen", shopDone: "Einkauf abgeschlossen",
     todos: "To-dos", todoPh: "Eigenes To-do hinzufügen", todoNew: "Neues To-do", shopStart: "Einkaufen",
     pack: "Packliste", suggest: "Vorschläge laden", colItem: "Was", colQty: "Anz.", clear: "Löschen",
-    category: "Kategorie", itemPh: "Gegenstand", itemNew: "Neuer Gegenstand", qtyPh: "Anz.", qty: "Anzahl",
-    catPh: "Neue Kategorie", catBtn: "Kategorie anlegen", undo: "Rückgängig",
+    catPh: "Neue Kategorie", undo: "Rückgängig",
     move: "Verschieben (Alt + Pfeiltasten)", dragTitle: "Ziehen zum Sortieren", done: "Erledigt",
     editTodo: "To-do bearbeiten", removeTodo: "To-do entfernen", todoEmpty: "Noch keine To-dos. Füg unten dein erstes hinzu.",
     bought: "Gekauft", editShop: "Einkauf bearbeiten", removeShop: "Einkauf entfernen", shopEmpty: "Noch nichts auf der Liste.",
@@ -482,7 +478,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    shareFail: "Nicht möglich",
+    shareFail: "Nicht möglich", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
     installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.",
@@ -508,8 +504,7 @@ const I18N = {
     shopping: "Shopping list", shopPh: "What needs to be bought?", shopNew: "New shopping item", add: "Add", shopDone: "Shopping done",
     todos: "To-dos", todoPh: "Add your own to-do", todoNew: "New to-do", shopStart: "Shopping",
     pack: "Packing list", suggest: "Load suggestions", colItem: "Item", colQty: "Qty", clear: "Clear",
-    category: "Category", itemPh: "Item", itemNew: "New item", qtyPh: "Qty", qty: "Quantity",
-    catPh: "New category", catBtn: "Add category", undo: "Undo",
+    catPh: "New category", undo: "Undo",
     move: "Move (Alt + arrow keys)", dragTitle: "Drag to reorder", done: "Done",
     editTodo: "Edit to-do", removeTodo: "Remove to-do", todoEmpty: "No to-dos yet. Add your first one below.",
     bought: "Bought", editShop: "Edit shopping item", removeShop: "Remove shopping item", shopEmpty: "Nothing on the list yet.",
@@ -541,7 +536,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    shareFail: "Not possible",
+    shareFail: "Not possible", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
     installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.",
@@ -673,6 +668,8 @@ function render(){
     const done = c.items.filter(x=>x.d).length;
     pd += done; pt += c.items.length;
     rows += `<tr class="cat" data-cat="${ci}"><th colspan="4" scope="colgroup"><div class="cat-row">
+      <button class="chandle" type="button" data-chandle="${ci}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
+      <button class="add-item" type="button" data-additem="${ci}" aria-label="${T("addItem")}" title="${T("addItem")}">+</button>
       <input class="edit" type="text" id="ecat-${ci}" data-ecat="${ci}" value="${esc(c.name)}" aria-label="${T("renameCat")}">
       <span class="count">${done}/${c.items.length}</span>
       <button class="del" type="button" data-delcat="${ci}" aria-label="${T("delCat")}" title="${T("delCatTitle")}">×</button></div></th></tr>`;
@@ -681,15 +678,15 @@ function render(){
       rows += `<tr class="${x.d?'is-done':''}" data-ci="${ci}" data-ii="${ii}">
         <td class="c"><div class="cell"><button class="handle" type="button" data-ihandle="${ci}-${ii}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button><input type="checkbox" id="item-${ci}-${ii}" data-item="${ci}-${ii}" ${x.d?'checked':''} aria-label="${esc(T("packedAria", {x: x.t}))}"></div></td>
         <td><input class="txt edit" type="text" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" value="${esc(x.t)}" aria-label="${T("editItem")}"></td>
-        <td class="q"><input class="edit" type="text" inputmode="numeric" autocomplete="off" size="4" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
+        <td class="q"><input class="edit" type="text" inputmode="numeric" autocomplete="off" size="4" placeholder="–" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
         <td class="x"><button class="del" type="button" data-delitem="${ci}-${ii}" aria-label="${T("removeItem")}">×</button></td>
       </tr>`;
     });
   });
-  $("packBody").innerHTML = rows || `<tr class="ph"><td colspan="4" class="empty">${T("packEmpty")}</td></tr>`;
-  $("itemForm").hidden = !state.cats.length;
+  if (!state.cats.length) rows = `<tr class="ph"><td colspan="4" class="empty">${T("packEmpty")}</td></tr>`;
+  rows += `<tr class="newcat"><td colspan="4"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button></td></tr>`;
+  $("packBody").innerHTML = rows;
   $("packCount").textContent = T("packCount", {d: pd, n: pt});
-  $("itemCat").innerHTML = state.cats.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join("");
 
   const all = state.todos.length + pt + st, allDone = td + pd + sd;
   // Trip info
@@ -728,7 +725,11 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("focusout", e => {
   const t = e.target;
-  if (t.dataset && t.dataset.ecat !== undefined && !t.value.trim()) { state.cats[t.dataset.ecat].name = T("catFallback"); t.value = T("catFallback"); save(); }
+  if (t.dataset && t.dataset.ecat !== undefined && !t.value.trim()) {
+    const c = state.cats[t.dataset.ecat];
+    if (!c.items.length) { state.cats.splice(t.dataset.ecat, 1); save(); render(); }
+    else { c.name = T("catFallback"); t.value = T("catFallback"); save(); }
+  }
 });
 // Buttons that would currently do nothing are disabled
 function updateButtons(){
@@ -759,12 +760,12 @@ function updateButtons(){
   const dest = (info.destination || "").trim();
   $("wx").hidden = !dest;
   if (dest) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(dest)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(dest)}`;
-  [["todoForm","todoInput"],["shopForm","shopInput"],["itemForm","itemInput"],["catForm","catInput"]].forEach(([f, i]) => {
+  [["todoForm","todoInput"],["shopForm","shopInput"]].forEach(([f, i]) => {
     $(f).querySelector("button[type=submit]").disabled = !$(i).value.trim();
   });
 }
 document.addEventListener("input", e => {
-  if (["todoInput","shopInput","itemInput","catInput"].includes(e.target.id)) updateButtons();
+  if (["todoInput","shopInput"].includes(e.target.id)) updateButtons();
 });
 
 // Time picker: one field that opens two lists – hours 00–23 and minutes 00–55 (steps of 5),
@@ -822,6 +823,10 @@ function migrate(s){
       s.cats.splice(at < 0 ? s.cats.length : at, 0, {name: SUGGEST[5][0][li()], items: []});
     }
     s.v2cats = true;
+  }
+  if (Array.isArray(s.cats)) {
+    s.cats.forEach(c => { c.items = (c.items || []).filter(x => x && String(x.t || "").trim()); });
+    s.cats = s.cats.filter(c => String(c.name || "").trim() || c.items.length);
   }
   if (s.infoCollapsed !== undefined) { s.collapsed = s.collapsed || {}; s.collapsed.info = s.infoCollapsed; delete s.infoCollapsed; }
 }
@@ -1461,11 +1466,6 @@ $("shopDone").addEventListener("click", e => {
   clearTimeout(shopTimer); b.dataset.armed = "0"; b.textContent = T("shopDone");
   state.shop = null; save(); render();
 });
-$("catForm").addEventListener("submit", e => {
-  e.preventDefault(); const v = $("catInput").value.trim(); if (!v) return;
-  state.cats.push({name:v, items:[]}); $("catInput").value=""; save(); render();
-  $("itemCat").value = state.cats.length-1;
-});
 document.addEventListener("focusout", e => {
   const t = e.target; if (!t.classList || !t.classList.contains("txt") || t.value.trim()) return;
   if (t.dataset.etodo !== undefined) state.todos.splice(t.dataset.etodo,1);
@@ -1477,8 +1477,32 @@ document.addEventListener("focusout", e => {
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList && e.target.classList.contains("edit")) e.target.blur();
 });
+// Drop what is still empty: items without text, and categories without name and items
+function dropEmpty(){
+  state.cats.forEach(c => { c.items = c.items.filter(x => (x.t || "").trim()); });
+  state.cats = state.cats.filter(c => (c.name || "").trim() || c.items.length);
+}
+// Pressing "+" must not blur the field being edited: blurring an empty item removes it and redraws the table,
+// which moves the button away and swallows the click (the first tap would do nothing)
+document.addEventListener("mousedown", e => { if (e.target.closest && e.target.closest(".add-item, .add-cat")) e.preventDefault(); });
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.additem !== undefined) {
+    // Add an empty item at the bottom of the category and focus it; leaving it empty removes it again (see focusout)
+    // First drop other empty entries (the field the user was just in keeps its focus, see the mousedown handler above)
+    const cat = state.cats[+b.dataset.additem]; dropEmpty();
+    const ci = state.cats.indexOf(cat); if (ci < 0) return;
+    const items = cat.items;
+    items.push({t: "", q: "", d: false}); save(); render();
+    const el = $(`eitem-${ci}-${items.length - 1}`); if (el) el.focus();
+    return;
+  }
+  if (b.dataset.addcat !== undefined) {
+    // New category at the end with its name field focused; leaving the name empty removes it again
+    dropEmpty(); state.cats.push({name: "", items: []}); save(); render();
+    const el = $(`ecat-${state.cats.length - 1}`); if (el) el.focus();
+    return;
+  }
   if (b.dataset.deltodo !== undefined) { state.todos.splice(b.dataset.deltodo,1); save(); render(); }
   if (b.dataset.delshop !== undefined) { state.shop.splice(b.dataset.delshop,1); save(); render(); }
   if (b.dataset.delcat !== undefined) {
@@ -1493,12 +1517,6 @@ document.addEventListener("click", e => {
 $("todoForm").addEventListener("submit", e => {
   e.preventDefault(); const v = $("todoInput").value.trim(); if (!v) return;
   state.todos.push({t:v,d:false}); $("todoInput").value=""; save(); render();
-});
-$("itemForm").addEventListener("submit", e => {
-  e.preventDefault(); const v = $("itemInput").value.trim(); if (!v) return;
-  const c = $("itemCat").value;
-  state.cats[c].items.push({t:v,q:$("itemQty").value.trim(),d:false});
-  $("itemInput").value=""; $("itemQty").value=""; save(); render(); $("itemCat").value=c;
 });
 // Sorting for the simple lists (to-dos, shopping list): drag with mouse/touch, or Alt + arrow up/down on the handle
 function makeSortable(listId, key){
@@ -1587,6 +1605,47 @@ function focusItem(item){
   state.cats.forEach((c,ci) => { const ii = c.items.indexOf(item);
     if (ii > -1) { const h = document.querySelector(`[data-ihandle="${ci}-${ii}"]`); if (h) h.focus({preventScroll:true}); } });
 }
+// Sort whole categories: drag the handle in the category row (the category moves together with its items)
+let cdrag = null;
+const catRows = tr => { const r = [tr]; let n = tr.nextElementSibling; while (n && !n.classList.contains("cat") && !n.classList.contains("newcat")) { r.push(n); n = n.nextElementSibling; } return r; };
+body.addEventListener("pointerdown", e => {
+  const h = e.target.closest(".chandle"); if (!h) return;
+  e.preventDefault();
+  const tr = h.closest("tr.cat");
+  cdrag = { tr, rows: catRows(tr), id: e.pointerId };
+  h.setPointerCapture(e.pointerId);
+  cdrag.rows.forEach(r => r.classList.add("dragging")); body.classList.add("is-dragging");
+});
+body.addEventListener("pointermove", e => {
+  if (!cdrag || e.pointerId !== cdrag.id) return;
+  let before = body.querySelector("tr.newcat");
+  for (const head of body.querySelectorAll("tr.cat")) {
+    if (head === cdrag.tr) continue;
+    const rows = catRows(head), top = head.getBoundingClientRect().top, bottom = rows[rows.length - 1].getBoundingClientRect().bottom;
+    if (e.clientY < top + (bottom - top) / 2) { before = head; break; }
+  }
+  if (before !== cdrag.rows[cdrag.rows.length - 1].nextElementSibling) cdrag.rows.forEach(r => body.insertBefore(r, before));
+});
+function endCatDrag(e){
+  if (!cdrag || e.pointerId !== cdrag.id) return;
+  const order = [...body.querySelectorAll("tr.cat")].map(t => +t.dataset.cat);
+  const newIdx = order.indexOf(+cdrag.tr.dataset.cat);
+  state.cats = order.map(i => state.cats[i]);
+  cdrag = null; body.classList.remove("is-dragging");
+  save(); render();
+  const h = body.querySelector(`[data-chandle="${newIdx}"]`); if (h) h.focus({preventScroll: true});
+}
+body.addEventListener("pointerup", endCatDrag);
+body.addEventListener("pointercancel", endCatDrag);
+body.addEventListener("keydown", e => {
+  const h = e.target.closest(".chandle"); if (!h || !e.altKey) return;
+  const i = +h.dataset.chandle, j = e.key === "ArrowUp" ? i - 1 : e.key === "ArrowDown" ? i + 1 : -1;
+  if (j < 0 || j >= state.cats.length) return;
+  e.preventDefault();
+  [state.cats[i], state.cats[j]] = [state.cats[j], state.cats[i]];
+  save(); render();
+  const n = body.querySelector(`[data-chandle="${j}"]`); if (n) n.focus();
+});
 body.addEventListener("pointerup", endPackDrag);
 body.addEventListener("pointercancel", endPackDrag);
 body.addEventListener("keydown", e => {
