@@ -30,12 +30,16 @@ It works offline, without an account and without a server.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
   "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy.
+- **Stopover** ("+ Stopover" at the bottom of a leg card): a card between two legs with place, "from" and "until" time and the computed waiting time.
+  It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
+  (destination and arrival of the leg); the next leg starts at the stopover's "until" time if it has no time of its own. "Copy from outbound" keeps the stopover
+  place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:` format stays compatible).
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
 
 ## Sharing
 
-- Header: small buttons to the left of the progress tag – "EN | DE" and share (chain icon). Deliberately small and subtle
+- Header: small buttons of equal height to the left of the progress tag – install, "EN | DE", light/dark (moon/sun) and share (chain icon). Deliberately small and subtle
   (`.langsw`, `.icon-btn`), not styled like the progress tag.
 - **Share button:** shares the page address via `navigator.share`, otherwise copies it to the clipboard. The address always carries
   the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). (Sharing needs the page to be served over http(s); a locally opened file cannot share.)
@@ -68,7 +72,7 @@ copy of the HTML file (files opened from the file manager have no reliable stora
 
 ## Storage
 
-- `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`) – per browser, device and address.
+- `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`, theme `trip-planner-theme`) – per browser, device and address.
 - Default categories introduced later (Food, Hand luggage) are added once to existing data by `migrate` (flags `v2cats`, `v3cats`); a deleted one does not come back.
 - `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
   when changing the data model, extend it there instead of breaking old data.
@@ -95,6 +99,8 @@ Code comments are written in English.
 - Static HTML texts: `data-i18n="key"` (text content) or `data-i18n-attr="aria-label:key;title:key"`;
   `applyStatic()` applies them (runs on every `render()`).
 - Chosen language: `localStorage` `trip-planner-lang`; default = English.
+- Light/dark mode: follows the device until the moon/sun button is used; the choice is stored per browser (`trip-planner-theme`) and only affects this app
+  (`data-theme` on `<html>`, applied by a tiny script in the `<head>` of `index.html` to avoid a flash; the CSS tokens live in `:root`).
 - `SUGGEST` (default categories + packing suggestions) and `MODES` (transport modes) are bilingual lists `[de, en]`;
   `translateDefaults()` translates default names on language switch, anything typed by the user stays.
 - Data format, storage key `trip-planner-v1` and export prefix `TRIP:` are language-independent and must not change.
@@ -115,6 +121,8 @@ Code comments are written in English.
 - Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
 - Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
+- Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they show the question as text, see `refreshClearBtn`),
+  "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "uncheck all" is "− ✓", "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.
