@@ -23,11 +23,13 @@ It works offline, without an account and without a server.
 
 ### Legs (outbound/return trip)
 
-- Row 1 start, row 2 destination (full width), row 3 transport · time · duration · calculated arrival.
+- Card layout (same on phone and desktop): a header row with the number (drag handle) or the meeting point symbol, the **transport** picker (a compact button; it opens the list of common modes `MODES` plus a free "Other …" field, no browser datalist) or the title "Meeting point",
+  the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); Google Maps / Apple Maps links at the bottom of the card.
+  The meeting point card has place, date and time (date and time in one row).
 - Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = own time, or arrival of the previous leg/meeting point + duration.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
-- "Use" buttons inside the fields: leg 1 "Meeting point" (+ "Destination" in the start field of the return trip), from leg 2 on
-  "Previous destination"; on the outbound trip "Destination" in the destination field. Links to Google Maps / Apple Maps.
+- "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
+  "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy.
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
 
