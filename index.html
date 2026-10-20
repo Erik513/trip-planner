@@ -83,6 +83,10 @@ td.q .edit{font-family:var(--mono);color:var(--muted);width:6ch}
 .add input,.add select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
 .add input[type=text]{flex:1 1 180px}
 .add input[type=text].qty{flex:0 0 4.5em;width:4.5em}
+/* To-do row: input + "Add" side by side, the secondary "Shopping" button after them (wraps below on narrow screens) */
+#todoForm #todoInput{order:1}
+#todoForm button[type=submit]{order:2}
+#todoForm #shopStart{order:3}
 .add button,.reset{font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
