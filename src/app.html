@@ -793,11 +793,11 @@ document.addEventListener("focusout", e => {
     else { c.name = T("catFallback"); t.value = T("catFallback"); save(); }
   }
 });
-// Buttons that would currently do nothing are disabled
+// Buttons that would currently do nothing are hidden
 function updateButtons(){
   const set = (sel, off) => {
     const b = document.querySelector(sel); if (!b) return;
-    b.disabled = off;
+    b.hidden = off; // hide instead of disabling: fewer controls on small screens
     if (off && b.dataset.armed === "1") { b.dataset.armed = "0"; if (b.dataset.clear) b.textContent = T("clearAll"); }
   };
   const items = state.cats.flatMap(c => c.items), shop = state.shop || [], info = state.info || {};
@@ -821,6 +821,7 @@ function updateButtons(){
   const dest = (info.destination || "").trim();
   $("wx").hidden = !dest;
   if (dest) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(dest)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(dest)}`;
+  document.querySelectorAll(".sec-btns").forEach(c => { c.hidden = ![...c.children].some(b => !b.hidden); });
 }
 
 // Time picker: one field that opens two lists – hours 00–23 and minutes 00–55 (steps of 5),
@@ -1488,7 +1489,6 @@ document.addEventListener("click", e => {
 });
 
 // Suggestions: adds typical items without duplicates (list SUGGEST above)
-let suggestTimer;
 $("suggest").addEventListener("click", e => {
   const norm = s => s.trim().toLowerCase();
   let added = 0;
@@ -1502,8 +1502,7 @@ $("suggest").addEventListener("click", e => {
     });
   });
   if (added) { save(); render(); }
-  const b = e.currentTarget; b.textContent = added ? T("suggestAdded", {n: added}) : T("suggestNone");
-  clearTimeout(suggestTimer); suggestTimer = setTimeout(() => b.textContent = T("suggest"), 2500);
+  notify(added ? T("suggestAdded", {n: added}) : T("suggestNone"));
 });
 
 // Tabs To-dos | Shopping: switch the visible list (and what the header buttons act on)
