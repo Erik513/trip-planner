@@ -108,6 +108,8 @@ Code comments are written in English.
 - Date fields show "Do, 22.10.2026" / "Thu, 22 Oct 2026" (native date input invisible on top).
 - Item names (to-dos, shopping, packing items, category names) are auto-growing textareas (`autoGrow`/`growAll`), so long texts wrap instead of being cut off;
   Enter confirms, pasted line breaks become spaces.
+- Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
+  the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.

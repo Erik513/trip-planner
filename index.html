@@ -740,6 +740,7 @@ function render(){
   applyCollapse();
   refreshDates();
   growAll();
+  refreshMarquee();
   $("total").textContent = `${allDone} / ${all}`;
   $("totalBar").style.width = all ? (allDone/all*100)+"%" : "0";
 }
@@ -760,6 +761,34 @@ function autoGrow(el){
   el.style.height = "auto"; el.style.height = el.scrollHeight + "px";
 }
 const growAll = () => document.querySelectorAll("textarea.edit").forEach(autoGrow);
+// Trip info: text that is longer than its field scrolls back and forth, but only while the field is not focused
+const marqueeItems = new Map(); // field -> start time
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+let marqueeRaf = 0;
+function refreshMarquee(){
+  marqueeItems.forEach((_, el) => { if (!el.isConnected) marqueeItems.delete(el); });
+  document.querySelectorAll("#infoGrid input[type=text]").forEach(el => {
+    const overflows = el.offsetParent && el !== document.activeElement && el.scrollWidth > el.clientWidth + 2;
+    if (overflows && !reducedMotion.matches) { if (!marqueeItems.has(el)) marqueeItems.set(el, performance.now()); }
+    else if (marqueeItems.delete(el)) el.scrollLeft = 0;
+  });
+  if (marqueeItems.size && !marqueeRaf) marqueeRaf = requestAnimationFrame(marqueeTick);
+}
+function marqueeTick(now){
+  marqueeRaf = 0;
+  const PAUSE = 1400, SPEED = 38; // ms at each end, px per second
+  marqueeItems.forEach((t0, el) => {
+    const dist = el.scrollWidth - el.clientWidth; if (dist <= 0) return;
+    const move = dist / SPEED * 1000, t = (now - t0) % (2 * (PAUSE + move));
+    el.scrollLeft = t < PAUSE ? 0 : t < PAUSE + move ? (t - PAUSE) / move * dist
+      : t < 2 * PAUSE + move ? dist : dist - (t - 2 * PAUSE - move) / move * dist;
+  });
+  if (marqueeItems.size) marqueeRaf = requestAnimationFrame(marqueeTick);
+}
+document.addEventListener("focusin", e => { if (marqueeItems.delete(e.target)) e.target.scrollLeft = 0; });
+document.addEventListener("focusout", () => setTimeout(refreshMarquee));
+window.addEventListener("resize", refreshMarquee);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(refreshMarquee);
 window.addEventListener("resize", growAll);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(growAll);
 document.addEventListener("input", e => {
@@ -1363,6 +1392,7 @@ function applyCollapse(){
     if (btn) btn.setAttribute("aria-expanded", on ? "false" : "true");
   });
   growAll();
+  refreshMarquee();
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".toggle"); if (!b) return;
