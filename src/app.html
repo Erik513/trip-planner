@@ -21,6 +21,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px
   padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:32px 56px}
 .wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
 header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
+header > div:first-child{flex:1 1 220px;min-width:0}
 h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,2.8rem);line-height:1.05;margin:0;text-wrap:balance}
 .sub{color:var(--muted);margin:6px 0 0}
 .tag{font-family:var(--mono);font-size:.8rem;border:1.5px dashed var(--accent);color:var(--accent);
@@ -127,11 +128,29 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .langsw button + button{border-left:1px solid var(--line)}
 .langsw button:hover{color:var(--fg);background:var(--accent-soft)}
 .langsw button[aria-pressed="true"]{background:var(--accent-soft);color:var(--fg)}
+dialog#installDialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:0;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto}
+dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
+.dlg-body{padding:18px;display:flex;flex-direction:column;gap:12px}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dlg-head strong{font-family:var(--display);font-weight:600;font-size:1.15rem}
+.dlg-body p{margin:0;color:var(--muted);font-size:.92rem}
+.dlg-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.dlg-tabs button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer}
+.dlg-tabs button:hover{color:var(--fg);background:var(--accent-soft)}
+.dlg-tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.dlg-panel{display:flex;flex-direction:column;gap:10px}
+.dlg-panel ol{margin:0;padding-left:1.3rem;font-size:.95rem}
+.dlg-panel li{padding:2px 0 2px 2px}
+.dlg-body p.dlg-or{margin:-2px 0 0 1.3rem;color:var(--muted);font-size:.9rem}
+.dlg-body p.dlg-msg{color:var(--fg);background:var(--accent-soft);border-radius:8px;padding:8px 10px}
+.dlg-panel .share-ico{vertical-align:-3px;color:var(--accent)}
+.dlg-panel .add-btn{align-self:flex-start;font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
 .icon-btn{display:inline-grid;place-items:center;padding:6px!important;line-height:0}
 .icon-btn.ok{color:var(--accent);border-color:var(--accent)}
-.head-right{display:flex;align-items:stretch;gap:8px}
+.head-right{display:flex;flex:0 0 auto;align-items:stretch;gap:8px}
 .head-right .icon-btn{align-self:flex-start;padding:5px 7px!important;border-radius:6px}
 .head-right .icon-btn svg{width:14px;height:14px}
+.head-right .install-top{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:4px 9px;font-size:.72rem;font-weight:600;line-height:1.35}
 @media (max-width:600px){.head-right{width:100%;flex-wrap:wrap;justify-content:flex-end}.head-right .tag{flex:1 1 100%;order:1}}
 .lbl-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .maps{display:inline-flex;gap:10px;align-items:baseline}
@@ -270,6 +289,7 @@ td.x{width:40px;text-align:right}
     <div class="head-right">
     <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="de" aria-pressed="false">DE</button></div>
     <button type="button" class="ghost sm icon-btn" id="shareBtn" data-i18n-attr="aria-label:shareTitle;title:shareTitle" aria-label="Reiseplaner teilen" title="Reiseplaner teilen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+    <button type="button" class="ghost sm install-top" id="installTopBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> <span data-i18n="installShort">Installieren</span></button>
     <div class="tag" aria-live="polite">
       <span data-i18n="progress">Fortschritt gesamt</span>
       <b id="total">0 / 0</b>
@@ -359,6 +379,31 @@ td.x{width:40px;text-align:right}
 
 </div>
 
+<dialog id="installDialog" aria-labelledby="installTitle">
+  <div class="dlg-body">
+    <div class="dlg-head"><strong id="installTitle" data-i18n="install">App installieren</strong><button type="button" class="del" id="installClose" data-i18n-attr="aria-label:close;title:close" aria-label="Schließen" title="Schließen">×</button></div>
+    <p data-i18n="installIntro">Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:</p>
+    <div class="dlg-tabs" role="tablist">
+      <button type="button" role="tab" data-os="android" data-i18n="tabAndroid">Android</button>
+      <button type="button" role="tab" data-os="ios" data-i18n="tabIos">iPhone / iPad</button>
+      <button type="button" role="tab" data-os="desktop" data-i18n="tabDesktop">Computer</button>
+    </div>
+    <div class="dlg-panel" data-panel="android">
+      <ol><li data-i18n="installAndroid1">Öffne die Seite in Chrome.</li><li><span data-i18n="installAndroid2">Tippe oben rechts auf</span> <svg class="share-ico" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-label="⋮" role="img"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg> <span data-i18n="installAndroid2b"></span></li><li data-i18n="installAndroid3">Tippe auf „App installieren“.</li></ol>
+      <p class="dlg-or" data-i18n="or">oder</p>
+      <button type="button" class="add-btn" id="installBtn" data-i18n="installNow">Automatisch installieren</button>
+      <p class="dlg-msg" id="installMsg" hidden></p>
+    </div>
+    <div class="dlg-panel" data-panel="ios" hidden>
+      <ol><li data-i18n="installIos1">Öffne die Seite in Safari.</li><li><span data-i18n="installIos2">Tippe auf „Teilen“</span> <svg class="share-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></li><li data-i18n="installIos3">Tippe auf „Zum Home-Bildschirm“.</li></ol>
+    </div>
+    <div class="dlg-panel" data-panel="desktop" hidden>
+      <ol><li data-i18n="installDesktop1">Klicke in Chrome oder Edge in der Adressleiste auf das Installieren-Symbol.</li></ol>
+    </div>
+    <p data-i18n="installTip">Tipp: Aus WhatsApp zuerst „Im Browser öffnen“ wählen.</p>
+  </div>
+</dialog>
+
 <div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button type="button" id="undoBtn" data-i18n="undo">Rückgängig</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
@@ -427,6 +472,12 @@ const I18N = {
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
     shareFail: "Nicht möglich",
+    installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
+    install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
+    installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.",
+    installAndroid1: "Öffne die Seite in Chrome.", installAndroid2: "Tippe oben rechts auf", installAndroid2b: "", installAndroid3: "Tippe auf „App installieren“.",
+    installDesktop1: "Klicke in Chrome oder Edge in der Adressleiste auf das Installieren-Symbol.",
+    installTip: "Tipp: Aus WhatsApp zuerst „Im Browser öffnen“ wählen.",
     suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", shopOpenConfirm: "Noch {n} offen – trotzdem abschließen?",
     syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
   },
@@ -480,6 +531,12 @@ const I18N = {
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
     shareFail: "Not possible",
+    installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
+    install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
+    installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.",
+    installAndroid1: "Open this page in Chrome.", installAndroid2: "Tap", installAndroid2b: "at the top right.", installAndroid3: "Tap “Install app”.",
+    installDesktop1: "In Chrome or Edge, click the install icon in the address bar.",
+    installTip: "Tip: If you came from WhatsApp, first choose “Open in browser”.",
     suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", shopOpenConfirm: "{n} still open – finish anyway?",
     syncSaving: "Saving …", syncSaved: "Saved ✓", syncFail: "Saving failed – retrying …", syncLocal: "Saved on this device"
   }
@@ -1549,6 +1606,31 @@ document.addEventListener("click", e => {
 render();
 setSync("syncLocal");
 readLink();
+// Install dialog: one header button opens a guide for Android / iPhone / computer; where the browser offers it, the dialog also has a one-tap "Install automatically"
+const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+$("installTopBtn").hidden = isStandalone;
+let installEvent = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvent = e; $("installMsg").hidden = true; });
+window.addEventListener("appinstalled", () => { $("installTopBtn").hidden = true; closeInstall(); });
+const osNow = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ? "ios" : /android/i.test(navigator.userAgent) ? "android" : "desktop";
+function showOs(os){
+  document.querySelectorAll("#installDialog [data-os]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.os === os)));
+  document.querySelectorAll("#installDialog [data-panel]").forEach(p => { p.hidden = p.dataset.panel !== os; });
+}
+function closeInstall(){ const d = $("installDialog"); if (d.open) d.close(); }
+$("installTopBtn").addEventListener("click", () => {
+  const d = $("installDialog"); showOs(osNow); $("installMsg").hidden = true;
+  if (d.showModal) d.showModal(); else d.setAttribute("open", "");
+});
+$("installClose").addEventListener("click", closeInstall);
+$("installDialog").addEventListener("click", e => { if (e.target === e.currentTarget) closeInstall(); }); // click on the backdrop
+document.querySelectorAll("#installDialog [data-os]").forEach(b => b.addEventListener("click", () => showOs(b.dataset.os)));
+$("installBtn").addEventListener("click", async () => {
+  // Without the browser's install event (iPhone, Firefox, already installed, Chrome not ready yet) we can only point to the manual steps
+  if (!installEvent) { $("installMsg").textContent = T("installUnavailable"); $("installMsg").hidden = false; return; }
+  installEvent.prompt(); await installEvent.userChoice.catch(() => {});
+  installEvent = null;
+});
 // PWA: the service worker (sw.js) makes the app work offline; skipped for local files and sandboxed previews
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 

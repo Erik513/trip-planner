@@ -46,6 +46,10 @@ The page is an installable web app: open https://erik513.github.io/trip-planner/
 Data stays in the browser storage of that address, so always use the installed app or the live address, not a downloaded
 copy of the HTML file (files opened from the file manager have no reliable storage).
 
+- Header: a small "Install" button (with a download icon, next to the share button) opens a dialog with tabs **Android / iPhone & iPad / Computer**
+  (the tab of the current device is preselected) and short step-by-step instructions. Where the browser offers installation (`beforeinstallprompt`,
+  Chrome/Edge/Android) the Android tab also has a one-tap "Install automatically" button. iPhone/iPad cannot install by button, so there only the steps are shown.
+  The header button is hidden once the app runs installed (`display-mode: standalone`).
 - `manifest.webmanifest` – name, colours, icons, `display: standalone`.
 - `sw.js` – service worker: pages are fetched network-first (updates arrive immediately), the cache is the offline fallback.
   Bump `CACHE` in `sw.js` when the list of cached files changes. It is registered at the end of the script (only on http/https).
