@@ -28,28 +28,37 @@ It works offline, without an account and without a server.
 
 ## Sharing
 
-- Header: small buttons to the left of the progress tag – "EN | DE", share (chain icon), download. Deliberately small and subtle
+- Header: small buttons to the left of the progress tag – "EN | DE" and share (chain icon). Deliberately small and subtle
   (`.langsw`, `.icon-btn`), not styled like the progress tag.
 - **Share button:** shares the page address via `navigator.share`, otherwise copies it to the clipboard. The address always carries
-  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). When opened locally (`file://`), the HTML file is shared if the device supports it.
+  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). (Sharing needs the page to be served over http(s); a locally opened file cannot share.)
 - **Opening a link:** the language from the link is adopted only if the device has no own language choice yet. If it contains trip info, a notice at the top asks "Apply?" / "Dismiss"; only after confirmation the trip info is
   replaced (with "Undo"), then the hash is removed.
-- **Download button:** saves the page as `Trip-Planner.html`. On phones it opens the share sheet with the file ("Save to Files" etc.), because plain downloads often fail on iOS and in in-app browsers; elsewhere it is a normal download. The current trip info (or a received link's trip info that has not been applied yet) is
-  embedded in the file (`window.EMBEDDED_HASH`); when the file is opened, it asks "Apply?" once, just like a received link
-  (remembered in `localStorage` key `trip-planner-seen`). Shopping list, to-dos and packing list are not included.
 - **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
   (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
 - Only the trip info is shared; shopping list, to-dos and packing list stay local. There is no synchronisation between devices –
   whoever changes something shares again. Backup/export of the other lists and real-time sync are intentionally not provided.
+
+## Install as an app (PWA)
+
+The page is an installable web app: open https://erik513.github.io/trip-planner/ on the phone and choose "Add to Home Screen"
+(iPhone: Share → Add to Home Screen; Android/Chrome: menu → Install app). It then starts like a normal app and works offline.
+Data stays in the browser storage of that address, so always use the installed app or the live address, not a downloaded
+copy of the HTML file (files opened from the file manager have no reliable storage).
+
+- `manifest.webmanifest` – name, colours, icons, `display: standalone`.
+- `sw.js` – service worker: pages are fetched network-first (updates arrive immediately), the cache is the offline fallback.
+  Bump `CACHE` in `sw.js` when the list of cached files changes. It is registered at the end of the script (only on http/https).
+- `icons/` – app icons (192/512 px, maskable, plus the 180 px apple-touch-icon).
+- `build.py` adds the manifest/icon/theme-colour tags to the generated `index.html`.
 
 ## Storage
 
 - `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`) – per browser, device and address.
 - `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
   when changing the data model, extend it there instead of breaking old data.
-- The code also contains a path for the Claude Artifact database (`window.claude.use("db")`) and Claude downloads
-  (`use("downloads")`). Outside Claude, `window.claude` does not exist and these branches are skipped.
-  Do not remove them as long as the Claude version is still used.
+- The code also contains a path for the Claude Artifact database (`window.claude.use("db")`). Outside Claude, `window.claude`
+  does not exist and this branch is skipped. Do not remove it as long as the Claude version is still used.
 
 ## Development
 
@@ -58,6 +67,7 @@ src/app.html      Source (HTML + CSS + JS in one file) – develop here
 build.py          builds index.html from it: fonts + lz-string embedded, works offline
 vendor/           lz-string.min.js (1.5.0) and woff2 fonts (Bricolage Grotesque, Figtree, JetBrains Mono)
 index.html        Result for GitHub Pages – do NOT edit by hand, always rebuild
+manifest.webmanifest, sw.js, icons/    PWA files (edited by hand, served as they are)
 ```
 
 After every change to `src/app.html`: run `python3 build.py`, then commit `index.html` along with it.
