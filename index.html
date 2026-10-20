@@ -1064,7 +1064,7 @@ document.addEventListener("click", e => {
     legs.push({from: prev ? (prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time, dur: "", to: ""});
     save(); render();
     const i = legs.length - 1;
-    $(legs[i].from ? `leg-${t}-${i}-mode` : `leg-${t}-${i}-from`).focus();
+    $(legs[i].from ? `leg-${t}-${i}-to` : `leg-${t}-${i}-from`).focus(); // start known: type the destination next
     return;
   }
   if (d.addmeet) {
