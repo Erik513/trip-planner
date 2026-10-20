@@ -101,7 +101,7 @@ Code comments are written in English.
 ### Interaction conventions (please keep)
 
 - **Everything saves automatically** (`save()`); the state lives in `state`; `render()` redraws everything.
-- Buttons that currently do nothing are **disabled** (`updateButtons()`).
+- Buttons that currently do nothing are **hidden**, not disabled (`updateButtons()`, fewer controls on phones); an empty button row (`.sec-btns`) is hidden too.
 - Destructive actions: first click "arms" (red), second click performs it; afterwards a toast offers **Undo**.
 - Every heading is **collapsible** (`data-col`); collapsed sections hide the buttons next to the heading.
 - Times: custom field with two lists (hours 00–23, minutes 00–55 in steps of 5).
