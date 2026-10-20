@@ -283,6 +283,7 @@ td.x{width:40px;text-align:right}
     </div>
     <div class="head-right">
     <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Sprache"><button type="button" data-lang="de" aria-pressed="true">DE</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+    <button type="button" class="ghost sm icon-btn" id="shareBtn" data-i18n-attr="aria-label:shareTitle;title:shareTitle" aria-label="Reiseplaner teilen" title="Reiseplaner teilen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
     <button type="button" class="ghost sm icon-btn" id="dlBtn" data-i18n-attr="aria-label:dl;title:dlTitle" aria-label="Reiseplaner herunterladen" title="Reiseplaner als Datei herunterladen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></button>
     <div class="tag" aria-live="polite">
       <span data-i18n="progress">Fortschritt gesamt</span>
@@ -292,6 +293,12 @@ td.x{width:40px;text-align:right}
     </div>
     </div>
   </header>
+
+  <div class="share" id="linkPanel" hidden>
+    <div class="share-head"><strong data-i18n="linkTitle">Reise-Infos im Link</strong></div>
+    <p class="share-hint" id="linkHint"></p>
+    <div class="share-foot"><button type="button" class="ghost sm" id="linkDismiss" data-i18n="dismiss">Verwerfen</button><button type="button" class="tdone" id="linkApply" data-i18n="apply">Übernehmen</button></div>
+  </div>
 
   <section data-col="info">
     <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="tripInfo">Reise-Infos</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="exportBtn" data-i18n="export">Exportieren</button><button type="button" class="ghost sm" id="importBtn" data-i18n="import">Importieren</button><button type="button" class="ghost sm" data-clear="info" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="countdown"></span></div>
@@ -386,6 +393,9 @@ const li = () => lang === "en" ? 1 : 0; // Index in zweisprachigen Listen [de, e
 const I18N = {
   de: {
     title: "Reiseplaner", subtitle: "Reise, Einkauf, To-dos und Koffer an einem Ort", lang: "Sprache",
+    share: "Teilen", shareTitle: "Reiseplaner teilen", shareText: "Mein Reiseplaner – Reise, Einkauf, To-dos und Packliste an einem Ort", shareCopied: "Link kopiert ✓",
+    linkTitle: "Reise-Infos im Link", linkHint: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Übernehmen?",
+    linkHintReplace: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Deine aktuellen Reise-Infos werden dabei ersetzt. Übernehmen?", dismiss: "Verwerfen",
     dl: "Reiseplaner herunterladen", dlTitle: "Reiseplaner als Datei herunterladen", progress: "Fortschritt gesamt",
     tripInfo: "Reise-Infos", export: "Exportieren", import: "Importieren", clearAll: "Inhalt leeren", clearSure: "Wirklich leeren?",
     close: "Schließen", copy: "Kopieren", apply: "Übernehmen", codeLabel: "Reise-Infos Code",
@@ -436,6 +446,9 @@ const I18N = {
   },
   en: {
     title: "Trip Planner", subtitle: "Trip, shopping, to-dos and luggage in one place", lang: "Language",
+    share: "Share", shareTitle: "Share trip planner", shareText: "My trip planner – trip, shopping, to-dos and packing list in one place", shareCopied: "Link copied ✓",
+    linkTitle: "Trip info in link", linkHint: "This link contains trip info (trip, accommodation, outbound and return trip). Apply it?",
+    linkHintReplace: "This link contains trip info (trip, accommodation, outbound and return trip). Your current trip info will be replaced. Apply it?", dismiss: "Dismiss",
     dl: "Download trip planner", dlTitle: "Save trip planner as a file", progress: "Overall progress",
     tripInfo: "Trip info", export: "Export", import: "Import", clearAll: "Clear all", clearSure: "Really clear?",
     close: "Close", copy: "Copy", apply: "Apply", codeLabel: "Trip info code",
@@ -992,7 +1005,7 @@ document.addEventListener("keydown", e => {
 const UNDO = [
   ["[data-deltodo]", "uTodo"], ["[data-delshop]", "uShop"], ["[data-delitem]", "uItem"],
   ["[data-delcat]", "uCat"], ["[data-delleg]", "uLeg"], ["[data-delmeet]", "uMeet"],
-  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#shopDone", "uShopDone"], ["#fromHin", "uRet"]
+  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#linkApply", "uImport"], ["#shopDone", "uShopDone"], ["#fromHin", "uRet"]
 ];
 let undoState = null, toastTimer;
 document.addEventListener("click", e => {
@@ -1176,6 +1189,51 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("input", e => { if (e.target.type === "date") refreshDates(); });
 document.addEventListener("change", e => { if (e.target.type === "date") refreshDates(); });
+
+// Teilen: Link zur Seite (mit den Reise-Infos als Code hinter „#“, falls vorhanden) über das Teilen-Menü des Geräts, sonst in die Zwischenablage; lokal geöffnet (file://) wird die Datei geteilt
+$("shareBtn").addEventListener("click", async e => {
+  const b = e.currentTarget;
+  const note = t => { b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
+  const base = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] : null;
+  const url = base && (Object.keys(pack(state.info)).length ? base + "#" + makeCode() : base);
+  try {
+    if (navigator.share) {
+      if (url) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
+      const file = new File([PAGE_SRC], T("dlFile"), {type: "text/html"});
+      if (navigator.canShare && navigator.canShare({files: [file]})) { await navigator.share({title: T("title"), files: [file]}); return; }
+    }
+  } catch (err) { if (err && err.name === "AbortError") return; }
+  if (!url) { note(T("dlFail")); return; }
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch (err) {
+    const ta = document.createElement("textarea"); ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand("copy"); } catch (err2) {}
+    ta.remove(); b.focus();
+  }
+  note(ok ? T("shareCopied") : T("dlFail"));
+});
+
+// Geteilter Link mit Reise-Infos (#URLAUB:…): erst nachfragen, dann übernehmen
+let linkData = null;
+const clearHash = () => { try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} };
+function showLinkPanel(){
+  const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
+  $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
+}
+function readLink(){
+  const raw = location.hash.slice(1); if (!raw.startsWith("URLAUB")) return;
+  let txt = raw; try { txt = decodeURIComponent(raw); } catch(e){}
+  const d = readCode(txt);
+  if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
+}
+$("linkApply").addEventListener("click", () => {
+  if (!linkData) return;
+  state.info = linkData; linkData = null;
+  if (document.activeElement) document.activeElement.blur();
+  clearHash(); $("linkPanel").hidden = true; save(); render();
+});
+$("linkDismiss").addEventListener("click", () => { linkData = null; clearHash(); $("linkPanel").hidden = true; });
 
 // Herunterladen: die Seite als eigenständige Datei speichern (z. B. um sie aus einer App-Vorschau heraus im Browser zu öffnen)
 $("dlBtn").addEventListener("click", async e => {
@@ -1506,10 +1564,12 @@ document.addEventListener("click", e => {
   document.querySelectorAll("[data-armed]").forEach(x => { x.dataset.armed = "0"; });
   $("sharePanel").hidden = true; $("toast").hidden = true; undoState = null;
   save(); render(); setSync(syncKey);
+  if (linkData) showLinkPanel();
 });
 
 render();
 setSync("syncLocal");
+readLink();
 
 (async () => {
   // Jede Person bekommt ihre eigene, private Liste
