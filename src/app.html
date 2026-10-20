@@ -1,8 +1,8 @@
-<title>Reiseplaner</title>
+<title>Trip Planner</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: eine schmale Spalte – oben To-dos, darunter Packtabelle nach Kategorien, Fortschritt als Gepäckanhänger */
+/* Layout: one narrow column – to-dos on top, packing table by category below, progress shown as a luggage tag */
 :root{
   --bg:#eef2f3; --surface:#ffffff; --fg:#17262b; --muted:#5d7178; --line:#d3dde0;
   --accent:#0f7c74; --accent-soft:#d6ece9; --done:#8a9ca1;
@@ -101,7 +101,7 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .leg-handle:hover{filter:brightness(1.1)}
 .legs .leg.dragging{box-shadow:0 6px 18px rgba(0,0,0,.18);position:relative;z-index:3}
 .legs.is-dragging, .legs.is-dragging *{cursor:grabbing;user-select:none}
-#fromHin[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
+#fromOut[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom, 0px));z-index:50;display:flex;align-items:center;gap:14px;background:var(--fg);color:var(--bg);border-radius:10px;padding:10px 12px 10px 16px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:calc(100% - 32px);font-size:.92rem}
 .toast button{font:inherit;font-weight:700;border:0;background:transparent;color:var(--accent-soft);cursor:pointer;padding:4px 6px;border-radius:6px;text-decoration:underline;text-underline-offset:3px}
 .share{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
@@ -143,8 +143,8 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .grp-head h3{margin:0!important}
 .note-col > .grp-head{margin:0}
 .note-col .toggle{gap:4px}
-[data-col="hin"] > .grp-head, [data-col="rueck"] > .grp-head{flex-direction:column;align-items:flex-start;gap:4px}
-[data-col="hin"] > .grp-head .count:empty, [data-col="rueck"] > .grp-head .count:empty{display:none}
+[data-col="out"] > .grp-head, [data-col="ret"] > .grp-head{flex-direction:column;align-items:flex-start;gap:4px}
+[data-col="out"] > .grp-head .count:empty, [data-col="ret"] > .grp-head .count:empty{display:none}
 .legs{display:flex;flex-direction:column;gap:8px}
 .leg{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
 .leg-no{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--surface);font-family:var(--mono);font-size:.78rem;display:grid;place-items:center}
@@ -232,7 +232,7 @@ td.x{width:40px;text-align:right}
 .reset[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 
-/* Handy: kompaktere Kopfzeilen, Tabelle ohne Seitwärtsscrollen, Etappen mit voller Feldbreite */
+/* Mobile: more compact headers, table without horizontal scrolling, legs with full-width fields */
 @media (max-width:600px){
   body{padding-block:20px 48px}
   .wrap{gap:28px}
@@ -268,7 +268,7 @@ td.x{width:40px;text-align:right}
       <p class="sub" data-i18n="subtitle">Reise, Einkauf, To-dos und Koffer an einem Ort</p>
     </div>
     <div class="head-right">
-    <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Sprache"><button type="button" data-lang="de" aria-pressed="true">DE</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+    <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="de" aria-pressed="false">DE</button></div>
     <button type="button" class="ghost sm icon-btn" id="shareBtn" data-i18n-attr="aria-label:shareTitle;title:shareTitle" aria-label="Reiseplaner teilen" title="Reiseplaner teilen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
     <button type="button" class="ghost sm icon-btn" id="dlBtn" data-i18n-attr="aria-label:dl;title:dlTitle" aria-label="Reiseplaner herunterladen" title="Reiseplaner als Datei herunterladen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></button>
     <div class="tag" aria-live="polite">
@@ -295,23 +295,23 @@ td.x{width:40px;text-align:right}
       <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy" data-i18n="copy">Kopieren</button><button type="button" class="tdone" id="importApply" data-i18n="apply">Übernehmen</button></div>
     </div>
     <div class="info-grid" id="infoGrid">
-      <div class="grp" data-col="reise"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3></div><div class="sub">
-        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span><span class="maps" id="wx" hidden><a target="_blank" rel="noopener" id="wxLink" data-i18n="weather">Wetter</a></span></div><input class="fld" id="i-ziel" data-info="ziel" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
-        <label class="f"><span data-i18n="lodging">Unterkunft</span><input class="fld" id="i-unterkunft" data-info="unterkunft" type="text"></label>
-        <label class="f wide"><span data-i18n="address">Zieladresse</span><input class="fld" id="i-adresse" data-info="adresse" type="text"></label>
-        <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-cin" data-info="cin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-cinz" data-info="cinz" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
-        <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-cout" data-info="cout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-coutz" data-info="coutz" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
-        <div class="f wide note-col" data-col="notiz"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld" id="i-notiz" data-info="notiz" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
+      <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3></div><div class="sub">
+        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span><span class="maps" id="wx" hidden><a target="_blank" rel="noopener" id="wxLink" data-i18n="weather">Wetter</a></span></div><input class="fld" id="i-destination" data-info="destination" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
+        <label class="f"><span data-i18n="lodging">Unterkunft</span><input class="fld" id="i-lodging" data-info="lodging" type="text"></label>
+        <label class="f wide"><span data-i18n="address">Zieladresse</span><input class="fld" id="i-address" data-info="address" type="text"></label>
+        <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-checkin" data-info="checkin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-checkin-time" data-info="checkinTime" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
+        <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
+        <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
-      <div class="grp" data-col="hin"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="hin" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-hin"></span></div>
-        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ab" data-info="ab" type="date"></label>
-        <div class="legs" id="legs-hin"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="hin" data-i18n="addMeet">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="hin" data-i18n="addLeg">Etappe hinzufügen</button></div>
+      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="out" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-out"></span></div>
+        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label>
+        <div class="legs" id="legs-out"></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg">Etappe hinzufügen</button></div>
       </div>
-      <div class="grp" data-col="rueck"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromHin" data-i18n="fromOut">Aus Hinfahrt übernehmen</button><button type="button" class="ghost sm" data-uncheck="rueck" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-rueck"></span></div>
-        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-rueck" data-info="rueck" type="date"></label>
-        <div class="legs" id="legs-rueck"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="rueck" data-i18n="addMeet">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="rueck" data-i18n="addLeg">Etappe hinzufügen</button></div>
+      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut">Aus Hinfahrt übernehmen</button><button type="button" class="ghost sm" data-uncheck="ret" data-i18n="uncheck">Haken entfernen</button></div></div><span class="count" id="sum-ret"></span></div>
+        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label>
+        <div class="legs" id="legs-ret"></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet">Treffpunkt hinzufügen</button><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg">Etappe hinzufügen</button></div>
       </div>
       <datalist id="modes"></datalist>
     </div>
@@ -364,16 +364,21 @@ td.x{width:40px;text-align:right}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script>
-// Unveränderter Quelltext der Seite (vor dem ersten Rendern) – für "Herunterladen"
+// Unmodified page source (before the first render) – used by "Download"
 const PAGE_SRC = "<!doctype html>\n" + document.documentElement.outerHTML;
-const KEY = "packliste-v2";
-// Sprachen: Texte stehen in I18N, T("schlüssel", {platzhalter}) liefert den Text der aktiven Sprache.
-// Standard = Browsersprache (Deutsch, sonst Englisch); die Wahl wird pro Gerät in localStorage gemerkt.
+const KEY = "trip-planner-v1";
+const LEGACY_KEY = "packliste-v2"; // German-era storage key, read once so existing data is found
+// Languages: texts live in I18N, T("key", {placeholders}) returns the text in the active language.
+// Default = English; the choice is remembered per device in localStorage.
 const LANG_KEY = "trip-planner-lang";
 let langStored = null;
 try { langStored = localStorage.getItem(LANG_KEY); } catch(e){}
-let lang = langStored === "de" || langStored === "en" ? langStored : ((navigator.language || "").toLowerCase().startsWith("de") ? "de" : "en");
-const li = () => lang === "en" ? 1 : 0; // Index in zweisprachigen Listen [de, en]
+// A shared link may carry its language (#lang=de&…); it is adopted only if this device has no own choice yet
+const hashLang = ((location.hash.slice(1).match(/(?:^|&)lang=(de|en)(?:&|$)/) || [])[1]) || null;
+const adoptHashLang = !langStored && !!hashLang;
+let lang = langStored === "de" || langStored === "en" ? langStored : (hashLang || "en");
+if (adoptHashLang) { langStored = lang; try { localStorage.setItem(LANG_KEY, lang); } catch(e){} }
+const li = () => lang === "en" ? 1 : 0; // index into bilingual lists [de, en]
 const I18N = {
   de: {
     title: "Reiseplaner", subtitle: "Reise, Einkauf, To-dos und Koffer an einem Ort", lang: "Sprache",
@@ -488,7 +493,7 @@ const T = (k, v) => {
   return s;
 };
 const plusDays = d => d ? ` (+${d} ${T(d > 1 ? "dayPl" : "daySg")})` : "";
-// Packlisten-Vorschläge zweisprachig: [Kategorie [de, en], [[Gegenstand [de, en]], …]]; die Kategorien sind zugleich die Standard-Kategorien
+// Bilingual packing suggestions: [category [de, en], [[item [de, en]], …]]; the categories are also the default categories
 const SUGGEST = [
   [["Kleidung", "Clothing"], [[["Unterhosen", "Underwear"]], [["Socken", "Socks"]], [["T-Shirts / Oberteile", "T-shirts / tops"]], [["Pullover / Hoodie", "Sweater / hoodie"]], [["Hosen", "Trousers"]], [["Schlafsachen", "Sleepwear"]], [["Jacke (wetterfest)", "Jacket (weatherproof)"]], [["Bequeme Schuhe", "Comfortable shoes"]]]],
   [["Hygiene & Bad", "Toiletries"], [[["Zahnbürste & Zahnpasta", "Toothbrush & toothpaste"]], [["Duschgel / Shampoo", "Shower gel / shampoo"]], [["Deo", "Deodorant"]], [["Haarbürste / Kamm", "Hairbrush / comb"]], [["Rasierer", "Razor"]], [["Handtuch", "Towel"]]]],
@@ -498,9 +503,9 @@ const SUGGEST = [
   [["Lebensmittel", "Food"], [[["Snacks für die Fahrt", "Snacks for the trip"]], [["Wasserflasche / Getränke", "Water bottle / drinks"]], [["Obst", "Fruit"]], [["Brotdose / Proviant", "Lunch box / packed meal"]], [["Kaffee / Tee", "Coffee / tea"]], [["Frühstücksvorrat", "Breakfast supplies"]]]],
   [["Sonstiges", "Misc"], [[["Tagesrucksack", "Daypack"]], [["Beutel für Schmutzwäsche", "Bag for dirty laundry"]], [["Regenschirm", "Umbrella"]]]]
 ];
-// Fortbewegungsmittel für die Vorschlagsliste im Feld "Fortbewegung" [de, en]
+// Transport modes for the suggestion list of the "Transport" field [de, en]
 const MODES = [["Auto", "Car"], ["Bahn", "Train"], ["Bus", "Bus"], ["Flugzeug", "Plane"], ["Fähre", "Ferry"], ["Taxi", "Taxi"], ["Mitfahrgelegenheit", "Carpool"], ["Fahrrad", "Bike"], ["Zu Fuß", "On foot"]];
-// Beim Sprachwechsel werden Standard-Kategorien, Vorschlags-Gegenstände und Fortbewegungsmittel mit übersetzt; selbst Eingetipptes bleibt
+// On language switch, default categories, suggested items and transport modes are translated too; anything typed by the user stays
 function translateDefaults(to){
   const f = to === "en" ? 0 : 1, g = 1 - f, norm = s => (s || "").trim().toLowerCase();
   const pick = x => { for (const [, its] of SUGGEST) { const h = its.find(([n]) => norm(n[f]) === norm(x.t)); if (h) return h[0][g]; } };
@@ -510,9 +515,9 @@ function translateDefaults(to){
     c.items.forEach(x => { const n = pick(x); if (n) x.t = n; });
   });
   const info = state.info || {};
-  ["legs", "rlegs"].forEach(k => (info[k] || []).forEach(l => { const m = MODES.find(x => norm(x[f]) === norm(l.mode)); if (m) l.mode = m[g]; }));
+  ["outLegs", "retLegs"].forEach(k => (info[k] || []).forEach(l => { const m = MODES.find(x => norm(x[f]) === norm(l.mode)); if (m) l.mode = m[g]; }));
 }
-// Feste Texte der Seite: data-i18n = Textinhalt, data-i18n-attr = "attribut:schlüssel;…"
+// Static page texts: data-i18n = text content, data-i18n-attr = "attribute:key;…"
 function applyStatic(){
   document.documentElement.lang = lang; document.title = T("title");
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T(el.dataset.i18n); });
@@ -527,10 +532,10 @@ const defaults = {
 };
 
 let state;
-try { state = JSON.parse(localStorage.getItem(KEY)); } catch(e) { state = null; }
+try { state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY)); } catch(e) { state = null; }
 if (!state || !state.todos || !state.cats) state = structuredClone(defaults);
-// Speichern: sofort lokal, dazu automatisch in der Artifact-Datenbank (geräteübergreifend)
-let synced = null; // zuletzt bekannter Stand in der Datenbank (für Teil-Updates)
+// Saving: immediately to localStorage, plus automatically to the Artifact database (across devices)
+let synced = null; // last known state in the database (for partial updates)
 let dbRef = null, writing = false, dirty = false, timer = null, needsRender = false;
 let syncKey = "";
 const setSync = k => { syncKey = k; const el = document.getElementById("sync"); if (el) el.textContent = k ? T(k) : ""; };
@@ -554,7 +559,7 @@ async function flush(){
   if (!dbRef || writing || !dirty) return;
   writing = true; dirty = false;
   try {
-    // Nur Geändertes schreiben, damit parallele Änderungen von anderen Geräten in anderen Bereichen erhalten bleiben
+    // Write only what changed, so parallel changes from other devices in other areas are preserved
     const body = JSON.parse(JSON.stringify(state));
     if (synced) { const patch = diffPatch(synced, body, true); if (Object.keys(patch).length) await dbRef.update(patch); }
     else await dbRef.set(body);
@@ -579,7 +584,7 @@ function render(){
       <input class="txt edit" type="text" id="etodo-${i}" data-etodo="${i}" value="${esc(x.t)}" aria-label="${T("editTodo")}">
       <button class="del" type="button" data-deltodo="${i}" aria-label="${T("removeTodo")}">×</button>
     </li>`).join("") || `<li class="empty">${T("todoEmpty")}</li>`;
-  // Einkaufsliste
+  // Shopping list
   const shop = Array.isArray(state.shop) ? state.shop : null;
   $("shopSec").hidden = !shop; $("shopStart").hidden = !!shop;
   let sd = 0, st = 0;
@@ -596,7 +601,7 @@ function render(){
   const td = state.todos.filter(x=>x.d).length;
   $("todoCount").textContent = T("todoCount", {d: td, n: state.todos.length});
 
-  // Packliste
+  // Packing list
   let rows = "", pd = 0, pt = 0;
   state.cats.forEach((c,ci) => {
     const done = c.items.filter(x=>x.d).length;
@@ -621,7 +626,7 @@ function render(){
   $("itemCat").innerHTML = state.cats.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join("");
 
   const all = state.todos.length + pt + st, allDone = td + pd + sd;
-  // Reise-Infos
+  // Trip info
   const info = state.info || {};
   document.querySelectorAll("[data-info]").forEach(el => { if (document.activeElement !== el) el.value = info[el.dataset.info] || ""; });
   renderTrips();
@@ -644,7 +649,7 @@ document.addEventListener("change", e => {
   save(); render();
   const again = document.getElementById(t.id); if (again) again.focus();
 });
-// Bearbeiten: beim Tippen speichern, leere Einträge beim Verlassen löschen
+// Editing: save while typing, delete empty entries when leaving the field
 document.addEventListener("input", e => {
   const t = e.target, v = t.value;
   if (t.dataset.etodo !== undefined) state.todos[t.dataset.etodo].t = v;
@@ -659,7 +664,7 @@ document.addEventListener("focusout", e => {
   const t = e.target;
   if (t.dataset && t.dataset.ecat !== undefined && !t.value.trim()) { state.cats[t.dataset.ecat].name = T("catFallback"); t.value = T("catFallback"); save(); }
 });
-// Knöpfe, die gerade nichts bewirken würden, sind deaktiviert
+// Buttons that would currently do nothing are disabled
 function updateButtons(){
   const set = (sel, off) => {
     const b = document.querySelector(sel); if (!b) return;
@@ -671,8 +676,8 @@ function updateButtons(){
   set('[data-uncheck="todos"]', !state.todos.some(x => x.d));
   set('[data-uncheck="shop"]', !shop.some(x => x.d));
   set('[data-uncheck="pack"]', !items.some(x => x.d));
-  ["hin", "rueck"].forEach(t => set(`[data-uncheck="${t}"]`, !(tripLegs(t).some(x => x.d) || (info[t + "Meet"] && info[t + "Meet"].d))));
-  // Inhalt leeren nur, wenn wirklich etwas eingetragen ist (auch in Etappen/Treffpunkt)
+  ["out", "ret"].forEach(t => set(`[data-uncheck="${t}"]`, !(tripLegs(t).some(x => x.d) || (info[t + "Meet"] && info[t + "Meet"].d))));
+  // "Clear all" only if something is actually entered (also inside legs/meeting point)
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : v === true;
   set('[data-clear="info"]', !has(info));
   set("#exportBtn", !has(info));
@@ -680,14 +685,14 @@ function updateButtons(){
   set('[data-clear="shop"]', !shop.length);
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
-  // Übernehmen-Knöpfe in den Etappen nur zeigen, wenn es etwas zu übernehmen gibt
+  // Only show the "use" buttons in legs when there is something to copy
   document.querySelectorAll("[data-fill]").forEach(b => {
     b.hidden = !fillValue(b).trim();
   });
-  set("#fromHin", !tripLegs("hin").length);
-  const zo = (info.ziel || "").trim();
-  $("wx").hidden = !zo;
-  if (zo) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(zo)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(zo)}`;
+  set("#fromOut", !tripLegs("out").length);
+  const dest = (info.destination || "").trim();
+  $("wx").hidden = !dest;
+  if (dest) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(dest)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(dest)}`;
   [["todoForm","todoInput"],["shopForm","shopInput"],["itemForm","itemInput"],["catForm","catInput"]].forEach(([f, i]) => {
     $(f).querySelector("button[type=submit]").disabled = !$(i).value.trim();
   });
@@ -696,8 +701,8 @@ document.addEventListener("input", e => {
   if (["todoInput","shopInput","itemInput","catInput"].includes(e.target.id)) updateButtons();
 });
 
-// Uhrzeit-Auswahl: ein Feld, das zwei Listen öffnet – Stunden 00–23 und Minuten 00–55 (5er-Schritte),
-// jede Spalte für sich scrollbar und begrenzt
+// Time picker: one field that opens two lists – hours 00–23 and minutes 00–55 (steps of 5),
+// each column scrollable on its own and height-limited
 const pad = n => String(n).padStart(2, "0");
 function pickInner(id, label, key){
   const col = (part, lab, vals) => `<div class="tcol" role="listbox" aria-label="${T(lab)}" data-i18n-attr="aria-label:${lab}" data-part="${part}"><div class="tcol-head" aria-hidden="true" data-i18n="${part === "h" ? "hr" : "min"}">${T(part === "h" ? "hr" : "min")}</div>${vals.map(v => `<button type="button" class="opt" role="option" data-v="${v}" aria-selected="false">${v}</button>`).join("")}</div>`;
@@ -717,10 +722,10 @@ function buildTimePickers(){
   });
 }
 buildTimePickers();
-// Fahrten (Hin/Rück): Treffpunkt optional, dazu Etappen
-const TRIPS = ["hin", "rueck"];
-function tripLegs(t){ state.info = state.info || {}; const k = t === "rueck" ? "rlegs" : "legs"; return state.info[k] = state.info[k] || []; }
-// Zeitwert lesen/schreiben – normales Feld, Treffpunkt oder Uhrzeit einer Etappe
+// Trips (outbound/return): optional meeting point plus legs
+const TRIPS = ["out", "ret"];
+function tripLegs(t){ state.info = state.info || {}; const k = t === "ret" ? "retLegs" : "outLegs"; return state.info[k] = state.info[k] || []; }
+// Read/write a time value – plain field, meeting point or the time of a leg
 function getT(p){
   const i = state.info || {};
   if (p.dataset.meet) return (i[p.dataset.meet + "Meet"] || {}).time || "";
@@ -733,12 +738,18 @@ function setT(p, v){
   else if (p.dataset.leg !== undefined) { const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (l) l.time = v; }
   else state.info[p.dataset.time] = v;
 }
+// Legacy German data keys → English names (old local data, cloud data and old export codes)
+const LEGACY_INFO_KEYS = {ziel: "destination", unterkunft: "lodging", adresse: "address", cin: "checkin", cinz: "checkinTime", cout: "checkout", coutz: "checkoutTime", notiz: "notes", ab: "outDate", rueck: "retDate", hinMeet: "outMeet", rueckMeet: "retMeet", legs: "outLegs", rlegs: "retLegs"};
+const LEGACY_COLLAPSED_KEYS = {reise: "trip", notiz: "notes", hin: "out", rueck: "ret"};
 function migrate(s){
   s.info = s.info || {};
   const i = s.info;
-  if ((i.tort || i.tdat || i.tzeit) && !i.hinMeet) i.hinMeet = {ort: i.tort || "", date: i.tdat || "", time: i.tzeit || ""};
+  Object.entries(LEGACY_INFO_KEYS).forEach(([o, n]) => { if (o in i) { if (!(n in i)) i[n] = i[o]; delete i[o]; } });
+  ["outMeet", "retMeet"].forEach(k => { const m = i[k]; if (m && typeof m === "object" && "ort" in m) { if (!("place" in m)) m.place = m.ort; delete m.ort; } });
+  if (s.collapsed) Object.entries(LEGACY_COLLAPSED_KEYS).forEach(([o, n]) => { if (o in s.collapsed) { if (!(n in s.collapsed)) s.collapsed[n] = s.collapsed[o]; delete s.collapsed[o]; } });
+  if ((i.tort || i.tdat || i.tzeit) && !i.outMeet) i.outMeet = {place: i.tort || "", date: i.tdat || "", time: i.tzeit || ""};
   ["tort", "tdat", "tzeit", "mit", "zeit", "rzeit"].forEach(k => delete i[k]);
-  // Einmalig: Kategorie "Lebensmittel" vor "Sonstiges" ergänzen
+  // One-off: add the category "Food" ("Lebensmittel") before "Misc" ("Sonstiges")
   if (!s.v2cats) {
     if (Array.isArray(s.cats) && !s.cats.some(c => ["lebensmittel", "food"].includes((c.name || "").trim().toLowerCase()))) {
       const at = s.cats.findIndex(c => ["sonstiges", "misc"].includes((c.name || "").trim().toLowerCase()));
@@ -749,10 +760,10 @@ function migrate(s){
   if (s.infoCollapsed !== undefined) { s.collapsed = s.collapsed || {}; s.collapsed.info = s.infoCollapsed; delete s.infoCollapsed; }
 }
 migrate(state);
-// Erster Start ohne gewählte Sprache: vorhandene Standardnamen in die Browsersprache übersetzen
-if (!langStored) translateDefaults(lang);
+// First start without a chosen language: translate existing German default names into English
+if (!langStored || adoptHashLang) translateDefaults(lang);
 
-// Links zu Google Maps / Apple Karten: Standort beim Treffpunkt, Route bei Etappen
+// Links to Google Maps / Apple Maps: location for the meeting point, route for legs
 const MAPS = what => `<span class="maps" data-maps hidden><span class="sr">${what}:</span><a target="_blank" rel="noopener" data-map="g">Google Maps</a><a target="_blank" rel="noopener" data-map="a">${T("appleMaps")}</a></span>`;
 function travelMode(mode){
   const m = (mode || "").toLowerCase();
@@ -767,7 +778,7 @@ function updateMaps(){
   TRIPS.forEach(t => {
     const box = $("legs-" + t), meet = (state.info || {})[t + "Meet"];
     const set = (el, g, a) => { if (!el) return; el.hidden = !g; if (g) { el.querySelector('[data-map="g"]').href = g; el.querySelector('[data-map="a"]').href = a; } };
-    if (meet) { const q = (meet.ort || "").trim();
+    if (meet) { const q = (meet.place || "").trim();
       set(box.querySelector(".meet [data-maps]"), q && `https://www.google.com/maps/search/?api=1&query=${E(q)}`, `https://maps.apple.com/?q=${E(q)}`); }
     tripLegs(t).forEach((l, i) => {
       const a = (l.from || "").trim(), b = (l.to || "").trim(), [gm, am] = travelMode(l.mode);
@@ -787,7 +798,7 @@ function renderTrips(){
     <div class="leg meet" data-trip="${t}">
       <span class="leg-no" aria-hidden="true">◉</span>
       <div class="leg-grid">
-        <div class="f c-from"><div class="lbl-row"><span>${T("meet")}</span>${MAPS(T("mapLbl"))}</div><input class="fld" type="text" id="meet-${t}-ort" data-meetf="ort" value="${esc(meet.ort || "")}" aria-label="${T("meetPlace")}"></div>
+        <div class="f c-from"><div class="lbl-row"><span>${T("meet")}</span>${MAPS(T("mapLbl"))}</div><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>
         <label class="f"><span>${T("date")}</span><input class="fld" type="date" id="meet-${t}-date" data-meetf="date" value="${esc(meet.date || "")}"></label>
         <div class="f"><span>${T("time")}</span><div class="tpick" data-meet="${t}">${pickInner(`meet-${t}-time`, T("meetTime"))}</div></div>
       </div>
@@ -797,21 +808,21 @@ function renderTrips(){
     <div class="leg" data-trip="${t}" data-leg="${i}">
       <button type="button" class="leg-no leg-handle" data-lhandle aria-label="${T("legMove", {n: i + 1})}" title="${T("dragTitle")}">${i + 1}</button>
       <div class="leg-grid">
-        <div class="f c-from"><div class="lbl-row"><span>${T("start")}</span>${MAPS(T("routeLbl"))}</div><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="${T("legStart", {n: i + 1})}">${i === 0 ? `<button type="button" class="unit" data-fill="meet" data-field="from" hidden title="${T("fillMeetTitle")}">${T("meet")}</button>${t === "rueck" ? `<button type="button" class="unit" data-fill="dest" data-field="from" hidden title="${T("fillDestStart")}">${T("fillDest")}</button>` : ""}` : `<button type="button" class="unit" data-fill="prev" data-field="from" hidden title="${T("fillPrevTitle")}">${T("fillPrev")}</button>`}</div></div>
+        <div class="f c-from"><div class="lbl-row"><span>${T("start")}</span>${MAPS(T("routeLbl"))}</div><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="${T("legStart", {n: i + 1})}">${i === 0 ? `<button type="button" class="unit" data-fill="meet" data-field="from" hidden title="${T("fillMeetTitle")}">${T("meet")}</button>${t === "ret" ? `<button type="button" class="unit" data-fill="dest" data-field="from" hidden title="${T("fillDestStart")}">${T("fillDest")}</button>` : ""}` : `<button type="button" class="unit" data-fill="prev" data-field="from" hidden title="${T("fillPrevTitle")}">${T("fillPrev")}</button>`}</div></div>
         <label class="f"><span>${T("mode")}</span><input class="fld" type="text" id="leg-${t}-${i}-mode" data-legf="mode" list="modes" value="${esc(l.mode || "")}"></label>
         <div class="f"><span>${T("time")}</span><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
         <div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>
-        <div class="f c-to"><span>${T("legDest")}</span><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}">${t === "hin" ? `<button type="button" class="unit" data-fill="dest" data-field="to" hidden title="${T("fillDestEnd")}">${T("fillDest")}</button>` : ""}</div></div>
+        <div class="f c-to"><span>${T("legDest")}</span><div class="fld dur-box"><input type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}">${t === "out" ? `<button type="button" class="unit" data-fill="dest" data-field="to" hidden title="${T("fillDestEnd")}">${T("fillDest")}</button>` : ""}</div></div>
         <div class="f c-arr"><span>${T("arrival")}</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>
       </div>
       <div class="leg-side"><button class="del" type="button" data-delleg="${i}" aria-label="${T("removeLeg", {n: i + 1})}" title="${T("removeLegTitle")}">×</button><input type="checkbox" class="leg-chk" id="leg-${t}-${i}-done" data-legdone ${l.d ? "checked" : ""} aria-label="${T("legDone", {n: i + 1})}" title="${T("done")}"></div>
     </div>`).join("");
     setTimeout(updateCurrent);
-    box.innerHTML = html || `<div class="empty">${T(t === "hin" ? "legsEmptyOut" : "legsEmptyRet")}</div>`;
+    box.innerHTML = html || `<div class="empty">${T(t === "out" ? "legsEmptyOut" : "legsEmptyRet")}</div>`;
   });
   updateLegSummary();
 }
-// Dauer lesen: "4:05" = 4 Std 5 Min, "1,5" = 1,5 Std, "90m" = 90 Min, "2h 15m" usw.
+// Parse duration: "4:05" = 4 h 5 min, "1,5" = 1.5 h, "90m" = 90 min, "2h 15m" etc.
 function parseDur(s, unit){
   s = String(s ?? "").trim().toLowerCase(); if (!s) return null;
   let r;
@@ -838,7 +849,7 @@ function updateLegSummary(){
   TRIPS.forEach(t => {
     const legs = tripLegs(t), meet = (state.info || {})[t + "Meet"];
     const dur = l => { const m = parseDur(l.dur, l.unit); return m === null ? 0 : m; };
-    // Ankunft pro Etappe: eigene Uhrzeit + Dauer, sonst Ankunft der vorigen Etappe (bzw. Treffpunkt) + Dauer
+    // Arrival per leg: own time + duration, otherwise arrival of the previous leg (or meeting point) + duration
     let prev = meet && meet.time ? toMin(meet.time) : null, endArr = null;
     legs.forEach((l, i) => {
       const el = document.getElementById(`leg-${t}-${i}-arr`);
@@ -870,10 +881,10 @@ document.addEventListener("click", e => {
   const d = b.dataset;
   if (d.addleg) {
     const t = d.addleg, legs = tripLegs(t), prev = legs[legs.length - 1], meet = state.info[t + "Meet"];
-    // Start = Ziel der vorigen Etappe, Uhrzeit = deren Ankunft (auf 5 Minuten aufgerundet)
+    // Start = destination of the previous leg, time = its arrival (rounded up to 5 minutes)
     const arr = arrivals(t)[legs.length - 1];
     const time = prev && arr != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(arr / 5) * 5) : "";
-    legs.push({from: prev ? (prev.to || "") : (meet ? (meet.ort || "") : ""), mode: "", time, dur: "", to: ""});
+    legs.push({from: prev ? (prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time, dur: "", to: ""});
     save(); render();
     const i = legs.length - 1;
     $(legs[i].from ? `leg-${t}-${i}-mode` : `leg-${t}-${i}-from`).focus();
@@ -881,11 +892,11 @@ document.addEventListener("click", e => {
   }
   if (d.addmeet) {
     const t = d.addmeet;
-    state.info[t + "Meet"] = {ort: "", date: (t === "hin" ? state.info.ab : state.info.rueck) || "", time: ""};
-    save(); render(); $(`meet-${t}-ort`).focus();
+    state.info[t + "Meet"] = {place: "", date: (t === "out" ? state.info.outDate : state.info.retDate) || "", time: ""};
+    save(); render(); $(`meet-${t}-place`).focus();
     return;
   }
-  // Entfernen: bei ausgefülltem Inhalt erst rot, zweiter Klick löscht
+  // Remove: if filled in, first click arms (red), second click deletes
   const t = b.closest(".leg").dataset.trip;
   const obj = d.delmeet ? state.info[t + "Meet"] : tripLegs(t)[d.delleg];
   const filled = obj && Object.values(obj).some(v => v && String(v).trim());
@@ -907,9 +918,9 @@ document.addEventListener("click", e => {
   save(); updateLegSummary();
 });
 
-// Etappen abhaken; die oberste offene Box je Fahrt wird hervorgehoben
+// Tick off legs; the topmost open box is highlighted
 function updateCurrent(){
-  // Reihenfolge Hinfahrt → Rückfahrt: markiert wird nur die erste offene Box über beide Fahrten
+  // Order outbound → return: only the first open box across both trips is highlighted
   let found = false;
   TRIPS.forEach(t => {
     $("legs-" + t).querySelectorAll(".leg").forEach(g => {
@@ -928,10 +939,10 @@ document.addEventListener("change", e => {
   obj.d = e.target.checked; save(); updateCurrent(); updateButtons();
 });
 
-// Rückfahrt aus der Hinfahrt erzeugen: Etappen in umgekehrter Reihenfolge, Start und Ziel getauscht
+// Create the return trip from the outbound trip: legs in reverse order, start and destination swapped
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("#fromHin"); if (!b) return;
-  const r = tripLegs("rueck");
+  const b = e.target.closest && e.target.closest("#fromOut"); if (!b) return;
+  const r = tripLegs("ret");
   const filled = r.some(l => Object.values(l).some(v => v && String(v).trim()));
   if (filled && b.dataset.armed !== "1") {
     b.dataset.armed = "1"; b.textContent = T("replaceRet");
@@ -939,12 +950,12 @@ document.addEventListener("click", e => {
     return;
   }
   clearTimeout(b._t); b.dataset.armed = "0"; b.textContent = T("fromOut");
-  const rev = tripLegs("hin").slice().reverse().map(l => ({from: l.to || "", to: l.from || "", mode: l.mode || "", dur: l.dur || "", time: ""}));
+  const rev = tripLegs("out").slice().reverse().map(l => ({from: l.to || "", to: l.from || "", mode: l.mode || "", dur: l.dur || "", time: ""}));
   r.splice(0, r.length, ...rev);
   save(); render();
 });
 
-// Etappen per Drag sortieren (Griff = Nummer), Treffpunkt bleibt oben
+// Reorder legs by drag (handle = number), the meeting point stays on top
 let ldrag = null;
 document.addEventListener("pointerdown", e => {
   const h = e.target.closest && e.target.closest("[data-lhandle]"); if (!h) return;
@@ -985,11 +996,11 @@ document.addEventListener("keydown", e => {
   const n = $("legs-" + t).querySelector(`.leg[data-leg="${j}"] [data-lhandle]`); if (n) n.focus();
 });
 
-// Rückgängig: nach Löschen/Leeren kurz die Möglichkeit zum Wiederherstellen anbieten
+// Undo: after deleting/clearing, briefly offer to restore
 const UNDO = [
   ["[data-deltodo]", "uTodo"], ["[data-delshop]", "uShop"], ["[data-delitem]", "uItem"],
   ["[data-delcat]", "uCat"], ["[data-delleg]", "uLeg"], ["[data-delmeet]", "uMeet"],
-  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#linkApply", "uImport"], ["#shopDone", "uShopDone"], ["#fromHin", "uRet"]
+  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#linkApply", "uImport"], ["#shopDone", "uShopDone"], ["#fromOut", "uRet"]
 ];
 let undoState = null, toastTimer;
 document.addEventListener("click", e => {
@@ -997,7 +1008,7 @@ document.addEventListener("click", e => {
   const hit = UNDO.find(([sel]) => e.target.closest(sel)); if (!hit) return;
   const before = JSON.stringify(state);
   setTimeout(() => {
-    if (JSON.stringify(state) === before) return; // nur scharf geschaltet, nichts gelöscht
+    if (JSON.stringify(state) === before) return; // only armed, nothing deleted
     undoState = JSON.parse(before);
     $("toastMsg").textContent = T(hit[1]); $("toast").hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; undoState = null; }, 7000);
@@ -1010,15 +1021,15 @@ $("undoBtn").addEventListener("click", () => {
   save(); render();
 });
 
-// Was ein Übernehmen-Knopf einträgt: Treffpunkt-Ort, Zieladresse oder Ziel der vorherigen Etappe
+// What a "use" button fills in: meeting point location, address or destination of the previous leg
 function fillValue(b){
   const g = b.closest(".leg"), t = g.dataset.trip, info = state.info || {};
-  if (b.dataset.fill === "meet") return (info[t + "Meet"] || {}).ort || "";
+  if (b.dataset.fill === "meet") return (info[t + "Meet"] || {}).place || "";
   if (b.dataset.fill === "prev") return (tripLegs(t)[+g.dataset.leg - 1] || {}).to || "";
-  return info.adresse || "";
+  return info.address || "";
 }
 
-// Ankunftszeiten (Minuten) aller Etappen einer Fahrt; null, wo sie sich nicht berechnen lässt
+// Arrival times (minutes) of all legs of a trip; null where they cannot be calculated
 function arrivals(t){
   const toMin = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
   const meet = (state.info || {})[t + "Meet"];
@@ -1029,57 +1040,59 @@ function arrivals(t){
   });
 }
 
-// Export / Import der Reise-Infos als Code zum Teilen (Haken werden nicht mitgegeben)
-const CODE_PREFIX = "URLAUB:";
-const STR_KEYS = ["ziel","unterkunft","adresse","cin","cinz","cout","coutz","notiz","ab","rueck"];
+// Export / import of the trip info as a shareable code (ticks are not included)
+const CODE_PREFIX = "TRIP:";
+const STR_KEYS = ["destination","lodging","address","checkin","checkinTime","checkout","checkoutTime","notes","outDate","retDate"];
 function cleanInfo(src){
   const s = v => typeof v === "string" ? v.slice(0, 2000) : "", out = {};
   if (!src || typeof src !== "object") return null;
   STR_KEYS.forEach(k => { if (s(src[k])) out[k] = s(src[k]); });
-  ["hinMeet", "rueckMeet"].forEach(k => { const m = src[k]; if (m && typeof m === "object") out[k] = {ort: s(m.ort), date: s(m.date), time: s(m.time)}; });
-  ["legs", "rlegs"].forEach(k => { if (Array.isArray(src[k])) out[k] = src[k].slice(0, 50).filter(l => l && typeof l === "object").map(l => ({from: s(l.from), to: s(l.to), mode: s(l.mode), time: s(l.time), dur: s(String(l.dur ?? ""))})); });
+  ["outMeet", "retMeet"].forEach(k => { const m = src[k]; if (m && typeof m === "object") out[k] = {place: s(m.place), date: s(m.date), time: s(m.time)}; });
+  ["outLegs", "retLegs"].forEach(k => { if (Array.isArray(src[k])) out[k] = src[k].slice(0, 50).filter(l => l && typeof l === "object").map(l => ({from: s(l.from), to: s(l.to), mode: s(l.mode), time: s(l.time), dur: s(String(l.dur ?? ""))})); });
   return out;
 }
-// Kurzer Code: kompakte Schlüssel, leere Felder weglassen, Etappen als Listen, dann komprimiert
-const SHORT = {ziel:"z", unterkunft:"u", adresse:"a", cin:"ci", cinz:"cz", cout:"co", coutz:"oz", notiz:"n", ab:"d", rueck:"r"};
+// Short code: compact keys, omit empty fields, legs as lists, then compressed
+const SHORT = {destination:"z", lodging:"u", address:"a", checkin:"ci", checkinTime:"cz", checkout:"co", checkoutTime:"oz", notes:"n", outDate:"d", retDate:"r"};
 const trimArr = a => { while (a.length && !a[a.length - 1]) a.pop(); return a; };
 function pack(info){
   const i = cleanInfo(info) || {}, c = {};
   Object.entries(SHORT).forEach(([k, s]) => { if (i[k]) c[s] = i[k]; });
-  if (i.hinMeet) c.hm = trimArr([i.hinMeet.ort, i.hinMeet.date, i.hinMeet.time]);
-  if (i.rueckMeet) c.rm = trimArr([i.rueckMeet.ort, i.rueckMeet.date, i.rueckMeet.time]);
-  if (i.legs && i.legs.length) c.l = i.legs.map(l => trimArr([l.from, l.to, l.mode, l.time, l.dur]));
-  if (i.rlegs && i.rlegs.length) c.rl = i.rlegs.map(l => trimArr([l.from, l.to, l.mode, l.time, l.dur]));
+  if (i.outMeet) c.hm = trimArr([i.outMeet.place, i.outMeet.date, i.outMeet.time]);
+  if (i.retMeet) c.rm = trimArr([i.retMeet.place, i.retMeet.date, i.retMeet.time]);
+  if (i.outLegs && i.outLegs.length) c.l = i.outLegs.map(l => trimArr([l.from, l.to, l.mode, l.time, l.dur]));
+  if (i.retLegs && i.retLegs.length) c.rl = i.retLegs.map(l => trimArr([l.from, l.to, l.mode, l.time, l.dur]));
   return c;
 }
 function unpack(c){
   if (!c || typeof c !== "object") return null;
   const i = {}, leg = a => ({from: a[0] || "", to: a[1] || "", mode: a[2] || "", time: a[3] || "", dur: a[4] || ""});
   Object.entries(SHORT).forEach(([k, s]) => { if (c[s]) i[k] = c[s]; });
-  if (Array.isArray(c.hm)) i.hinMeet = {ort: c.hm[0] || "", date: c.hm[1] || "", time: c.hm[2] || ""};
-  if (Array.isArray(c.rm)) i.rueckMeet = {ort: c.rm[0] || "", date: c.rm[1] || "", time: c.rm[2] || ""};
-  if (Array.isArray(c.l)) i.legs = c.l.filter(Array.isArray).map(leg);
-  if (Array.isArray(c.rl)) i.rlegs = c.rl.filter(Array.isArray).map(leg);
+  if (Array.isArray(c.hm)) i.outMeet = {place: c.hm[0] || "", date: c.hm[1] || "", time: c.hm[2] || ""};
+  if (Array.isArray(c.rm)) i.retMeet = {place: c.rm[0] || "", date: c.rm[1] || "", time: c.rm[2] || ""};
+  if (Array.isArray(c.l)) i.outLegs = c.l.filter(Array.isArray).map(leg);
+  if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
 }
 function makeCode(){
   const json = JSON.stringify(pack(state.info));
-  if (window.LZString) return "URLAUB:" + LZString.compressToEncodedURIComponent(json);
-  return "URLAUB-B:" + btoa(unescape(encodeURIComponent(json)));
+  if (window.LZString) return "TRIP:" + LZString.compressToEncodedURIComponent(json);
+  return "TRIP-B:" + btoa(unescape(encodeURIComponent(json)));
 }
 function readCode(text){
   const t = (text || "").trim(); if (!t) return null;
-  const m = t.match(/URLAUB(-INFO|-B)?:([A-Za-z0-9+\/=$_-]+)/);
+  const m = t.match(/(?:TRIP|URLAUB)(-INFO|-B)?:([A-Za-z0-9+\/=$_-]+)/);  // URLAUB = legacy prefix
   try {
-    if (!m) return t.startsWith("{") ? cleanInfo(JSON.parse(t)) : null;
+    if (!m) return t.startsWith("{") ? cleanInfo(modernInfo(JSON.parse(t))) : null;
     const body = m[2];
-    if (m[1] === "-INFO") { const o = JSON.parse(decodeURIComponent(escape(atob(body)))); return cleanInfo(o && o.info ? o.info : o); }
+    if (m[1] === "-INFO") { const o = JSON.parse(decodeURIComponent(escape(atob(body)))); return cleanInfo(modernInfo(o && o.info ? o.info : o)); }
     if (m[1] === "-B") return unpack(JSON.parse(decodeURIComponent(escape(atob(body)))));
     if (!window.LZString) return null;
     const json = LZString.decompressFromEncodedURIComponent(body);
     return json ? unpack(JSON.parse(json)) : null;
   } catch (e) { return null; }
 }
+// Old export formats carry German keys: bring them to the current names
+function modernInfo(o){ const s = {info: o && typeof o === "object" ? o : {}}; migrate(s); return s.info; }
 function openShare(mode){
   state.collapsed = state.collapsed || {};
   if (state.collapsed.info) { state.collapsed.info = false; save(); applyCollapse(); }
@@ -1104,11 +1117,11 @@ function copyCode(){
   const ok = () => { msg.textContent = T("copied"); };
   const selectAll = () => { const ro = code.readOnly; code.readOnly = false; code.focus(); code.select(); code.setSelectionRange(0, code.value.length); code.readOnly = ro; };
   const manual = () => { selectAll(); msg.textContent = T("copyBlocked"); };
-  // 1. Klassischer Weg über die Markierung: funktioniert auch in eingebetteten Seiten und lokal geöffneten Dateien
+  // 1. Classic way via selection: also works in embedded pages and locally opened files
   let done = false;
   try { selectAll(); done = document.execCommand("copy"); } catch (e) { done = false; }
   if (done) { ok(); return; }
-  // 2. Moderne Zwischenablage, falls verfügbar
+  // 2. Modern clipboard API, if available
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code.value).then(ok, manual);
   else manual();
 }
@@ -1135,7 +1148,7 @@ $("importApply").addEventListener("click", e => {
   $("sharePanel").hidden = true;
 });
 
-// Datumsfelder: Anzeige im Format "Do, 22.10.2026"; ein Klick öffnet die normale Datumsauswahl des Geräts
+// Date fields: displayed as "Do, 22.10.2026" / "Thu, 22 Oct 2026"; a click opens the device's normal date picker
 function fmtDate(v){
   const d = v ? new Date(v + "T12:00:00") : null; if (!d || isNaN(d)) return "";
   if (lang === "en") return `${d.toLocaleDateString("en-GB", {weekday: "short"})}, ${d.getDate()} ${d.toLocaleDateString("en-GB", {month: "short"})} ${d.getFullYear()}`;
@@ -1161,7 +1174,7 @@ function openDate(box){
   const inp = box.querySelector("input[type=date]");
   try { inp.showPicker(); } catch (e) { inp.focus(); inp.click(); }
 }
-// Klick/Tipp landet direkt auf dem unsichtbaren Datumsfeld und öffnet so die Auswahl des Geräts (auch in eingebetteten Seiten)
+// A click/tap lands directly on the invisible date field and opens the device picker (also in embedded pages)
 document.addEventListener("keydown", e => {
   const box = e.target.classList && e.target.classList.contains("dbox") ? e.target : null; if (!box) return;
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDate(box); }
@@ -1174,12 +1187,12 @@ document.addEventListener("keydown", e => {
 document.addEventListener("input", e => { if (e.target.type === "date") refreshDates(); });
 document.addEventListener("change", e => { if (e.target.type === "date") refreshDates(); });
 
-// Teilen: Link zur Seite (mit den Reise-Infos als Code hinter „#“, falls vorhanden) über das Teilen-Menü des Geräts, sonst in die Zwischenablage; lokal geöffnet (file://) wird die Datei geteilt
+// Share: link to the page (with the language and, if present, the trip info code after "#") via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
 $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
   const note = t => { b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
   const base = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] : null;
-  const url = base && (Object.keys(pack(state.info)).length ? base + "#" + makeCode() : base);
+  const url = base && base + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
   try {
     if (navigator.share) {
       if (url) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
@@ -1198,7 +1211,7 @@ $("shareBtn").addEventListener("click", async e => {
   note(ok ? T("shareCopied") : T("dlFail"));
 });
 
-// Geteilter Link mit Reise-Infos (#URLAUB:…): erst nachfragen, dann übernehmen
+// Shared link with trip info (#lang=…&TRIP:…): ask first, then apply
 let linkData = null;
 const clearHash = () => { try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} };
 function showLinkPanel(){
@@ -1206,8 +1219,9 @@ function showLinkPanel(){
   $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
 }
 function readLink(){
-  const raw = location.hash.slice(1); if (!raw.startsWith("URLAUB")) return;
-  let txt = raw; try { txt = decodeURIComponent(raw); } catch(e){}
+  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
+  if (at < 0) { if (/^lang=/.test(raw)) clearHash(); return; }
+  let txt = raw.slice(at); try { txt = decodeURIComponent(txt); } catch(e){}
   const d = readCode(txt);
   if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
 }
@@ -1219,7 +1233,7 @@ $("linkApply").addEventListener("click", () => {
 });
 $("linkDismiss").addEventListener("click", () => { linkData = null; clearHash(); $("linkPanel").hidden = true; });
 
-// Herunterladen: die Seite als eigenständige Datei speichern (z. B. um sie aus einer App-Vorschau heraus im Browser zu öffnen)
+// Download: save the page as a standalone file (e.g. to open it in the browser from an app preview)
 $("dlBtn").addEventListener("click", async e => {
   const b = e.currentTarget, label = T("dlTitle");
   const note = t => { b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
@@ -1235,7 +1249,7 @@ $("dlBtn").addEventListener("click", async e => {
   } catch (err) { note(T("dlFail")); }
 });
 
-// Ein- und Ausklappen aller Überschriften
+// Collapse/expand all headings
 function applyCollapse(){
   const c = state.collapsed || {};
   document.querySelectorAll("[data-col]").forEach(el => {
@@ -1306,32 +1320,32 @@ document.addEventListener("keydown", e => {
 });
 
 
-// Reise-Infos
+// Trip info
 function updateCountdown(){
   const i = state.info || {}, out = [];
   const day = s => { const [y,m,d] = s.split("-").map(Number); return Date.UTC(y,m-1,d)/864e5; };
   const n = new Date(), today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())/864e5;
-  if (i.ab) {
-    const diff = day(i.ab) - today, back = i.rueck ? day(i.rueck) - today : null;
+  if (i.outDate) {
+    const diff = day(i.outDate) - today, back = i.retDate ? day(i.retDate) - today : null;
     if (diff > 1) out.push(T("cdDays", {n: diff}));
     else if (diff === 1) out.push(T("cdTomorrow"));
     else if (diff === 0) out.push(T("cdToday"));
     else if (back !== null && back >= 0) out.push(T("cdBon"));
   }
-  if (i.ab && i.rueck) { const nights = day(i.rueck) - day(i.ab); if (nights > 0) out.push(`${nights} ${T(nights === 1 ? "nightSg" : "nightPl")}`); }
+  if (i.outDate && i.retDate) { const nights = day(i.retDate) - day(i.outDate); if (nights > 0) out.push(`${nights} ${T(nights === 1 ? "nightSg" : "nightPl")}`); }
   $("countdown").textContent = out.join(" · ");
 }
 document.addEventListener("input", e => {
   const k = e.target.dataset && e.target.dataset.info; if (!k) return;
   state.info = state.info || {};
-  // Datum der Fahrt ändert sich: Treffpunkt-Datum mitziehen, solange es nicht bewusst anders gesetzt wurde
-  const t = k === "ab" ? "hin" : k === "rueck" ? "rueck" : null, m = t && state.info[t + "Meet"];
+  // Trip date changes: carry the meeting point date along as long as it was not deliberately set differently
+  const t = k === "outDate" ? "out" : k === "retDate" ? "ret" : null, m = t && state.info[t + "Meet"];
   if (m && (!m.date || m.date === (state.info[k] || ""))) { m.date = e.target.value; const d = $(`meet-${t}-date`); if (d) d.value = m.date; }
   state.info[k] = e.target.value;
   save(); updateCountdown(); updateButtons();
 });
 
-// Pro Kapitel: Haken entfernen (Einträge bleiben) und Inhalt leeren (mit Sicherheitsabfrage)
+// Per section: uncheck all (entries stay) and clear all (with confirmation)
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-uncheck],[data-clear]"); if (!b) return;
   if (b.dataset.uncheck) {
@@ -1339,7 +1353,7 @@ document.addEventListener("click", e => {
     if (k === "todos") state.todos.forEach(x => x.d = false);
     if (k === "shop") (state.shop || []).forEach(x => x.d = false);
     if (k === "pack") state.cats.forEach(c => c.items.forEach(x => x.d = false));
-    if (k === "hin" || k === "rueck") { tripLegs(k).forEach(x => x.d = false); const m = state.info[k + "Meet"]; if (m) m.d = false; }
+    if (k === "out" || k === "ret") { tripLegs(k).forEach(x => x.d = false); const m = state.info[k + "Meet"]; if (m) m.d = false; }
     save(); render();
     const nb = document.querySelector(`[data-uncheck="${k}"]`);
     nb.textContent = T("unchecked"); setTimeout(() => nb.textContent = T("uncheck"), 2000);
@@ -1359,7 +1373,7 @@ document.addEventListener("click", e => {
   save(); render();
 });
 
-// Vorschläge: fügt typische Gegenstände hinzu, ohne Doppelte (Liste SUGGEST oben)
+// Suggestions: adds typical items without duplicates (list SUGGEST above)
 let suggestTimer;
 $("suggest").addEventListener("click", e => {
   const norm = s => s.trim().toLowerCase();
@@ -1436,7 +1450,7 @@ $("itemForm").addEventListener("submit", e => {
   state.cats[c].items.push({t:v,q:$("itemQty").value.trim(),d:false});
   $("itemInput").value=""; $("itemQty").value=""; save(); render(); $("itemCat").value=c;
 });
-// Drag & Drop für To-dos (Maus + Touch)
+// Drag & drop for to-dos (mouse + touch)
 let drag = null;
 $("todoList").addEventListener("pointerdown", e => {
   const h = e.target.closest(".handle"); if (!h) return;
@@ -1468,7 +1482,7 @@ function endDrag(e){
 }
 $("todoList").addEventListener("pointerup", endDrag);
 $("todoList").addEventListener("pointercancel", endDrag);
-// Tastatur: Alt + Pfeil hoch/runter auf dem Griff
+// Keyboard: Alt + arrow up/down on the handle
 $("todoList").addEventListener("keydown", e => {
   const h = e.target.closest(".handle"); if (!h || !e.altKey) return;
   const i = +h.dataset.handle, j = e.key === "ArrowUp" ? i-1 : e.key === "ArrowDown" ? i+1 : -1;
@@ -1479,7 +1493,7 @@ $("todoList").addEventListener("keydown", e => {
   document.querySelector(`[data-handle="${j}"]`).focus();
 });
 
-// Drag & Drop für die Packliste (auch kategorieübergreifend)
+// Drag & drop for the packing list (also across categories)
 let pdrag = null;
 const body = $("packBody");
 body.addEventListener("pointerdown", e => {
@@ -1498,7 +1512,7 @@ body.addEventListener("pointermove", e => {
     const r = el.getBoundingClientRect();
     if (e.clientY < r.top + r.height/2) { before = el; break; }
   }
-  // nie über die erste Kategorie-Überschrift
+  // never above the first category heading
   if (before === others[0]) before = others[1] || null;
   if (before !== pdrag.tr.nextElementSibling) body.insertBefore(pdrag.tr, before);
 });
@@ -1538,7 +1552,7 @@ body.addEventListener("keydown", e => {
   save(); render(); focusItem(item);
 });
 
-// Sprache umschalten: Standardnamen mit übersetzen, alles neu zeichnen
+// Switch language: translate default names too, redraw everything
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-lang]"); if (!b || b.dataset.lang === lang) return;
   if (document.activeElement) document.activeElement.blur();
@@ -1556,13 +1570,13 @@ setSync("syncLocal");
 readLink();
 
 (async () => {
-  // Jede Person bekommt ihre eigene, private Liste
+  // Every person gets their own private list
   const db = window.claude && await window.claude.use("db");
   const user = window.claude && await window.claude.use("user");
   const uid = user ? await user.id() : null;
   if (!db || !uid) return;
   if (user.can && (await user.can("data.write")) === false) return;
-  dbRef = db.collection("data/users/" + uid).doc("packliste");
+  dbRef = db.collection("data/users/" + uid).doc("packliste"); // legacy document name, kept so existing cloud data is found
   let first = true;
   dbRef.onSnapshot(snap => {
     if (snap.metadata.hasPendingWrites || dirty || writing) return;

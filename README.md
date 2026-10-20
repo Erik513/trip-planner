@@ -1,87 +1,90 @@
-# Reiseplaner / Trip Planner
+# Trip Planner
 
-Reise-Infos, Einkaufsliste, To-dos und Packliste in einer Seite – auf Deutsch und Englisch (Umschalter „DE | EN“).
-Trip info, shopping list, to-dos and packing list in one page – in German and English.
+Trip info, shopping list, to-dos and packing list in one page – available in English and German (English by default, switch with the "EN | DE" toggle).
 
-**Online:** https://erik513.github.io/trip-planner/
+**Live:** https://erik513.github.io/trip-planner/
 
-Ein einseitiger Reiseplaner als **eine HTML-Datei** (kein Framework, kein Build-Tool außer `build.py`), gehostet über GitHub Pages.
-Läuft offline, ohne Konto und ohne Server.
+A single-page trip planner built as **one HTML file** (no framework, no build tool except `build.py`), hosted on GitHub Pages.
+It works offline, without an account and without a server.
 
-## Kapitel der Seite
+## Sections
 
-1. **Reise-Infos** – Reise & Unterkunft (Reisezielort mit Wetter-Link, Unterkunft, Zieladresse, Check-in/-out, ausklappbare Notizen),
-   **Hinfahrt** und **Rückfahrt** (Datum, optionaler Treffpunkt, Etappen). Export/Import als Code (siehe „Teilen“).
-2. **Einkaufsliste** – erscheint nur nach Klick auf „Einkaufen“ (in der To-do-Zeile), weg mit „Einkauf abgeschlossen“.
+1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
+   **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
+2. **Shopping list** – only appears after clicking "Shopping" (in the to-do row), disappears with "Shopping done".
 3. **To-dos**
-4. **Packliste** – Tabelle nach Kategorien (Standard: Kleidung, Hygiene & Bad, Gesundheit, Technik, Dokumente & Geld, Lebensmittel,
-   Sonstiges), „Vorschläge laden“ füllt typische Gegenstände ohne Anzahl.
+4. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
+   "Load suggestions" adds typical items without quantities.
 
-### Etappen (Hin-/Rückfahrt)
+### Legs (outbound/return trip)
 
-- Zeile 1 Start, Zeile 2 Ziel (volle Breite), Zeile 3 Fortbewegung · Uhrzeit · Dauer · berechnete Ankunft.
-- Dauer als `H:MM` (versteht auch `1,5`, `90m`, `2h 15m`); Ankunft = eigene Uhrzeit bzw. Ankunft der vorigen Etappe/Treffpunkt + Dauer.
-- Neue Etappe übernimmt Ziel und (auf 5 Min. aufgerundete) Ankunft der vorigen als Start/Uhrzeit.
-- Übernehmen-Knöpfe im Feld: Etappe 1 „Treffpunkt“ (+ bei Rückfahrt „Reiseziel“ im Start), ab Etappe 2 „Vorheriges Ziel“;
-  bei der Hinfahrt „Reiseziel“ im Ziel. Links zu Google Maps / Apple Karten.
-- Abhaken pro Box; grün markiert ist die erste offene Box – erst über die ganze Hinfahrt, dann die Rückfahrt.
-- „Aus Hinfahrt übernehmen“ legt die Rückfahrt umgekehrt an. Sortieren per Drag an der Nummer (Alt+Pfeile).
+- Row 1 start, row 2 destination (full width), row 3 transport · time · duration · calculated arrival.
+- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = own time, or arrival of the previous leg/meeting point + duration.
+- A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
+- "Use" buttons inside the fields: leg 1 "Meeting point" (+ "Destination" in the start field of the return trip), from leg 2 on
+  "Previous destination"; on the outbound trip "Destination" in the destination field. Links to Google Maps / Apple Maps.
+- Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
+- "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
 
-## Teilen
+## Sharing
 
-- Kopf: kleine Knöpfe links vom Fortschritt – „DE | EN“, Teilen (Ketten-Symbol), Herunterladen. Bewusst klein und dezent
-  (`.langsw`, `.icon-btn`), nicht im Stil der Fortschrittsanzeige.
-- **Teilen-Knopf:** teilt die Seiten-Adresse per `navigator.share`, sonst Zwischenablage. Sind Reise-Infos vorhanden, hängt
-  `#` + Export-Code an die Adresse. Lokal geöffnet (`file://`) wird die HTML-Datei geteilt, falls das Gerät es kann.
-- **Link öffnen** (`#URLAUB…`): oben erscheint „Übernehmen?“ / „Verwerfen“; erst nach Bestätigung werden die Reise-Infos
-  ersetzt (mit „Rückgängig“), danach wird der Hash entfernt.
-- **Export/Import:** Code `URLAUB:` + lz-string `compressToEncodedURIComponent` eines kompakten JSON. Alte Formate `URLAUB-INFO:` /
-  `URLAUB-B:` werden beim Import weiter unterstützt. Haken werden nicht mitgegeben.
-- Geteilt werden nur die Reise-Infos; Einkaufsliste, To-dos und Packliste bleiben lokal. Es gibt keine Synchronisation zwischen
-  Geräten – wer etwas ändert, teilt neu. Backup/Export der übrigen Listen und Echtzeit-Sync sind bewusst nicht vorgesehen.
+- Header: small buttons to the left of the progress tag – "EN | DE", share (chain icon), download. Deliberately small and subtle
+  (`.langsw`, `.icon-btn`), not styled like the progress tag.
+- **Share button:** shares the page address via `navigator.share`, otherwise copies it to the clipboard. The address always carries
+  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). When opened locally (`file://`), the HTML file is shared if the device supports it.
+- **Opening a link:** the language from the link is adopted only if the device has no own language choice yet. If it contains trip info, a notice at the top asks "Apply?" / "Dismiss"; only after confirmation the trip info is
+  replaced (with "Undo"), then the hash is removed.
+- **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
+  (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
+- Only the trip info is shared; shopping list, to-dos and packing list stay local. There is no synchronisation between devices –
+  whoever changes something shares again. Backup/export of the other lists and real-time sync are intentionally not provided.
 
-## Speicherung
+## Storage
 
-- `localStorage` im Browser (Schlüssel `packliste-v2`, Sprache `trip-planner-lang`) – pro Browser, Gerät und Adresse.
-- `migrate(state)` hebt alte Datenstände an – bei Datenmodell-Änderungen dort ergänzen statt alte Daten zu brechen.
-- Der Code enthält zusätzlich einen Pfad für die Claude-Artifact-Datenbank (`window.claude.use("db")`) und den Claude-Download
-  (`use("downloads")`). Außerhalb von Claude ist `window.claude` nicht vorhanden, diese Zweige werden übersprungen.
-  Nicht entfernen, solange die Claude-Version weiter genutzt wird.
+- `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`) – per browser, device and address.
+- `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
+  when changing the data model, extend it there instead of breaking old data.
+- The code also contains a path for the Claude Artifact database (`window.claude.use("db")`) and Claude downloads
+  (`use("downloads")`). Outside Claude, `window.claude` does not exist and these branches are skipped.
+  Do not remove them as long as the Claude version is still used.
 
-## Entwickeln
+## Development
 
 ```
-src/app.html      Quelltext (HTML + CSS + JS in einer Datei) – hier wird entwickelt
-build.py          baut daraus index.html: Schriften + lz-string eingebettet, läuft offline
-vendor/           lz-string.min.js (1.5.0) und woff2-Schriften (Bricolage Grotesque, Figtree, JetBrains Mono)
-index.html        Ergebnis für GitHub Pages – NICHT von Hand bearbeiten, immer neu bauen
+src/app.html      Source (HTML + CSS + JS in one file) – develop here
+build.py          builds index.html from it: fonts + lz-string embedded, works offline
+vendor/           lz-string.min.js (1.5.0) and woff2 fonts (Bricolage Grotesque, Figtree, JetBrains Mono)
+index.html        Result for GitHub Pages – do NOT edit by hand, always rebuild
 ```
 
-Nach jeder Änderung an `src/app.html`: `python3 build.py`, dann `index.html` mitcommitten. Code-Kommentare sind auf Deutsch.
+After every change to `src/app.html`: run `python3 build.py`, then commit `index.html` along with it.
+Code comments are written in English.
 
-### Sprachen (i18n)
+### Languages (i18n)
 
-- Alle Texte stehen in `I18N` (`de`/`en`) am Anfang des Skripts in `src/app.html`; Zugriff über `T("schlüssel", {platzhalter})`.
-  **Neue Texte immer in beiden Sprachen eintragen** – nie Text fest in HTML/JS schreiben.
-- Feste HTML-Texte: `data-i18n="schlüssel"` (Textinhalt) bzw. `data-i18n-attr="aria-label:schlüssel;title:schlüssel"`;
-  `applyStatic()` setzt sie (läuft bei jedem `render()`).
-- Gewählte Sprache: `localStorage` `trip-planner-lang`; Standard = Browsersprache (Deutsch, sonst Englisch).
-- `SUGGEST` (Standard-Kategorien + Packvorschläge) und `MODES` (Fortbewegungsmittel) sind zweisprachige Listen `[de, en]`;
-  `translateDefaults()` übersetzt beim Sprachwechsel Standardnamen mit, selbst Eingetipptes bleibt.
-- Datenformat, Speicherschlüssel `packliste-v2` und Export-Präfix `URLAUB:` sind sprachunabhängig und bleiben unverändert.
+- All texts live in `I18N` (`de`/`en`) at the top of the script in `src/app.html`; use `T("key", {placeholders})`.
+  **Always add new texts in both languages** – never hard-code text in HTML/JS.
+- Static HTML texts: `data-i18n="key"` (text content) or `data-i18n-attr="aria-label:key;title:key"`;
+  `applyStatic()` applies them (runs on every `render()`).
+- Chosen language: `localStorage` `trip-planner-lang`; default = English.
+- `SUGGEST` (default categories + packing suggestions) and `MODES` (transport modes) are bilingual lists `[de, en]`;
+  `translateDefaults()` translates default names on language switch, anything typed by the user stays.
+- Data format, storage key `trip-planner-v1` and export prefix `TRIP:` are language-independent and must not change.
+- Code identifiers (functions, variables, CSS classes, ids, data keys) are English; German appears only in UI texts and in the
+  legacy-migration code.
 
-### Bedien-Konventionen (bitte beibehalten)
+### Interaction conventions (please keep)
 
-- **Alles speichert automatisch** (`save()`), Zustand liegt in `state`; `render()` zeichnet alles neu.
-- Knöpfe, die gerade nichts bewirken, sind **deaktiviert** (`updateButtons()`).
-- Destruktive Aktionen: erster Klick „scharf“ (rot), zweiter Klick führt aus; danach Toast mit **Rückgängig**.
-- Jede Überschrift ist **ein-/ausklappbar** (`data-col`), eingeklappt sind die Knöpfe daneben ausgeblendet.
-- Uhrzeiten: eigenes Feld mit zwei Listen (Std 00–23, Min 00–55 in 5er-Schritten).
-- Datumsfelder zeigen „Do, 22.10.2026“ bzw. „Thu, 22 Oct 2026“ (natives Datumsfeld unsichtbar darüber).
-- Einheitliches Design: Farben nur über CSS-Variablen in `:root` (heller + dunkler Modus), Checkboxen eigen gestylt,
-  kleine Knöpfe `.ghost.sm`. Muss auf dem Handy (390 px) ohne seitliches Scrollen funktionieren.
+- **Everything saves automatically** (`save()`); the state lives in `state`; `render()` redraws everything.
+- Buttons that currently do nothing are **disabled** (`updateButtons()`).
+- Destructive actions: first click "arms" (red), second click performs it; afterwards a toast offers **Undo**.
+- Every heading is **collapsible** (`data-col`); collapsed sections hide the buttons next to the heading.
+- Times: custom field with two lists (hours 00–23, minutes 00–55 in steps of 5).
+- Date fields show "Do, 22.10.2026" / "Thu, 22 Oct 2026" (native date input invisible on top).
+- Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
+  small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.
 
-### Testen
+### Testing
 
-Kein Test-Framework. Bewährt: Playwright (Python) gegen `index.html` öffnen, Abläufe durchklicken, Desktop (900 px) und
-Handy (390 px) sowie Dunkelmodus per Screenshot prüfen, `pageerror` abfangen – jeweils in beiden Sprachen.
+No test framework. What has worked: open `index.html` with Playwright (Python), click through the flows, check desktop (900 px),
+phone (390 px) and dark mode via screenshots, catch `pageerror` – each in both languages.
