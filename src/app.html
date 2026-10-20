@@ -49,7 +49,7 @@ input[type=checkbox]:checked::after{opacity:1}
 .edit{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;width:100%;min-width:0}
 .edit:hover{border-bottom-color:var(--line)}
 .edit:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--fg)}
-td.q .edit{font-family:var(--mono);color:var(--muted);width:6ch}
+td.q .edit{font-family:var(--mono);color:var(--muted);width:3ch;text-align:right}
 .todos .edit{flex:1}
 .handle{border:0;background:none;color:var(--muted);cursor:grab;padding:4px 2px;font-size:1.05rem;line-height:1;touch-action:none;border-radius:6px;letter-spacing:-.15em}
 .handle:hover{color:var(--fg)}
@@ -71,8 +71,8 @@ td.q .edit{font-family:var(--mono);color:var(--muted);width:6ch}
 
 .table-box{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
 table{width:100%;border-collapse:collapse;min-width:420px;table-layout:fixed}
-col.cc{width:72px}
-col.cq{width:7em}
+col.cc{width:58px}
+col.cq{width:3.6em}
 col.cx{width:44px}
 th,td{text-align:left;padding:9px 14px;border-top:1px solid var(--line);vertical-align:middle}
 thead th{border-top:0;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
@@ -238,6 +238,13 @@ button:disabled{opacity:.4;cursor:default}
 td.q{font-family:var(--mono);font-variant-numeric:tabular-nums;width:1%;white-space:nowrap;color:var(--muted)}
 td.c{width:64px;white-space:nowrap}
 td.c .cell{display:flex;align-items:center;gap:6px}
+/* tight spacing between handle/checkbox and the item text */
+#packBody td.c{padding-right:4px}
+#packBody td.c + td{padding-left:4px}
+/* quantity column hugs the right edge next to the delete button */
+#packBody td.q{padding-left:0;padding-right:2px;text-align:right}
+#packBody td.q .edit{margin-left:auto;display:block}
+thead th:nth-child(3){text-align:right;padding-left:0;padding-right:2px}
 #packBody tr.dragging td{background:var(--accent-soft)}
 #packBody tr.dragging{box-shadow:0 4px 14px rgba(0,0,0,.15);position:relative;z-index:2}
 #packBody.is-dragging, #packBody.is-dragging *{cursor:grabbing;user-select:none}
@@ -271,8 +278,8 @@ td.x{width:40px;text-align:right}
   .sec-head .sec-btns{grid-column:1 / -1;grid-row:2}
   .info-grid{padding:12px}
   table{min-width:0}
-  table col.cc{width:68px}
-  table col.cq{width:4.6em}
+  table col.cc{width:52px}
+  table col.cq{width:3em}
   table col.cx{width:34px}
   th,td{padding:8px 8px}
   .leg{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:8px 10px;padding:10px}
@@ -365,7 +372,7 @@ td.x{width:40px;text-align:right}
     <div class="table-box">
       <table>
         <colgroup><col class="cc"><col><col class="cq"><col class="cx"></colgroup>
-        <thead><tr><th scope="col">✓</th><th scope="col" data-i18n="colItem">Was</th><th scope="col" data-i18n="colQty">Anzahl</th><th scope="col"><span hidden data-i18n="clear">Löschen</span></th></tr></thead>
+        <thead><tr><th scope="col">✓</th><th scope="col" data-i18n="colItem">Was</th><th scope="col" data-i18n="colQty">Anz.</th><th scope="col"><span hidden data-i18n="clear">Löschen</span></th></tr></thead>
         <tbody id="packBody"></tbody>
       </table>
     </div>
@@ -441,7 +448,7 @@ const I18N = {
     addMeet: "Treffpunkt hinzufügen", addLeg: "Etappe hinzufügen", fromOut: "Aus Hinfahrt übernehmen", replaceRet: "Rückfahrt ersetzen?",
     shopping: "Einkaufsliste", shopPh: "Was muss gekauft werden?", shopNew: "Neuer Einkauf", add: "Hinzufügen", shopDone: "Einkauf abgeschlossen",
     todos: "To-dos", todoPh: "Eigenes To-do hinzufügen", todoNew: "Neues To-do", shopStart: "Einkaufen",
-    pack: "Packliste", suggest: "Vorschläge laden", colItem: "Was", colQty: "Anzahl", clear: "Löschen",
+    pack: "Packliste", suggest: "Vorschläge laden", colItem: "Was", colQty: "Anz.", clear: "Löschen",
     category: "Kategorie", itemPh: "Gegenstand", itemNew: "Neuer Gegenstand", qtyPh: "Anz.", qty: "Anzahl",
     catPh: "Neue Kategorie", catBtn: "Kategorie anlegen", undo: "Rückgängig",
     move: "Verschieben (Alt + Pfeiltasten)", dragTitle: "Ziehen zum Sortieren", done: "Erledigt",
