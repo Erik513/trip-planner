@@ -11,9 +11,10 @@ It works offline, without an account and without a server.
 
 1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
-2. **Shopping list** – only appears after clicking "Shopping" (in the to-do row), disappears with "Shopping done". Items can be reordered by dragging the handle (or Alt + arrow keys).
-3. **To-dos** – reorderable the same way (shared code: `makeSortable`).
-4. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
+2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
+   to the visible list and focuses it (an entry left empty is removed again); "Uncheck all" and "Clear all" in the section header act on the visible list.
+   Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
+3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
    "Load suggestions" adds typical items without quantities.
    The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
    The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).

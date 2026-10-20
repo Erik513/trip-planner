@@ -63,10 +63,6 @@ td.q .edit::placeholder{color:var(--done);opacity:.7}
 .add input,.add select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
 .add input[type=text]{flex:1 1 180px}
 .add input[type=text].qty{flex:0 0 4.5em;width:4.5em}
-/* To-do row: input + "Add" side by side, the secondary "Shopping" button after them (wraps below on narrow screens) */
-#todoForm #todoInput{order:1}
-#todoForm button[type=submit]{order:2}
-#todoForm #shopStart{order:3}
 .add button,.reset{font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
@@ -85,6 +81,12 @@ tr.newcat td{padding:8px}
 .add-cat:hover{background:var(--accent-soft)}
 .add-item{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--accent);font:inherit;font-size:1.15rem;font-weight:600;line-height:1;cursor:pointer}
 .add-item:hover{background:var(--accent-soft)}
+.list-tabs{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.list-tabs .tab{font:inherit;font-size:.9rem;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}
+.list-tabs .tab:hover{color:var(--fg);background:var(--accent-soft)}
+.list-tabs .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tab-count{font-family:var(--mono);font-size:.78rem;opacity:.85;font-variant-numeric:tabular-nums}
+.list-tabs .add-item{margin-left:auto}
 tr.cat .cat-row .edit{font-family:var(--display);font-weight:600;font-size:1rem;flex:1}
 tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .ghost{font:inherit;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:8px 14px;cursor:pointer}
@@ -354,24 +356,15 @@ td.x{width:40px;text-align:right}
     </div>
   </section>
 
-  <section id="shopSec" data-col="shop" hidden>
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="shopping">Einkaufsliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="shop" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" data-clear="shop" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="shopCount"></span></div>
-    <ul class="todos" id="shopList"></ul>
-    <form class="add" id="shopForm">
-      <input type="text" id="shopInput" data-i18n-attr="placeholder:shopPh;aria-label:shopNew" placeholder="Was muss gekauft werden?" aria-label="Neuer Einkauf">
-      <button type="submit" data-i18n="add">Hinzufügen</button>
-    </form>
-    <div class="actions"><button type="button" class="ghost" id="shopDone" data-i18n="shopDone">Einkauf abgeschlossen</button></div>
-  </section>
-
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todos">To-dos</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="todos" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" data-clear="todos" data-i18n="clearAll">Inhalt leeren</button></div></div><span class="count" id="todoCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listUncheck" data-uncheck="todos" data-i18n="uncheck">Haken entfernen</button><button type="button" class="ghost sm" id="listClear" data-clear="todos" data-i18n="clearAll">Inhalt leeren</button></div></div></div>
+    <div class="list-tabs" role="tablist">
+      <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
+      <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
+      <button type="button" class="add-item" id="addEntry" data-i18n-attr="aria-label:addItem;title:addItem" aria-label="Eintrag hinzufügen" title="Eintrag hinzufügen">+</button>
+    </div>
     <ul class="todos" id="todoList"></ul>
-    <form class="add" id="todoForm">
-      <input type="text" id="todoInput" data-i18n-attr="placeholder:todoPh;aria-label:todoNew" placeholder="Eigenes To-do hinzufügen" aria-label="Neues To-do">
-      <button type="button" class="ghost" id="shopStart" data-i18n="shopStart">Einkaufen</button>
-      <button type="submit" data-i18n="add">Hinzufügen</button>
-    </form>
+    <ul class="todos" id="shopList" hidden></ul>
   </section>
 
   <section data-col="pack">
@@ -443,14 +436,14 @@ const I18N = {
     checkoutDate: "Check-out Datum", checkoutTime: "Check-out Uhrzeit", notes: "Notizen", weather: "Wetter",
     outbound: "Hinfahrt", ret: "Rückfahrt", date: "Datum", uncheck: "Haken entfernen", unchecked: "Haken entfernt ✓",
     addMeet: "Treffpunkt hinzufügen", addLeg: "Etappe hinzufügen", fromOut: "Aus Hinfahrt übernehmen", replaceRet: "Rückfahrt ersetzen?",
-    shopping: "Einkaufsliste", shopPh: "Was muss gekauft werden?", shopNew: "Neuer Einkauf", add: "Hinzufügen", shopDone: "Einkauf abgeschlossen",
-    todos: "To-dos", todoPh: "Eigenes To-do hinzufügen", todoNew: "Neues To-do", shopStart: "Einkaufen",
+    add: "Hinzufügen", 
+    
     pack: "Packliste", suggest: "Vorschläge laden", colItem: "Was", colQty: "Anz.", clear: "Löschen",
     catPh: "Neue Kategorie", undo: "Rückgängig",
     move: "Verschieben (Alt + Pfeiltasten)", dragTitle: "Ziehen zum Sortieren", done: "Erledigt",
-    editTodo: "To-do bearbeiten", removeTodo: "To-do entfernen", todoEmpty: "Noch keine To-dos. Füg unten dein erstes hinzu.",
-    bought: "Gekauft", editShop: "Einkauf bearbeiten", removeShop: "Einkauf entfernen", shopEmpty: "Noch nichts auf der Liste.",
-    shopCount: "{d} / {n} gekauft", todoCount: "{d} / {n} erledigt", packCount: "{d} / {n} gepackt",
+    editTodo: "To-do bearbeiten", removeTodo: "To-do entfernen", todoEmpty: "Noch keine To-dos. Tippe auf +, um das erste hinzuzufügen.",
+    bought: "Gekauft", editShop: "Einkauf bearbeiten", removeShop: "Einkauf entfernen", shopEmpty: "Noch nichts auf der Liste. Tippe auf +.",
+    packCount: "{d} / {n} gepackt",
     renameCat: "Kategorie umbenennen", delCat: "Kategorie mit Inhalt löschen", delCatTitle: "Kategorie löschen",
     clickAgain: "Nochmal klicken zum Löschen", stillEmpty: "Noch leer", packedAria: "{x} gepackt",
     editItem: "Gegenstand bearbeiten", editQty: "Anzahl bearbeiten", removeItem: "Gegenstand entfernen",
@@ -476,16 +469,16 @@ const I18N = {
     copyBlocked: "Kopieren wurde vom Browser blockiert – der Code ist markiert, bitte selbst kopieren (Strg/Cmd + C oder lange tippen).",
     invalidCode: "Der Code ist ungültig oder unvollständig. Bitte komplett kopieren und erneut einfügen.", replaceInfo: "Reise-Infos ersetzen?",
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
-    uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
+    uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    shareFail: "Nicht möglich", addItem: "Eintrag hinzufügen",
+    shareFail: "Nicht möglich", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
     installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.",
     installAndroid1: "Öffne die Seite in Chrome.", installAndroid2: "Tippe oben rechts auf", installAndroid2b: "", installAndroid3: "Tippe auf „App installieren“.",
     installDesktop1: "Klicke in Chrome oder Edge in der Adressleiste auf das Installieren-Symbol.",
     installTip: "Tipp: Aus WhatsApp zuerst „Im Browser öffnen“ wählen.",
-    suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", shopOpenConfirm: "Noch {n} offen – trotzdem abschließen?",
+    suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", 
     syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
   },
   en: {
@@ -501,14 +494,14 @@ const I18N = {
     checkoutDate: "Check-out date", checkoutTime: "Check-out time", notes: "Notes", weather: "Weather",
     outbound: "Outbound trip", ret: "Return trip", date: "Date", uncheck: "Uncheck all", unchecked: "Unchecked ✓",
     addMeet: "Add meeting point", addLeg: "Add leg", fromOut: "Copy from outbound", replaceRet: "Replace return trip?",
-    shopping: "Shopping list", shopPh: "What needs to be bought?", shopNew: "New shopping item", add: "Add", shopDone: "Shopping done",
-    todos: "To-dos", todoPh: "Add your own to-do", todoNew: "New to-do", shopStart: "Shopping",
+    add: "Add", 
+    
     pack: "Packing list", suggest: "Load suggestions", colItem: "Item", colQty: "Qty", clear: "Clear",
     catPh: "New category", undo: "Undo",
     move: "Move (Alt + arrow keys)", dragTitle: "Drag to reorder", done: "Done",
-    editTodo: "Edit to-do", removeTodo: "Remove to-do", todoEmpty: "No to-dos yet. Add your first one below.",
-    bought: "Bought", editShop: "Edit shopping item", removeShop: "Remove shopping item", shopEmpty: "Nothing on the list yet.",
-    shopCount: "{d} / {n} bought", todoCount: "{d} / {n} done", packCount: "{d} / {n} packed",
+    editTodo: "Edit to-do", removeTodo: "Remove to-do", todoEmpty: "No to-dos yet. Tap + to add the first one.",
+    bought: "Bought", editShop: "Edit shopping item", removeShop: "Remove shopping item", shopEmpty: "Nothing on the list yet. Tap +.",
+    packCount: "{d} / {n} packed",
     renameCat: "Rename category", delCat: "Delete category and its items", delCatTitle: "Delete category",
     clickAgain: "Click again to delete", stillEmpty: "Still empty", packedAria: "{x} packed",
     editItem: "Edit item", editQty: "Edit quantity", removeItem: "Remove item",
@@ -534,16 +527,16 @@ const I18N = {
     copyBlocked: "Copying was blocked by the browser – the code is selected, please copy it yourself (Ctrl/Cmd + C or long-press).",
     invalidCode: "The code is invalid or incomplete. Please copy it in full and paste it again.", replaceInfo: "Replace trip info?",
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
-    uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
+    uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    shareFail: "Not possible", addItem: "Add item",
+    shareFail: "Not possible", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
     installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.",
     installAndroid1: "Open this page in Chrome.", installAndroid2: "Tap", installAndroid2b: "at the top right.", installAndroid3: "Tap “Install app”.",
     installDesktop1: "In Chrome or Edge, click the install icon in the address bar.",
     installTip: "Tip: If you came from WhatsApp, first choose “Open in browser”.",
-    suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", shopOpenConfirm: "{n} still open – finish anyway?",
+    suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", 
     syncSaving: "Saving …", syncSaved: "Saved ✓", syncFail: "Saving failed – retrying …", syncLocal: "Saved on this device"
   }
 };
@@ -645,22 +638,22 @@ function render(){
       <button class="del" type="button" data-deltodo="${i}" aria-label="${T("removeTodo")}">×</button>
     </li>`).join("") || `<li class="empty">${T("todoEmpty")}</li>`;
   // Shopping list
-  const shop = Array.isArray(state.shop) ? state.shop : null;
-  $("shopSec").hidden = !shop; $("shopStart").hidden = !!shop;
-  let sd = 0, st = 0;
-  if (shop) {
-    $("shopList").innerHTML = shop.map((x,i) => `
-      <li class="${x.d?'is-done':''}" data-i="${i}">
-        <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
-        <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="${T("bought")}">
-        <input class="txt edit" type="text" id="eshop-${i}" data-eshop="${i}" value="${esc(x.t)}" aria-label="${T("editShop")}">
-        <button class="del" type="button" data-delshop="${i}" aria-label="${T("removeShop")}">×</button>
-      </li>`).join("") || `<li class="empty">${T("shopEmpty")}</li>`;
-    sd = shop.filter(x=>x.d).length; st = shop.length;
-    $("shopCount").textContent = T("shopCount", {d: sd, n: st});
-  }
+  const shop = Array.isArray(state.shop) ? state.shop : (state.shop = []);
+  $("shopList").innerHTML = shop.map((x,i) => `
+    <li class="${x.d?'is-done':''}" data-i="${i}">
+      <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
+      <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="${T("bought")}">
+      <input class="txt edit" type="text" id="eshop-${i}" data-eshop="${i}" value="${esc(x.t)}" aria-label="${T("editShop")}">
+      <button class="del" type="button" data-delshop="${i}" aria-label="${T("removeShop")}">×</button>
+    </li>`).join("") || `<li class="empty">${T("shopEmpty")}</li>`;
+  const sd = shop.filter(x=>x.d).length, st = shop.length;
   const td = state.todos.filter(x=>x.d).length;
-  $("todoCount").textContent = T("todoCount", {d: td, n: state.todos.length});
+  // Tabs: which of the two lists is shown; the header buttons act on that list
+  const tab = state.tab === "shop" ? "shop" : "todos";
+  $("todoTabCount").textContent = `${td}/${state.todos.length}`; $("shopTabCount").textContent = `${sd}/${st}`;
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+  $("todoList").hidden = tab !== "todos"; $("shopList").hidden = tab !== "shop";
+  $("listUncheck").dataset.uncheck = tab; $("listClear").dataset.clear = tab;
 
   // Packing list
   let rows = "", pd = 0, pt = 0;
@@ -740,16 +733,15 @@ function updateButtons(){
   };
   const items = state.cats.flatMap(c => c.items), shop = state.shop || [], info = state.info || {};
   const norm = s => s.trim().toLowerCase();
-  set('[data-uncheck="todos"]', !state.todos.some(x => x.d));
-  set('[data-uncheck="shop"]', !shop.some(x => x.d));
+  const activeList = state.tab === "shop" ? shop : state.todos;
+  set("#listUncheck", !activeList.some(x => x.d));
   set('[data-uncheck="pack"]', !items.some(x => x.d));
   ["out", "ret"].forEach(t => set(`[data-uncheck="${t}"]`, !(tripLegs(t).some(x => x.d) || (info[t + "Meet"] && info[t + "Meet"].d))));
   // "Clear all" only if something is actually entered (also inside legs/meeting point)
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : v === true;
   set('[data-clear="info"]', !has(info));
   set("#exportBtn", !has(info));
-  set('[data-clear="todos"]', !state.todos.length);
-  set('[data-clear="shop"]', !shop.length);
+  set("#listClear", !activeList.length);
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
@@ -760,13 +752,7 @@ function updateButtons(){
   const dest = (info.destination || "").trim();
   $("wx").hidden = !dest;
   if (dest) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(dest)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(dest)}`;
-  [["todoForm","todoInput"],["shopForm","shopInput"]].forEach(([f, i]) => {
-    $(f).querySelector("button[type=submit]").disabled = !$(i).value.trim();
-  });
 }
-document.addEventListener("input", e => {
-  if (["todoInput","shopInput"].includes(e.target.id)) updateButtons();
-});
 
 // Time picker: one field that opens two lists – hours 00–23 and minutes 00–55 (steps of 5),
 // each column scrollable on its own and height-limited
@@ -828,6 +814,8 @@ function migrate(s){
     s.cats.forEach(c => { c.items = (c.items || []).filter(x => x && String(x.t || "").trim()); });
     s.cats = s.cats.filter(c => String(c.name || "").trim() || c.items.length);
   }
+  if (!Array.isArray(s.shop)) s.shop = [];
+  if (s.tab !== "shop") s.tab = "todos";
   if (s.infoCollapsed !== undefined) { s.collapsed = s.collapsed || {}; s.collapsed.info = s.infoCollapsed; delete s.infoCollapsed; }
 }
 migrate(state);
@@ -1071,7 +1059,7 @@ document.addEventListener("keydown", e => {
 const UNDO = [
   ["[data-deltodo]", "uTodo"], ["[data-delshop]", "uShop"], ["[data-delitem]", "uItem"],
   ["[data-delcat]", "uCat"], ["[data-delleg]", "uLeg"], ["[data-delmeet]", "uMeet"],
-  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#linkApply", "uImport"], ["#shopDone", "uShopDone"], ["#fromOut", "uRet"]
+  ["[data-clear]", "uClear"], ["#importApply", "uImport"], ["#linkApply", "uImport"], ["#fromOut", "uRet"]
 ];
 let undoState = null, toastTimer;
 document.addEventListener("click", e => {
@@ -1447,24 +1435,19 @@ $("suggest").addEventListener("click", e => {
   clearTimeout(suggestTimer); suggestTimer = setTimeout(() => b.textContent = T("suggest"), 2500);
 });
 
-$("shopStart").addEventListener("click", () => {
-  state.shop = []; save(); render(); $("shopInput").focus();
+// Tabs To-dos | Shopping: switch the visible list (and what the header buttons act on)
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-tab]"); if (!b) return;
+  state.tab = b.dataset.tab;
+  const clr = $("listClear"); clearTimeout(clr._t); clr.dataset.armed = "0"; clr.textContent = T("clearAll");
+  save(); render();
 });
-$("shopForm").addEventListener("submit", e => {
-  e.preventDefault(); const v = $("shopInput").value.trim(); if (!v || !state.shop) return;
-  state.shop.push({t:v,d:false}); $("shopInput").value=""; save(); render(); $("shopInput").focus();
-});
-let shopTimer;
-$("shopDone").addEventListener("click", e => {
-  const b = e.currentTarget;
-  const open = (state.shop||[]).filter(x=>!x.d).length;
-  if (open && b.dataset.armed !== "1") {
-    b.dataset.armed = "1"; b.textContent = T("shopOpenConfirm", {n: open});
-    shopTimer = setTimeout(()=>{ b.dataset.armed="0"; b.textContent = T("shopDone"); }, 4000);
-    return;
-  }
-  clearTimeout(shopTimer); b.dataset.armed = "0"; b.textContent = T("shopDone");
-  state.shop = null; save(); render();
+// "+" appends an empty entry to the visible list and focuses it; leaving it empty removes it again (see focusout)
+$("addEntry").addEventListener("click", () => {
+  const key = state.tab === "shop" ? "shop" : "todos";
+  state[key] = state[key].filter(x => (x.t || "").trim());
+  state[key].push({t: "", d: false}); save(); render();
+  const el = $(`${key === "shop" ? "eshop" : "etodo"}-${state[key].length - 1}`); if (el) el.focus();
 });
 document.addEventListener("focusout", e => {
   const t = e.target; if (!t.classList || !t.classList.contains("txt") || t.value.trim()) return;
@@ -1513,10 +1496,6 @@ document.addEventListener("click", e => {
     }
   }
   if (b.dataset.delitem) { const [c,i] = b.dataset.delitem.split("-"); state.cats[c].items.splice(i,1); save(); render(); }
-});
-$("todoForm").addEventListener("submit", e => {
-  e.preventDefault(); const v = $("todoInput").value.trim(); if (!v) return;
-  state.todos.push({t:v,d:false}); $("todoInput").value=""; save(); render();
 });
 // Sorting for the simple lists (to-dos, shopping list): drag with mouse/touch, or Alt + arrow up/down on the handle
 function makeSortable(listId, key){
