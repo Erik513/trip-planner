@@ -58,9 +58,18 @@ Nach jeder Änderung an `src/app.html`: `python3 build.py`, dann `index.html` co
 - Einheitliches Design: Farben nur über CSS-Variablen in `:root` (heller + dunkler Modus), Checkboxen eigen gestylt,
   kleine Knöpfe `.ghost.sm`. Muss auf dem Handy (390 px) ohne seitliches Scrollen funktionieren.
 
+## Teilen
+
+- Kopf: kleine Knöpfe links vom Fortschritt – „DE | EN“, Teilen (Ketten-Symbol), Herunterladen. Bewusst klein und dezent (`.langsw`, `.icon-btn`), nicht im Stil der Fortschrittsanzeige.
+- Teilen-Knopf: teilt die Seiten-Adresse per `navigator.share`, sonst Zwischenablage; sind Reise-Infos vorhanden, hängt `#` + `makeCode()` (derselbe Code wie beim Export) an.
+  Lokal geöffnet (`file://`) wird die HTML-Datei geteilt, falls das Gerät es kann.
+- Öffnen mit `#URLAUB…`: `readLink()` zeigt oben `#linkPanel` („Übernehmen?“ / „Verwerfen“); erst nach Bestätigung werden `state.info` ersetzt (mit „Rückgängig“), der Hash wird danach entfernt.
+- Es wird nur `state.info` geteilt (ohne Haken); Einkaufsliste, To-dos und Packliste bleiben lokal. Keine Synchronisation zwischen Geräten – wer ändert, teilt neu.
+  Backup/Export der übrigen Listen und Echtzeit-Sync sind bewusst **nicht** gewünscht.
+
 ## Speicherung
 
-- Standalone/GitHub Pages: `localStorage` (Schlüssel `packliste-v2`) – pro Browser/Gerät.
+- Standalone/GitHub Pages: `localStorage` (Schlüssel `packliste-v2`; Sprache `trip-planner-lang`) – pro Browser/Gerät/Adresse.
 - Der Code enthält zusätzlich einen Pfad für die Claude-Artifact-Datenbank (`window.claude.use("db")`) und den
   Claude-Download (`use("downloads")`). Außerhalb von Claude ist `window.claude` nicht vorhanden; diese Zweige
   werden dann einfach übersprungen. Nicht entfernen, solange die Claude-Version weiter genutzt wird.
