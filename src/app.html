@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: eine schmale Spalte – oben To-dos, darunter Packtabelle nach Kategorien, Fortschritt als Gepäckanhänger */
+/* Layout: one narrow column – to-dos on top, packing table by category below, progress shown as a luggage tag */
 :root{
   --bg:#eef2f3; --surface:#ffffff; --fg:#17262b; --muted:#5d7178; --line:#d3dde0;
   --accent:#0f7c74; --accent-soft:#d6ece9; --done:#8a9ca1;
@@ -232,7 +232,7 @@ td.x{width:40px;text-align:right}
 .reset[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 
-/* Handy: kompaktere Kopfzeilen, Tabelle ohne Seitwärtsscrollen, Etappen mit voller Feldbreite */
+/* Mobile: more compact headers, table without horizontal scrolling, legs with full-width fields */
 @media (max-width:600px){
   body{padding-block:20px 48px}
   .wrap{gap:28px}
@@ -364,16 +364,16 @@ td.x{width:40px;text-align:right}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script>
-// Unveränderter Quelltext der Seite (vor dem ersten Rendern) – für "Herunterladen"
+// Unmodified page source (before the first render) – used by "Download"
 const PAGE_SRC = "<!doctype html>\n" + document.documentElement.outerHTML;
 const KEY = "packliste-v2";
-// Sprachen: Texte stehen in I18N, T("schlüssel", {platzhalter}) liefert den Text der aktiven Sprache.
-// Standard = Browsersprache (Deutsch, sonst Englisch); die Wahl wird pro Gerät in localStorage gemerkt.
+// Languages: texts live in I18N, T("key", {placeholders}) returns the text in the active language.
+// Default = browser language (German, otherwise English); the choice is remembered per device in localStorage.
 const LANG_KEY = "trip-planner-lang";
 let langStored = null;
 try { langStored = localStorage.getItem(LANG_KEY); } catch(e){}
 let lang = langStored === "de" || langStored === "en" ? langStored : ((navigator.language || "").toLowerCase().startsWith("de") ? "de" : "en");
-const li = () => lang === "en" ? 1 : 0; // Index in zweisprachigen Listen [de, en]
+const li = () => lang === "en" ? 1 : 0; // index into bilingual lists [de, en]
 const I18N = {
   de: {
     title: "Reiseplaner", subtitle: "Reise, Einkauf, To-dos und Koffer an einem Ort", lang: "Sprache",
@@ -488,7 +488,7 @@ const T = (k, v) => {
   return s;
 };
 const plusDays = d => d ? ` (+${d} ${T(d > 1 ? "dayPl" : "daySg")})` : "";
-// Packlisten-Vorschläge zweisprachig: [Kategorie [de, en], [[Gegenstand [de, en]], …]]; die Kategorien sind zugleich die Standard-Kategorien
+// Bilingual packing suggestions: [category [de, en], [[item [de, en]], …]]; the categories are also the default categories
 const SUGGEST = [
   [["Kleidung", "Clothing"], [[["Unterhosen", "Underwear"]], [["Socken", "Socks"]], [["T-Shirts / Oberteile", "T-shirts / tops"]], [["Pullover / Hoodie", "Sweater / hoodie"]], [["Hosen", "Trousers"]], [["Schlafsachen", "Sleepwear"]], [["Jacke (wetterfest)", "Jacket (weatherproof)"]], [["Bequeme Schuhe", "Comfortable shoes"]]]],
   [["Hygiene & Bad", "Toiletries"], [[["Zahnbürste & Zahnpasta", "Toothbrush & toothpaste"]], [["Duschgel / Shampoo", "Shower gel / shampoo"]], [["Deo", "Deodorant"]], [["Haarbürste / Kamm", "Hairbrush / comb"]], [["Rasierer", "Razor"]], [["Handtuch", "Towel"]]]],
@@ -498,9 +498,9 @@ const SUGGEST = [
   [["Lebensmittel", "Food"], [[["Snacks für die Fahrt", "Snacks for the trip"]], [["Wasserflasche / Getränke", "Water bottle / drinks"]], [["Obst", "Fruit"]], [["Brotdose / Proviant", "Lunch box / packed meal"]], [["Kaffee / Tee", "Coffee / tea"]], [["Frühstücksvorrat", "Breakfast supplies"]]]],
   [["Sonstiges", "Misc"], [[["Tagesrucksack", "Daypack"]], [["Beutel für Schmutzwäsche", "Bag for dirty laundry"]], [["Regenschirm", "Umbrella"]]]]
 ];
-// Fortbewegungsmittel für die Vorschlagsliste im Feld "Fortbewegung" [de, en]
+// Transport modes for the suggestion list of the "Transport" field [de, en]
 const MODES = [["Auto", "Car"], ["Bahn", "Train"], ["Bus", "Bus"], ["Flugzeug", "Plane"], ["Fähre", "Ferry"], ["Taxi", "Taxi"], ["Mitfahrgelegenheit", "Carpool"], ["Fahrrad", "Bike"], ["Zu Fuß", "On foot"]];
-// Beim Sprachwechsel werden Standard-Kategorien, Vorschlags-Gegenstände und Fortbewegungsmittel mit übersetzt; selbst Eingetipptes bleibt
+// On language switch, default categories, suggested items and transport modes are translated too; anything typed by the user stays
 function translateDefaults(to){
   const f = to === "en" ? 0 : 1, g = 1 - f, norm = s => (s || "").trim().toLowerCase();
   const pick = x => { for (const [, its] of SUGGEST) { const h = its.find(([n]) => norm(n[f]) === norm(x.t)); if (h) return h[0][g]; } };
@@ -512,7 +512,7 @@ function translateDefaults(to){
   const info = state.info || {};
   ["legs", "rlegs"].forEach(k => (info[k] || []).forEach(l => { const m = MODES.find(x => norm(x[f]) === norm(l.mode)); if (m) l.mode = m[g]; }));
 }
-// Feste Texte der Seite: data-i18n = Textinhalt, data-i18n-attr = "attribut:schlüssel;…"
+// Static page texts: data-i18n = text content, data-i18n-attr = "attribute:key;…"
 function applyStatic(){
   document.documentElement.lang = lang; document.title = T("title");
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T(el.dataset.i18n); });
@@ -529,8 +529,8 @@ const defaults = {
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY)); } catch(e) { state = null; }
 if (!state || !state.todos || !state.cats) state = structuredClone(defaults);
-// Speichern: sofort lokal, dazu automatisch in der Artifact-Datenbank (geräteübergreifend)
-let synced = null; // zuletzt bekannter Stand in der Datenbank (für Teil-Updates)
+// Saving: immediately to localStorage, plus automatically to the Artifact database (across devices)
+let synced = null; // last known state in the database (for partial updates)
 let dbRef = null, writing = false, dirty = false, timer = null, needsRender = false;
 let syncKey = "";
 const setSync = k => { syncKey = k; const el = document.getElementById("sync"); if (el) el.textContent = k ? T(k) : ""; };
@@ -554,7 +554,7 @@ async function flush(){
   if (!dbRef || writing || !dirty) return;
   writing = true; dirty = false;
   try {
-    // Nur Geändertes schreiben, damit parallele Änderungen von anderen Geräten in anderen Bereichen erhalten bleiben
+    // Write only what changed, so parallel changes from other devices in other areas are preserved
     const body = JSON.parse(JSON.stringify(state));
     if (synced) { const patch = diffPatch(synced, body, true); if (Object.keys(patch).length) await dbRef.update(patch); }
     else await dbRef.set(body);
@@ -579,7 +579,7 @@ function render(){
       <input class="txt edit" type="text" id="etodo-${i}" data-etodo="${i}" value="${esc(x.t)}" aria-label="${T("editTodo")}">
       <button class="del" type="button" data-deltodo="${i}" aria-label="${T("removeTodo")}">×</button>
     </li>`).join("") || `<li class="empty">${T("todoEmpty")}</li>`;
-  // Einkaufsliste
+  // Shopping list
   const shop = Array.isArray(state.shop) ? state.shop : null;
   $("shopSec").hidden = !shop; $("shopStart").hidden = !!shop;
   let sd = 0, st = 0;
@@ -596,7 +596,7 @@ function render(){
   const td = state.todos.filter(x=>x.d).length;
   $("todoCount").textContent = T("todoCount", {d: td, n: state.todos.length});
 
-  // Packliste
+  // Packing list
   let rows = "", pd = 0, pt = 0;
   state.cats.forEach((c,ci) => {
     const done = c.items.filter(x=>x.d).length;
@@ -621,7 +621,7 @@ function render(){
   $("itemCat").innerHTML = state.cats.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join("");
 
   const all = state.todos.length + pt + st, allDone = td + pd + sd;
-  // Reise-Infos
+  // Trip info
   const info = state.info || {};
   document.querySelectorAll("[data-info]").forEach(el => { if (document.activeElement !== el) el.value = info[el.dataset.info] || ""; });
   renderTrips();
@@ -644,7 +644,7 @@ document.addEventListener("change", e => {
   save(); render();
   const again = document.getElementById(t.id); if (again) again.focus();
 });
-// Bearbeiten: beim Tippen speichern, leere Einträge beim Verlassen löschen
+// Editing: save while typing, delete empty entries when leaving the field
 document.addEventListener("input", e => {
   const t = e.target, v = t.value;
   if (t.dataset.etodo !== undefined) state.todos[t.dataset.etodo].t = v;
@@ -659,7 +659,7 @@ document.addEventListener("focusout", e => {
   const t = e.target;
   if (t.dataset && t.dataset.ecat !== undefined && !t.value.trim()) { state.cats[t.dataset.ecat].name = T("catFallback"); t.value = T("catFallback"); save(); }
 });
-// Knöpfe, die gerade nichts bewirken würden, sind deaktiviert
+// Buttons that would currently do nothing are disabled
 function updateButtons(){
   const set = (sel, off) => {
     const b = document.querySelector(sel); if (!b) return;
@@ -672,7 +672,7 @@ function updateButtons(){
   set('[data-uncheck="shop"]', !shop.some(x => x.d));
   set('[data-uncheck="pack"]', !items.some(x => x.d));
   ["hin", "rueck"].forEach(t => set(`[data-uncheck="${t}"]`, !(tripLegs(t).some(x => x.d) || (info[t + "Meet"] && info[t + "Meet"].d))));
-  // Inhalt leeren nur, wenn wirklich etwas eingetragen ist (auch in Etappen/Treffpunkt)
+  // "Clear all" only if something is actually entered (also inside legs/meeting point)
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : v === true;
   set('[data-clear="info"]', !has(info));
   set("#exportBtn", !has(info));
@@ -680,7 +680,7 @@ function updateButtons(){
   set('[data-clear="shop"]', !shop.length);
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
-  // Übernehmen-Knöpfe in den Etappen nur zeigen, wenn es etwas zu übernehmen gibt
+  // Only show the "use" buttons in legs when there is something to copy
   document.querySelectorAll("[data-fill]").forEach(b => {
     b.hidden = !fillValue(b).trim();
   });
@@ -696,8 +696,8 @@ document.addEventListener("input", e => {
   if (["todoInput","shopInput","itemInput","catInput"].includes(e.target.id)) updateButtons();
 });
 
-// Uhrzeit-Auswahl: ein Feld, das zwei Listen öffnet – Stunden 00–23 und Minuten 00–55 (5er-Schritte),
-// jede Spalte für sich scrollbar und begrenzt
+// Time picker: one field that opens two lists – hours 00–23 and minutes 00–55 (steps of 5),
+// each column scrollable on its own and height-limited
 const pad = n => String(n).padStart(2, "0");
 function pickInner(id, label, key){
   const col = (part, lab, vals) => `<div class="tcol" role="listbox" aria-label="${T(lab)}" data-i18n-attr="aria-label:${lab}" data-part="${part}"><div class="tcol-head" aria-hidden="true" data-i18n="${part === "h" ? "hr" : "min"}">${T(part === "h" ? "hr" : "min")}</div>${vals.map(v => `<button type="button" class="opt" role="option" data-v="${v}" aria-selected="false">${v}</button>`).join("")}</div>`;
@@ -717,10 +717,10 @@ function buildTimePickers(){
   });
 }
 buildTimePickers();
-// Fahrten (Hin/Rück): Treffpunkt optional, dazu Etappen
+// Trips (outbound/return): optional meeting point plus legs
 const TRIPS = ["hin", "rueck"];
 function tripLegs(t){ state.info = state.info || {}; const k = t === "rueck" ? "rlegs" : "legs"; return state.info[k] = state.info[k] || []; }
-// Zeitwert lesen/schreiben – normales Feld, Treffpunkt oder Uhrzeit einer Etappe
+// Read/write a time value – plain field, meeting point or the time of a leg
 function getT(p){
   const i = state.info || {};
   if (p.dataset.meet) return (i[p.dataset.meet + "Meet"] || {}).time || "";
@@ -738,7 +738,7 @@ function migrate(s){
   const i = s.info;
   if ((i.tort || i.tdat || i.tzeit) && !i.hinMeet) i.hinMeet = {ort: i.tort || "", date: i.tdat || "", time: i.tzeit || ""};
   ["tort", "tdat", "tzeit", "mit", "zeit", "rzeit"].forEach(k => delete i[k]);
-  // Einmalig: Kategorie "Lebensmittel" vor "Sonstiges" ergänzen
+  // One-off: add the category "Food" ("Lebensmittel") before "Misc" ("Sonstiges")
   if (!s.v2cats) {
     if (Array.isArray(s.cats) && !s.cats.some(c => ["lebensmittel", "food"].includes((c.name || "").trim().toLowerCase()))) {
       const at = s.cats.findIndex(c => ["sonstiges", "misc"].includes((c.name || "").trim().toLowerCase()));
@@ -749,10 +749,10 @@ function migrate(s){
   if (s.infoCollapsed !== undefined) { s.collapsed = s.collapsed || {}; s.collapsed.info = s.infoCollapsed; delete s.infoCollapsed; }
 }
 migrate(state);
-// Erster Start ohne gewählte Sprache: vorhandene Standardnamen in die Browsersprache übersetzen
+// First start without a chosen language: translate existing default names into the browser language
 if (!langStored) translateDefaults(lang);
 
-// Links zu Google Maps / Apple Karten: Standort beim Treffpunkt, Route bei Etappen
+// Links to Google Maps / Apple Maps: location for the meeting point, route for legs
 const MAPS = what => `<span class="maps" data-maps hidden><span class="sr">${what}:</span><a target="_blank" rel="noopener" data-map="g">Google Maps</a><a target="_blank" rel="noopener" data-map="a">${T("appleMaps")}</a></span>`;
 function travelMode(mode){
   const m = (mode || "").toLowerCase();
@@ -811,7 +811,7 @@ function renderTrips(){
   });
   updateLegSummary();
 }
-// Dauer lesen: "4:05" = 4 Std 5 Min, "1,5" = 1,5 Std, "90m" = 90 Min, "2h 15m" usw.
+// Parse duration: "4:05" = 4 h 5 min, "1,5" = 1.5 h, "90m" = 90 min, "2h 15m" etc.
 function parseDur(s, unit){
   s = String(s ?? "").trim().toLowerCase(); if (!s) return null;
   let r;
@@ -838,7 +838,7 @@ function updateLegSummary(){
   TRIPS.forEach(t => {
     const legs = tripLegs(t), meet = (state.info || {})[t + "Meet"];
     const dur = l => { const m = parseDur(l.dur, l.unit); return m === null ? 0 : m; };
-    // Ankunft pro Etappe: eigene Uhrzeit + Dauer, sonst Ankunft der vorigen Etappe (bzw. Treffpunkt) + Dauer
+    // Arrival per leg: own time + duration, otherwise arrival of the previous leg (or meeting point) + duration
     let prev = meet && meet.time ? toMin(meet.time) : null, endArr = null;
     legs.forEach((l, i) => {
       const el = document.getElementById(`leg-${t}-${i}-arr`);
@@ -870,7 +870,7 @@ document.addEventListener("click", e => {
   const d = b.dataset;
   if (d.addleg) {
     const t = d.addleg, legs = tripLegs(t), prev = legs[legs.length - 1], meet = state.info[t + "Meet"];
-    // Start = Ziel der vorigen Etappe, Uhrzeit = deren Ankunft (auf 5 Minuten aufgerundet)
+    // Start = destination of the previous leg, time = its arrival (rounded up to 5 minutes)
     const arr = arrivals(t)[legs.length - 1];
     const time = prev && arr != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(arr / 5) * 5) : "";
     legs.push({from: prev ? (prev.to || "") : (meet ? (meet.ort || "") : ""), mode: "", time, dur: "", to: ""});
@@ -885,7 +885,7 @@ document.addEventListener("click", e => {
     save(); render(); $(`meet-${t}-ort`).focus();
     return;
   }
-  // Entfernen: bei ausgefülltem Inhalt erst rot, zweiter Klick löscht
+  // Remove: if filled in, first click arms (red), second click deletes
   const t = b.closest(".leg").dataset.trip;
   const obj = d.delmeet ? state.info[t + "Meet"] : tripLegs(t)[d.delleg];
   const filled = obj && Object.values(obj).some(v => v && String(v).trim());
@@ -907,9 +907,9 @@ document.addEventListener("click", e => {
   save(); updateLegSummary();
 });
 
-// Etappen abhaken; die oberste offene Box je Fahrt wird hervorgehoben
+// Tick off legs; the topmost open box is highlighted
 function updateCurrent(){
-  // Reihenfolge Hinfahrt → Rückfahrt: markiert wird nur die erste offene Box über beide Fahrten
+  // Order outbound → return: only the first open box across both trips is highlighted
   let found = false;
   TRIPS.forEach(t => {
     $("legs-" + t).querySelectorAll(".leg").forEach(g => {
@@ -928,7 +928,7 @@ document.addEventListener("change", e => {
   obj.d = e.target.checked; save(); updateCurrent(); updateButtons();
 });
 
-// Rückfahrt aus der Hinfahrt erzeugen: Etappen in umgekehrter Reihenfolge, Start und Ziel getauscht
+// Create the return trip from the outbound trip: legs in reverse order, start and destination swapped
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("#fromHin"); if (!b) return;
   const r = tripLegs("rueck");
@@ -944,7 +944,7 @@ document.addEventListener("click", e => {
   save(); render();
 });
 
-// Etappen per Drag sortieren (Griff = Nummer), Treffpunkt bleibt oben
+// Reorder legs by drag (handle = number), the meeting point stays on top
 let ldrag = null;
 document.addEventListener("pointerdown", e => {
   const h = e.target.closest && e.target.closest("[data-lhandle]"); if (!h) return;
@@ -985,7 +985,7 @@ document.addEventListener("keydown", e => {
   const n = $("legs-" + t).querySelector(`.leg[data-leg="${j}"] [data-lhandle]`); if (n) n.focus();
 });
 
-// Rückgängig: nach Löschen/Leeren kurz die Möglichkeit zum Wiederherstellen anbieten
+// Undo: after deleting/clearing, briefly offer to restore
 const UNDO = [
   ["[data-deltodo]", "uTodo"], ["[data-delshop]", "uShop"], ["[data-delitem]", "uItem"],
   ["[data-delcat]", "uCat"], ["[data-delleg]", "uLeg"], ["[data-delmeet]", "uMeet"],
@@ -997,7 +997,7 @@ document.addEventListener("click", e => {
   const hit = UNDO.find(([sel]) => e.target.closest(sel)); if (!hit) return;
   const before = JSON.stringify(state);
   setTimeout(() => {
-    if (JSON.stringify(state) === before) return; // nur scharf geschaltet, nichts gelöscht
+    if (JSON.stringify(state) === before) return; // only armed, nothing deleted
     undoState = JSON.parse(before);
     $("toastMsg").textContent = T(hit[1]); $("toast").hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; undoState = null; }, 7000);
@@ -1010,7 +1010,7 @@ $("undoBtn").addEventListener("click", () => {
   save(); render();
 });
 
-// Was ein Übernehmen-Knopf einträgt: Treffpunkt-Ort, Zieladresse oder Ziel der vorherigen Etappe
+// What a "use" button fills in: meeting point location, address or destination of the previous leg
 function fillValue(b){
   const g = b.closest(".leg"), t = g.dataset.trip, info = state.info || {};
   if (b.dataset.fill === "meet") return (info[t + "Meet"] || {}).ort || "";
@@ -1018,7 +1018,7 @@ function fillValue(b){
   return info.adresse || "";
 }
 
-// Ankunftszeiten (Minuten) aller Etappen einer Fahrt; null, wo sie sich nicht berechnen lässt
+// Arrival times (minutes) of all legs of a trip; null where they cannot be calculated
 function arrivals(t){
   const toMin = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
   const meet = (state.info || {})[t + "Meet"];
@@ -1029,7 +1029,7 @@ function arrivals(t){
   });
 }
 
-// Export / Import der Reise-Infos als Code zum Teilen (Haken werden nicht mitgegeben)
+// Export / import of the trip info as a shareable code (ticks are not included)
 const CODE_PREFIX = "URLAUB:";
 const STR_KEYS = ["ziel","unterkunft","adresse","cin","cinz","cout","coutz","notiz","ab","rueck"];
 function cleanInfo(src){
@@ -1040,7 +1040,7 @@ function cleanInfo(src){
   ["legs", "rlegs"].forEach(k => { if (Array.isArray(src[k])) out[k] = src[k].slice(0, 50).filter(l => l && typeof l === "object").map(l => ({from: s(l.from), to: s(l.to), mode: s(l.mode), time: s(l.time), dur: s(String(l.dur ?? ""))})); });
   return out;
 }
-// Kurzer Code: kompakte Schlüssel, leere Felder weglassen, Etappen als Listen, dann komprimiert
+// Short code: compact keys, omit empty fields, legs as lists, then compressed
 const SHORT = {ziel:"z", unterkunft:"u", adresse:"a", cin:"ci", cinz:"cz", cout:"co", coutz:"oz", notiz:"n", ab:"d", rueck:"r"};
 const trimArr = a => { while (a.length && !a[a.length - 1]) a.pop(); return a; };
 function pack(info){
@@ -1104,11 +1104,11 @@ function copyCode(){
   const ok = () => { msg.textContent = T("copied"); };
   const selectAll = () => { const ro = code.readOnly; code.readOnly = false; code.focus(); code.select(); code.setSelectionRange(0, code.value.length); code.readOnly = ro; };
   const manual = () => { selectAll(); msg.textContent = T("copyBlocked"); };
-  // 1. Klassischer Weg über die Markierung: funktioniert auch in eingebetteten Seiten und lokal geöffneten Dateien
+  // 1. Classic way via selection: also works in embedded pages and locally opened files
   let done = false;
   try { selectAll(); done = document.execCommand("copy"); } catch (e) { done = false; }
   if (done) { ok(); return; }
-  // 2. Moderne Zwischenablage, falls verfügbar
+  // 2. Modern clipboard API, if available
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code.value).then(ok, manual);
   else manual();
 }
@@ -1135,7 +1135,7 @@ $("importApply").addEventListener("click", e => {
   $("sharePanel").hidden = true;
 });
 
-// Datumsfelder: Anzeige im Format "Do, 22.10.2026"; ein Klick öffnet die normale Datumsauswahl des Geräts
+// Date fields: displayed as "Do, 22.10.2026" / "Thu, 22 Oct 2026"; a click opens the device's normal date picker
 function fmtDate(v){
   const d = v ? new Date(v + "T12:00:00") : null; if (!d || isNaN(d)) return "";
   if (lang === "en") return `${d.toLocaleDateString("en-GB", {weekday: "short"})}, ${d.getDate()} ${d.toLocaleDateString("en-GB", {month: "short"})} ${d.getFullYear()}`;
@@ -1161,7 +1161,7 @@ function openDate(box){
   const inp = box.querySelector("input[type=date]");
   try { inp.showPicker(); } catch (e) { inp.focus(); inp.click(); }
 }
-// Klick/Tipp landet direkt auf dem unsichtbaren Datumsfeld und öffnet so die Auswahl des Geräts (auch in eingebetteten Seiten)
+// A click/tap lands directly on the invisible date field and opens the device picker (also in embedded pages)
 document.addEventListener("keydown", e => {
   const box = e.target.classList && e.target.classList.contains("dbox") ? e.target : null; if (!box) return;
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDate(box); }
@@ -1174,7 +1174,7 @@ document.addEventListener("keydown", e => {
 document.addEventListener("input", e => { if (e.target.type === "date") refreshDates(); });
 document.addEventListener("change", e => { if (e.target.type === "date") refreshDates(); });
 
-// Teilen: Link zur Seite (mit den Reise-Infos als Code hinter „#“, falls vorhanden) über das Teilen-Menü des Geräts, sonst in die Zwischenablage; lokal geöffnet (file://) wird die Datei geteilt
+// Share: link to the page (with the trip info as a code after "#", if present) via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
 $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
   const note = t => { b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
@@ -1198,7 +1198,7 @@ $("shareBtn").addEventListener("click", async e => {
   note(ok ? T("shareCopied") : T("dlFail"));
 });
 
-// Geteilter Link mit Reise-Infos (#URLAUB:…): erst nachfragen, dann übernehmen
+// Shared link with trip info (#URLAUB:…): ask first, then apply
 let linkData = null;
 const clearHash = () => { try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} };
 function showLinkPanel(){
@@ -1219,7 +1219,7 @@ $("linkApply").addEventListener("click", () => {
 });
 $("linkDismiss").addEventListener("click", () => { linkData = null; clearHash(); $("linkPanel").hidden = true; });
 
-// Herunterladen: die Seite als eigenständige Datei speichern (z. B. um sie aus einer App-Vorschau heraus im Browser zu öffnen)
+// Download: save the page as a standalone file (e.g. to open it in the browser from an app preview)
 $("dlBtn").addEventListener("click", async e => {
   const b = e.currentTarget, label = T("dlTitle");
   const note = t => { b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
@@ -1235,7 +1235,7 @@ $("dlBtn").addEventListener("click", async e => {
   } catch (err) { note(T("dlFail")); }
 });
 
-// Ein- und Ausklappen aller Überschriften
+// Collapse/expand all headings
 function applyCollapse(){
   const c = state.collapsed || {};
   document.querySelectorAll("[data-col]").forEach(el => {
@@ -1306,7 +1306,7 @@ document.addEventListener("keydown", e => {
 });
 
 
-// Reise-Infos
+// Trip info
 function updateCountdown(){
   const i = state.info || {}, out = [];
   const day = s => { const [y,m,d] = s.split("-").map(Number); return Date.UTC(y,m-1,d)/864e5; };
@@ -1324,14 +1324,14 @@ function updateCountdown(){
 document.addEventListener("input", e => {
   const k = e.target.dataset && e.target.dataset.info; if (!k) return;
   state.info = state.info || {};
-  // Datum der Fahrt ändert sich: Treffpunkt-Datum mitziehen, solange es nicht bewusst anders gesetzt wurde
+  // Trip date changes: carry the meeting point date along as long as it was not deliberately set differently
   const t = k === "ab" ? "hin" : k === "rueck" ? "rueck" : null, m = t && state.info[t + "Meet"];
   if (m && (!m.date || m.date === (state.info[k] || ""))) { m.date = e.target.value; const d = $(`meet-${t}-date`); if (d) d.value = m.date; }
   state.info[k] = e.target.value;
   save(); updateCountdown(); updateButtons();
 });
 
-// Pro Kapitel: Haken entfernen (Einträge bleiben) und Inhalt leeren (mit Sicherheitsabfrage)
+// Per section: uncheck all (entries stay) and clear all (with confirmation)
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-uncheck],[data-clear]"); if (!b) return;
   if (b.dataset.uncheck) {
@@ -1359,7 +1359,7 @@ document.addEventListener("click", e => {
   save(); render();
 });
 
-// Vorschläge: fügt typische Gegenstände hinzu, ohne Doppelte (Liste SUGGEST oben)
+// Suggestions: adds typical items without duplicates (list SUGGEST above)
 let suggestTimer;
 $("suggest").addEventListener("click", e => {
   const norm = s => s.trim().toLowerCase();
@@ -1436,7 +1436,7 @@ $("itemForm").addEventListener("submit", e => {
   state.cats[c].items.push({t:v,q:$("itemQty").value.trim(),d:false});
   $("itemInput").value=""; $("itemQty").value=""; save(); render(); $("itemCat").value=c;
 });
-// Drag & Drop für To-dos (Maus + Touch)
+// Drag & drop for to-dos (mouse + touch)
 let drag = null;
 $("todoList").addEventListener("pointerdown", e => {
   const h = e.target.closest(".handle"); if (!h) return;
@@ -1468,7 +1468,7 @@ function endDrag(e){
 }
 $("todoList").addEventListener("pointerup", endDrag);
 $("todoList").addEventListener("pointercancel", endDrag);
-// Tastatur: Alt + Pfeil hoch/runter auf dem Griff
+// Keyboard: Alt + arrow up/down on the handle
 $("todoList").addEventListener("keydown", e => {
   const h = e.target.closest(".handle"); if (!h || !e.altKey) return;
   const i = +h.dataset.handle, j = e.key === "ArrowUp" ? i-1 : e.key === "ArrowDown" ? i+1 : -1;
@@ -1479,7 +1479,7 @@ $("todoList").addEventListener("keydown", e => {
   document.querySelector(`[data-handle="${j}"]`).focus();
 });
 
-// Drag & Drop für die Packliste (auch kategorieübergreifend)
+// Drag & drop for the packing list (also across categories)
 let pdrag = null;
 const body = $("packBody");
 body.addEventListener("pointerdown", e => {
@@ -1498,7 +1498,7 @@ body.addEventListener("pointermove", e => {
     const r = el.getBoundingClientRect();
     if (e.clientY < r.top + r.height/2) { before = el; break; }
   }
-  // nie über die erste Kategorie-Überschrift
+  // never above the first category heading
   if (before === others[0]) before = others[1] || null;
   if (before !== pdrag.tr.nextElementSibling) body.insertBefore(pdrag.tr, before);
 });
@@ -1538,7 +1538,7 @@ body.addEventListener("keydown", e => {
   save(); render(); focusItem(item);
 });
 
-// Sprache umschalten: Standardnamen mit übersetzen, alles neu zeichnen
+// Switch language: translate default names too, redraw everything
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-lang]"); if (!b || b.dataset.lang === lang) return;
   if (document.activeElement) document.activeElement.blur();
@@ -1556,7 +1556,7 @@ setSync("syncLocal");
 readLink();
 
 (async () => {
-  // Jede Person bekommt ihre eigene, private Liste
+  // Every person gets their own private list
   const db = window.claude && await window.claude.use("db");
   const user = window.claude && await window.claude.use("user");
   const uid = user ? await user.id() : null;
