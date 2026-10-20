@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f7c74">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trip Planner">
 <title>Trip Planner</title>
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -284,7 +291,6 @@ td.x{width:40px;text-align:right}
     <div class="head-right">
     <div class="langsw" role="group" data-i18n-attr="aria-label:lang" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="de" aria-pressed="false">DE</button></div>
     <button type="button" class="ghost sm icon-btn" id="shareBtn" data-i18n-attr="aria-label:shareTitle;title:shareTitle" aria-label="Reiseplaner teilen" title="Reiseplaner teilen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
-    <button type="button" class="ghost sm icon-btn" id="dlBtn" data-i18n-attr="aria-label:dl;title:dlTitle" aria-label="Reiseplaner herunterladen" title="Reiseplaner als Datei herunterladen"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></button>
     <div class="tag" aria-live="polite">
       <span data-i18n="progress">Fortschritt gesamt</span>
       <b id="total">0 / 0</b>
@@ -380,8 +386,6 @@ td.x{width:40px;text-align:right}
 var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});
 </script>
 <script>
-// Unmodified page source (before the first render) – used by "Download"
-const PAGE_SRC = "<!doctype html>\n" + document.documentElement.outerHTML;
 const KEY = "trip-planner-v1";
 const LEGACY_KEY = "packliste-v2"; // German-era storage key, read once so existing data is found
 // Languages: texts live in I18N, T("key", {placeholders}) returns the text in the active language.
@@ -390,9 +394,7 @@ const LANG_KEY = "trip-planner-lang";
 let langStored = null;
 try { langStored = localStorage.getItem(LANG_KEY); } catch(e){}
 // A shared link may carry its language (#lang=de&…); it is adopted only if this device has no own choice yet
-// A downloaded copy of the page carries the trip info it was saved with (window.EMBEDDED_HASH, see pageSource())
-const startHash = location.hash.slice(1) || window.EMBEDDED_HASH || "";
-const hashLang = ((startHash.match(/(?:^|&)lang=(de|en)(?:&|$)/) || [])[1]) || null;
+const hashLang = ((location.hash.slice(1).match(/(?:^|&)lang=(de|en)(?:&|$)/) || [])[1]) || null;
 const adoptHashLang = !langStored && !!hashLang;
 let lang = langStored === "de" || langStored === "en" ? langStored : (hashLang || "en");
 if (adoptHashLang) { langStored = lang; try { localStorage.setItem(LANG_KEY, lang); } catch(e){} }
@@ -403,7 +405,7 @@ const I18N = {
     share: "Teilen", shareTitle: "Reiseplaner teilen", shareText: "Mein Reiseplaner – Reise, Einkauf, To-dos und Packliste an einem Ort", shareCopied: "Link kopiert ✓",
     linkTitle: "Reise-Infos im Link", linkHint: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Übernehmen?",
     linkHintReplace: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Deine aktuellen Reise-Infos werden dabei ersetzt. Übernehmen?", dismiss: "Verwerfen",
-    dl: "Reiseplaner herunterladen", dlTitle: "Reiseplaner als Datei herunterladen", progress: "Fortschritt gesamt",
+    progress: "Fortschritt gesamt",
     tripInfo: "Reise-Infos", export: "Exportieren", import: "Importieren", clearAll: "Inhalt leeren", clearSure: "Wirklich leeren?",
     close: "Schließen", copy: "Kopieren", apply: "Übernehmen", codeLabel: "Reise-Infos Code",
     grpTrip: "Reise & Unterkunft", destination: "Reisezielort", lodging: "Unterkunft", address: "Zieladresse",
@@ -447,7 +449,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    dlFile: "Reiseplaner.html", dlSaved: "Gespeichert ✓", dlFail: "Nicht möglich", dlStarted: "Download gestartet – siehe Downloads bzw. Dateien-App", dlInApp: "In diesem App-Browser klappt der Download oft nicht – öffne den Link in Chrome oder Safari",
+    shareFail: "Nicht möglich",
     suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", shopOpenConfirm: "Noch {n} offen – trotzdem abschließen?",
     syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
   },
@@ -456,7 +458,7 @@ const I18N = {
     share: "Share", shareTitle: "Share trip planner", shareText: "My trip planner – trip, shopping, to-dos and packing list in one place", shareCopied: "Link copied ✓",
     linkTitle: "Trip info in link", linkHint: "This link contains trip info (trip, accommodation, outbound and return trip). Apply it?",
     linkHintReplace: "This link contains trip info (trip, accommodation, outbound and return trip). Your current trip info will be replaced. Apply it?", dismiss: "Dismiss",
-    dl: "Download trip planner", dlTitle: "Save trip planner as a file", progress: "Overall progress",
+    progress: "Overall progress",
     tripInfo: "Trip info", export: "Export", import: "Import", clearAll: "Clear all", clearSure: "Really clear?",
     close: "Close", copy: "Copy", apply: "Apply", codeLabel: "Trip info code",
     grpTrip: "Trip & accommodation", destination: "Destination", lodging: "Accommodation", address: "Address",
@@ -500,7 +502,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    dlFile: "Trip-Planner.html", dlSaved: "Saved ✓", dlFail: "Not possible", dlStarted: "Download started – check your Downloads or Files app", dlInApp: "Downloads often fail in in-app browsers – open the link in Chrome or Safari",
+    shareFail: "Not possible",
     suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", shopOpenConfirm: "{n} still open – finish anyway?",
     syncSaving: "Saving …", syncSaved: "Saved ✓", syncFail: "Saving failed – retrying …", syncLocal: "Saved on this device"
   }
@@ -1096,8 +1098,8 @@ function unpack(c){
   if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
 }
-function makeCode(info = state.info){
-  const json = JSON.stringify(pack(info));
+function makeCode(){
+  const json = JSON.stringify(pack(state.info));
   if (window.LZString) return "TRIP:" + LZString.compressToEncodedURIComponent(json);
   return "TRIP-B:" + btoa(unescape(encodeURIComponent(json)));
 }
@@ -1210,28 +1212,15 @@ document.addEventListener("keydown", e => {
 document.addEventListener("input", e => { if (e.target.type === "date") refreshDates(); });
 document.addEventListener("change", e => { if (e.target.type === "date") refreshDates(); });
 
-// Page source for download/file sharing: includes the current trip info (or a still-unapplied link's info) so it is not lost
-function pageSource(){
-  const data = linkData || state.info;
-  const src = PAGE_SRC.replace(/<script id="embedded-trip">[\s\S]*?<\/script>/, "");
-  if (!Object.keys(pack(data)).length || !src.includes("<body>")) return src;
-  return src.replace("<body>", () => `<body><script id="embedded-trip">window.EMBEDDED_HASH="lang=${lang}&${makeCode(data)}";<\/script>`);
-}
-
-// Share: link to the page (with the language and, if present, the trip info code after "#") via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
+// Share: link to the page (with the language and, if present, the trip info code after "#") via the device's share menu, otherwise to the clipboard
 $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
   const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
-  const base = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] : null;
-  const url = base && base + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
+  if (!/^https?:$/.test(location.protocol)) { note(T("shareFail")); return; }
+  const url = location.href.split("#")[0] + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
   try {
-    if (navigator.share) {
-      if (url) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
-      const file = new File([pageSource()], T("dlFile"), {type: "text/html"});
-      if (navigator.canShare && navigator.canShare({files: [file]})) { await navigator.share({title: T("title"), files: [file]}); return; }
-    }
+    if (navigator.share) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
   } catch (err) { if (err && err.name === "AbortError") return; }
-  if (!url) { note(T("dlFail")); return; }
   let ok = false;
   try { await navigator.clipboard.writeText(url); ok = true; } catch (err) {
     const ta = document.createElement("textarea"); ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
@@ -1239,7 +1228,7 @@ $("shareBtn").addEventListener("click", async e => {
     try { ok = document.execCommand("copy"); } catch (err2) {}
     ta.remove(); b.focus();
   }
-  note(ok ? T("shareCopied") : T("dlFail"));
+  note(ok ? T("shareCopied") : T("shareFail"));
 });
 
 // Shared link with trip info (#lang=…&TRIP:…): ask first, then apply
@@ -1249,12 +1238,9 @@ function showLinkPanel(){
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
   $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
 }
-const SEEN_KEY = "trip-planner-seen";
-const markSeen = () => { try { if (!location.hash.slice(1) && window.EMBEDDED_HASH) localStorage.setItem(SEEN_KEY, window.EMBEDDED_HASH); } catch(e){} };
 function readLink(){
-  const raw = startHash, at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
-  if (!location.hash.slice(1)) { let seen = null; try { seen = localStorage.getItem(SEEN_KEY); } catch(e){} if (seen === raw) return; }
-  if (at < 0) { if (/^lang=/.test(location.hash.slice(1))) clearHash(); return; }
+  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
+  if (at < 0) { if (/^lang=/.test(raw)) clearHash(); return; }
   let txt = raw.slice(at); try { txt = decodeURIComponent(txt); } catch(e){}
   const d = readCode(txt);
   if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
@@ -1263,33 +1249,9 @@ $("linkApply").addEventListener("click", () => {
   if (!linkData) return;
   state.info = linkData; linkData = null;
   if (document.activeElement) document.activeElement.blur();
-  markSeen(); clearHash(); $("linkPanel").hidden = true; save(); render();
+  clearHash(); $("linkPanel").hidden = true; save(); render();
 });
-$("linkDismiss").addEventListener("click", () => { linkData = null; markSeen(); clearHash(); $("linkPanel").hidden = true; });
-
-// Download: save the page as a standalone file (e.g. to open it in the browser from an app preview)
-$("dlBtn").addEventListener("click", async e => {
-  const b = e.currentTarget, label = T("dlTitle");
-  const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
-  try {
-    const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
-    if (dl) { await dl.save({filename: T("dlFile"), data: pageSource()}); note(T("dlSaved")); return; }
-  } catch (err) { if (err && err.code === "declined") return; }
-  // Phones: the share sheet can save the file ("Save to Files" etc.); a plain download often does nothing on iOS
-  try {
-    const file = new File([pageSource()], T("dlFile"), {type: "text/html"});
-    if (matchMedia("(pointer: coarse)").matches && navigator.canShare && navigator.canShare({files: [file]})) {
-      await navigator.share({files: [file], title: T("title")}); return;
-    }
-  } catch (err) { if (err && err.name === "AbortError") return; }
-  try {
-    const url = URL.createObjectURL(new Blob([pageSource()], {type: "text/html"}));
-    const a = document.createElement("a"); a.href = url; a.download = T("dlFile");
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    notify(T(/FBAN|FBAV|Instagram|Line\/|MicroMessenger|Snapchat|Telegram|WhatsApp|; wv\)/i.test(navigator.userAgent) ? "dlInApp" : "dlStarted"));
-  } catch (err) { note(T("dlFail")); }
-});
+$("linkDismiss").addEventListener("click", () => { linkData = null; clearHash(); $("linkPanel").hidden = true; });
 
 // Collapse/expand all headings
 function applyCollapse(){
@@ -1610,6 +1572,8 @@ document.addEventListener("click", e => {
 render();
 setSync("syncLocal");
 readLink();
+// PWA: the service worker (sw.js) makes the app work offline; skipped for local files and sandboxed previews
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 
 (async () => {
   // Every person gets their own private list
