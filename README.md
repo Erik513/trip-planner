@@ -56,8 +56,11 @@ copy of the HTML file (files opened from the file manager have no reliable stora
   Chrome/Edge/Android) the Android tab also has a one-tap "Install automatically" button. iPhone/iPad cannot install by button, so there only the steps are shown.
   The header button is hidden once the app runs installed (`display-mode: standalone`).
 - `manifest.webmanifest` – name, colours, icons, `display: standalone`.
-- `sw.js` – service worker: pages are fetched network-first (updates arrive immediately), the cache is the offline fallback.
+- `sw.js` – service worker: pages are fetched network-first and revalidated with the server on every start (`cache: "no-cache"`, so updates arrive immediately), the cache is the offline fallback.
   Bump `CACHE` in `sw.js` when the list of cached files changes. It is registered at the end of the script (only on http/https).
+- At startup the app asks the browser for persistent storage (`navigator.storage.persist()`) so it does not clear the data on its own.
+  iOS Safari removes website data after a long time without use, except for apps added to the Home Screen – the install dialog says so.
+- Import accepts the code or the whole shared link (the code is extracted from it).
 - `icons/` – app icons (192/512 px, maskable, plus the 180 px apple-touch-icon).
 - `build.py` adds the manifest/icon/theme-colour tags to the generated `index.html`.
 

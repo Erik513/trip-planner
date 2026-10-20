@@ -397,6 +397,7 @@ td.x{width:40px;text-align:right}
     </div>
     <div class="dlg-panel" data-panel="ios" hidden>
       <ol><li data-i18n="installIos1">Öffne die Seite in Safari.</li><li><span data-i18n="installIos2">Tippe auf „Teilen“</span> <svg class="share-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></li><li data-i18n="installIos3">Tippe auf „Zum Home-Bildschirm“.</li></ol>
+      <p data-i18n="installIosTip">Nur als App auf dem Home-Bildschirm bleiben deine Daten dauerhaft gespeichert.</p>
     </div>
     <div class="dlg-panel" data-panel="desktop" hidden>
       <ol><li data-i18n="installDesktop1">Klicke in Chrome oder Edge in der Adressleiste auf das Installieren-Symbol.</li></ol>
@@ -464,7 +465,7 @@ const I18N = {
     exportTitle: "Reise-Infos exportieren",
     exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
     importTitle: "Reise-Infos importieren",
-    importHint: "Füge hier den Code ein, den du bekommen hast. Deine aktuellen Reise-Infos werden dabei ersetzt.",
+    importHint: "Füge hier den Code oder den ganzen Link ein, den du bekommen hast. Deine aktuellen Reise-Infos werden dabei ersetzt.",
     copied: "In die Zwischenablage kopiert ✓",
     copyBlocked: "Kopieren wurde vom Browser blockiert – der Code ist markiert, bitte selbst kopieren (Strg/Cmd + C oder lange tippen).",
     invalidCode: "Der Code ist ungültig oder unvollständig. Bitte komplett kopieren und erneut einfügen.", replaceInfo: "Reise-Infos ersetzen?",
@@ -474,7 +475,7 @@ const I18N = {
     shareFail: "Nicht möglich", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
-    installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.",
+    installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.", installIosTip: "Nur als App auf dem Home-Bildschirm bleiben deine Daten dauerhaft gespeichert.",
     installAndroid1: "Öffne die Seite in Chrome.", installAndroid2: "Tippe oben rechts auf", installAndroid2b: "", installAndroid3: "Tippe auf „App installieren“.",
     installDesktop1: "Klicke in Chrome oder Edge in der Adressleiste auf das Installieren-Symbol.",
     installTip: "Tipp: Aus WhatsApp zuerst „Im Browser öffnen“ wählen.",
@@ -522,7 +523,7 @@ const I18N = {
     exportTitle: "Export trip info",
     exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off legs are not included.",
     importTitle: "Import trip info",
-    importHint: "Paste the code you received here. Your current trip info will be replaced.",
+    importHint: "Paste the code or the whole link you received here. Your current trip info will be replaced.",
     copied: "Copied to clipboard ✓",
     copyBlocked: "Copying was blocked by the browser – the code is selected, please copy it yourself (Ctrl/Cmd + C or long-press).",
     invalidCode: "The code is invalid or incomplete. Please copy it in full and paste it again.", replaceInfo: "Replace trip info?",
@@ -532,7 +533,7 @@ const I18N = {
     shareFail: "Not possible", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
-    installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.",
+    installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.", installIosTip: "Only as an app on your Home Screen does your data stay stored for good.",
     installAndroid1: "Open this page in Chrome.", installAndroid2: "Tap", installAndroid2b: "at the top right.", installAndroid3: "Tap “Install app”.",
     installDesktop1: "In Chrome or Edge, click the install icon in the address bar.",
     installTip: "Tip: If you came from WhatsApp, first choose “Open in browser”.",
@@ -1684,6 +1685,8 @@ $("installBtn").addEventListener("click", async () => {
   installEvent.prompt(); await installEvent.userChoice.catch(() => {});
   installEvent = null;
 });
+// Ask the browser to keep the data (installed apps usually get it): it then does not clear it on its own when storage runs low
+if (navigator.storage && navigator.storage.persist && /^https?:$/.test(location.protocol)) navigator.storage.persist().catch(() => {});
 // PWA: the service worker (sw.js) makes the app work offline; skipped for local files and sandboxed previews
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 
