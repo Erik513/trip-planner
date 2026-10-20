@@ -11,10 +11,15 @@ It works offline, without an account and without a server.
 
 1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
-2. **Shopping list** – only appears after clicking "Shopping" (in the to-do row), disappears with "Shopping done". Items can be reordered by dragging the handle (or Alt + arrow keys).
-3. **To-dos** – reorderable the same way (shared code: `makeSortable`).
-4. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
+2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
+   to the visible list and focuses it (an entry left empty is removed again); "Uncheck all" and "Clear all" in the section header act on the visible list.
+   Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
+3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
    "Load suggestions" adds typical items without quantities.
+   The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
+   The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).
+   Items can be dragged within and across categories; whole categories can be reordered with the handle at the left of the category row
+   (drag, or Alt + arrow keys) – the items move with their category.
 
 ### Legs (outbound/return trip)
 
@@ -51,8 +56,11 @@ copy of the HTML file (files opened from the file manager have no reliable stora
   Chrome/Edge/Android) the Android tab also has a one-tap "Install automatically" button. iPhone/iPad cannot install by button, so there only the steps are shown.
   The header button is hidden once the app runs installed (`display-mode: standalone`).
 - `manifest.webmanifest` – name, colours, icons, `display: standalone`.
-- `sw.js` – service worker: pages are fetched network-first (updates arrive immediately), the cache is the offline fallback.
+- `sw.js` – service worker: pages are fetched network-first and revalidated with the server on every start (`cache: "no-cache"`, so updates arrive immediately), the cache is the offline fallback.
   Bump `CACHE` in `sw.js` when the list of cached files changes. It is registered at the end of the script (only on http/https).
+- At startup the app asks the browser for persistent storage (`navigator.storage.persist()`) so it does not clear the data on its own.
+  iOS Safari removes website data after a long time without use, except for apps added to the Home Screen – the install dialog says so.
+- Import accepts the code or the whole shared link (the code is extracted from it).
 - `icons/` – app icons (192/512 px, maskable, plus the 180 px apple-touch-icon).
 - `build.py` adds the manifest/icon/theme-colour tags to the generated `index.html`.
 
@@ -98,6 +106,12 @@ Code comments are written in English.
 - Every heading is **collapsible** (`data-col`); collapsed sections hide the buttons next to the heading.
 - Times: custom field with two lists (hours 00–23, minutes 00–55 in steps of 5).
 - Date fields show "Do, 22.10.2026" / "Thu, 22 Oct 2026" (native date input invisible on top).
+- Item names (to-dos, shopping, packing items, category names) are auto-growing textareas (`autoGrow`/`growAll`), so long texts wrap instead of being cut off;
+  Enter confirms, pasted line breaks become spaces.
+  The trip notes are a multi-line textarea that also grows with its content (`.auto-grow`, no manual resize handle), at least 3 lines high.
+- Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
+  the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
+- Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.
 
