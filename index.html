@@ -447,7 +447,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uShopDone: "Einkaufsliste abgeschlossen", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    dlFile: "Reiseplaner.html", dlSaved: "Gespeichert ✓", dlFail: "Nicht möglich", dlStarted: "Download gestartet – siehe Downloads bzw. Dateien-App",
+    dlFile: "Reiseplaner.html", dlSaved: "Gespeichert ✓", dlFail: "Nicht möglich", dlStarted: "Download gestartet – siehe Downloads bzw. Dateien-App", dlInApp: "In diesem App-Browser klappt der Download oft nicht – öffne den Link in Chrome oder Safari",
     suggestAdded: "{n} Vorschläge eingefügt", suggestNone: "Schon alles drin", shopOpenConfirm: "Noch {n} offen – trotzdem abschließen?",
     syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
   },
@@ -500,7 +500,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uShopDone: "Shopping list finished", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    dlFile: "Trip-Planner.html", dlSaved: "Saved ✓", dlFail: "Not possible", dlStarted: "Download started – check your Downloads or Files app",
+    dlFile: "Trip-Planner.html", dlSaved: "Saved ✓", dlFail: "Not possible", dlStarted: "Download started – check your Downloads or Files app", dlInApp: "Downloads often fail in in-app browsers – open the link in Chrome or Safari",
     suggestAdded: "{n} suggestions added", suggestNone: "Everything's already in", shopOpenConfirm: "{n} still open – finish anyway?",
     syncSaving: "Saving …", syncSaved: "Saved ✓", syncFail: "Saving failed – retrying …", syncLocal: "Saved on this device"
   }
@@ -1275,12 +1275,19 @@ $("dlBtn").addEventListener("click", async e => {
     const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
     if (dl) { await dl.save({filename: T("dlFile"), data: pageSource()}); note(T("dlSaved")); return; }
   } catch (err) { if (err && err.code === "declined") return; }
+  // Phones: the share sheet can save the file ("Save to Files" etc.); a plain download often does nothing on iOS
+  try {
+    const file = new File([pageSource()], T("dlFile"), {type: "text/html"});
+    if (matchMedia("(pointer: coarse)").matches && navigator.canShare && navigator.canShare({files: [file]})) {
+      await navigator.share({files: [file], title: T("title")}); return;
+    }
+  } catch (err) { if (err && err.name === "AbortError") return; }
   try {
     const url = URL.createObjectURL(new Blob([pageSource()], {type: "text/html"}));
     const a = document.createElement("a"); a.href = url; a.download = T("dlFile");
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
-    notify(T("dlStarted"));
+    notify(T(/FBAN|FBAV|Instagram|Line\/|MicroMessenger|Snapchat|Telegram|WhatsApp|; wv\)/i.test(navigator.userAgent) ? "dlInApp" : "dlStarted"));
   } catch (err) { note(T("dlFail")); }
 });
 
