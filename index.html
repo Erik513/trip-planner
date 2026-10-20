@@ -68,6 +68,7 @@ input[type=checkbox]:checked::after{opacity:1}
 @media (prefers-reduced-motion:reduce){input[type=checkbox]{transition:none}}
 .is-done .txt{color:var(--done);text-decoration:line-through}
 .edit{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;width:100%;min-width:0}
+textarea.edit{display:block;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}
 .edit:hover{border-bottom-color:var(--line)}
 .edit:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--fg)}
 td.q .edit{font-family:var(--mono);color:var(--muted);width:3ch;text-align:right}
@@ -318,6 +319,28 @@ td.x{width:40px;text-align:right}
   .leg-side .leg-chk{grid-column:3;grid-row:1;margin:0}
   .leg-side .del{grid-column:4;grid-row:1}
   .leg-grid{grid-column:1 / -1;grid-row:2}
+}
+
+/* Touch devices: bigger tap targets (the layout above is tuned for a mouse) */
+@media (pointer:coarse){
+  .ghost.sm{padding:9px 13px}
+  .langsw button{padding:11px 13px}
+  .head-right .icon-btn{padding:10px 12px!important}
+  .head-right .install-top{padding:10px 13px}
+  .list-tabs .tab{padding:10px 14px}
+  .dlg-tabs button{padding:10px 14px}
+  .add-item{width:38px;height:38px}
+  .del{padding:9px 12px;min-width:38px;min-height:38px}
+  .handle,.chandle{padding:12px 8px}
+  input[type=checkbox]{width:26px;height:26px}
+  .leg-no{width:30px;height:30px}
+  .unit{padding:7px 10px}
+  .maps a{padding:8px 3px}
+  .grp-head .toggle{padding:8px 0}
+  .opt{padding:10px 16px}
+  #packBody td.x,#packBody th.x{padding-left:0;padding-right:2px}
+  table col.cc{width:70px}
+  table col.cx{width:44px}
 }
 </style>
 
@@ -658,7 +681,7 @@ function render(){
     <li class="${x.d?'is-done':''}" data-i="${i}">
       <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
       <input type="checkbox" id="todo-${i}" data-todo="${i}" ${x.d?'checked':''} aria-label="${T("done")}">
-      <input class="txt edit" type="text" id="etodo-${i}" data-etodo="${i}" value="${esc(x.t)}" aria-label="${T("editTodo")}">
+      <textarea class="txt edit" rows="1" id="etodo-${i}" data-etodo="${i}" aria-label="${T("editTodo")}">${esc(x.t)}</textarea>
       <button class="del" type="button" data-deltodo="${i}" aria-label="${T("removeTodo")}">×</button>
     </li>`).join("") || `<li class="empty">${T("todoEmpty")}</li>`;
   // Shopping list
@@ -667,7 +690,7 @@ function render(){
     <li class="${x.d?'is-done':''}" data-i="${i}">
       <button class="handle" type="button" data-handle="${i}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
       <input type="checkbox" id="shop-${i}" data-shop="${i}" ${x.d?'checked':''} aria-label="${T("bought")}">
-      <input class="txt edit" type="text" id="eshop-${i}" data-eshop="${i}" value="${esc(x.t)}" aria-label="${T("editShop")}">
+      <textarea class="txt edit" rows="1" id="eshop-${i}" data-eshop="${i}" aria-label="${T("editShop")}">${esc(x.t)}</textarea>
       <button class="del" type="button" data-delshop="${i}" aria-label="${T("removeShop")}">×</button>
     </li>`).join("") || `<li class="empty">${T("shopEmpty")}</li>`;
   const sd = shop.filter(x=>x.d).length, st = shop.length;
@@ -686,7 +709,7 @@ function render(){
     pd += done; pt += c.items.length;
     rows += `<tr class="cat" data-cat="${ci}"><th colspan="4" scope="colgroup"><div class="cat-row">
       <button class="chandle" type="button" data-chandle="${ci}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button>
-      <input class="edit" type="text" id="ecat-${ci}" data-ecat="${ci}" value="${esc(c.name)}" aria-label="${T("renameCat")}">
+      <textarea class="edit" rows="1" id="ecat-${ci}" data-ecat="${ci}" aria-label="${T("renameCat")}">${esc(c.name)}</textarea>
       <button class="add-item" type="button" data-additem="${ci}" aria-label="${T("addItem")}" title="${T("addItem")}">+</button>
       <span class="count">${done}/${c.items.length}</span>
       <button class="del" type="button" data-delcat="${ci}" aria-label="${T("delCat")}" title="${T("delCatTitle")}">×</button></div></th></tr>`;
@@ -694,7 +717,7 @@ function render(){
     c.items.forEach((x,ii) => {
       rows += `<tr class="${x.d?'is-done':''}" data-ci="${ci}" data-ii="${ii}">
         <td class="c"><div class="cell"><button class="handle" type="button" data-ihandle="${ci}-${ii}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button><input type="checkbox" id="item-${ci}-${ii}" data-item="${ci}-${ii}" ${x.d?'checked':''} aria-label="${esc(T("packedAria", {x: x.t}))}"></div></td>
-        <td><input class="txt edit" type="text" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" value="${esc(x.t)}" aria-label="${T("editItem")}"></td>
+        <td><textarea class="txt edit" rows="1" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" aria-label="${T("editItem")}">${esc(x.t)}</textarea></td>
         <td class="q"><input class="edit" type="text" inputmode="numeric" autocomplete="off" size="4" placeholder="–" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
         <td class="x"><button class="del" type="button" data-delitem="${ci}-${ii}" aria-label="${T("removeItem")}">×</button></td>
       </tr>`;
@@ -716,6 +739,7 @@ function render(){
   updateButtons();
   applyCollapse();
   refreshDates();
+  growAll();
   $("total").textContent = `${allDone} / ${all}`;
   $("totalBar").style.width = all ? (allDone/all*100)+"%" : "0";
 }
@@ -730,8 +754,21 @@ document.addEventListener("change", e => {
   const again = document.getElementById(t.id); if (again) again.focus();
 });
 // Editing: save while typing, delete empty entries when leaving the field
+// Long texts wrap instead of being cut off: the fields are textareas that grow with their content
+function autoGrow(el){
+  if (!el.offsetParent) return; // hidden (other tab, collapsed): measured again when shown
+  el.style.height = "auto"; el.style.height = el.scrollHeight + "px";
+}
+const growAll = () => document.querySelectorAll("textarea.edit").forEach(autoGrow);
+window.addEventListener("resize", growAll);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(growAll);
 document.addEventListener("input", e => {
-  const t = e.target, v = t.value;
+  const t = e.target;
+  if (t.matches && t.matches("textarea.edit")) {
+    if (t.value.includes("\n")) t.value = t.value.replace(/\s*\n\s*/g, " "); // single-line texts: pasted line breaks become spaces
+    autoGrow(t);
+  }
+  const v = t.value;
   if (t.dataset.etodo !== undefined) state.todos[t.dataset.etodo].t = v;
   else if (t.dataset.eitem) { const [c,i] = t.dataset.eitem.split("-"); state.cats[c].items[i].t = v; }
   else if (t.dataset.eqty) { const [c,i] = t.dataset.eqty.split("-"); state.cats[c].items[i].q = v; }
@@ -1325,6 +1362,7 @@ function applyCollapse(){
     const btn = el.querySelector(":scope > .sec-head .toggle, :scope > .grp-head .toggle");
     if (btn) btn.setAttribute("aria-expanded", on ? "false" : "true");
   });
+  growAll();
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".toggle"); if (!b) return;
@@ -1482,7 +1520,7 @@ document.addEventListener("focusout", e => {
   save(); render();
 });
 document.addEventListener("keydown", e => {
-  if (e.key === "Enter" && e.target.classList && e.target.classList.contains("edit")) e.target.blur();
+  if (e.key === "Enter" && e.target.classList && e.target.classList.contains("edit")) { e.preventDefault(); e.target.blur(); }
 });
 // Drop what is still empty: items without text, and categories without name and items
 function dropEmpty(){

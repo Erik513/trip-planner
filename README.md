@@ -106,6 +106,9 @@ Code comments are written in English.
 - Every heading is **collapsible** (`data-col`); collapsed sections hide the buttons next to the heading.
 - Times: custom field with two lists (hours 00–23, minutes 00–55 in steps of 5).
 - Date fields show "Do, 22.10.2026" / "Thu, 22 Oct 2026" (native date input invisible on top).
+- Item names (to-dos, shopping, packing items, category names) are auto-growing textareas (`autoGrow`/`growAll`), so long texts wrap instead of being cut off;
+  Enter confirms, pasted line breaks become spaces.
+- Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.
 
