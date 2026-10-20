@@ -34,6 +34,9 @@ It works offline, without an account and without a server.
   the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). When opened locally (`file://`), the HTML file is shared if the device supports it.
 - **Opening a link:** the language from the link is adopted only if the device has no own language choice yet. If it contains trip info, a notice at the top asks "Apply?" / "Dismiss"; only after confirmation the trip info is
   replaced (with "Undo"), then the hash is removed.
+- **Download button:** saves the page as `Trip-Planner.html`. The current trip info (or a received link's trip info that has not been applied yet) is
+  embedded in the file (`window.EMBEDDED_HASH`); when the file is opened, it asks "Apply?" once, just like a received link
+  (remembered in `localStorage` key `trip-planner-seen`). Shopping list, to-dos and packing list are not included.
 - **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
   (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
 - Only the trip info is shared; shopping list, to-dos and packing list stay local. There is no synchronisation between devices –

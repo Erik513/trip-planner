@@ -374,7 +374,9 @@ const LANG_KEY = "trip-planner-lang";
 let langStored = null;
 try { langStored = localStorage.getItem(LANG_KEY); } catch(e){}
 // A shared link may carry its language (#lang=de&…); it is adopted only if this device has no own choice yet
-const hashLang = ((location.hash.slice(1).match(/(?:^|&)lang=(de|en)(?:&|$)/) || [])[1]) || null;
+// A downloaded copy of the page carries the trip info it was saved with (window.EMBEDDED_HASH, see pageSource())
+const startHash = location.hash.slice(1) || window.EMBEDDED_HASH || "";
+const hashLang = ((startHash.match(/(?:^|&)lang=(de|en)(?:&|$)/) || [])[1]) || null;
 const adoptHashLang = !langStored && !!hashLang;
 let lang = langStored === "de" || langStored === "en" ? langStored : (hashLang || "en");
 if (adoptHashLang) { langStored = lang; try { localStorage.setItem(LANG_KEY, lang); } catch(e){} }
@@ -1078,8 +1080,8 @@ function unpack(c){
   if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
 }
-function makeCode(){
-  const json = JSON.stringify(pack(state.info));
+function makeCode(info = state.info){
+  const json = JSON.stringify(pack(info));
   if (window.LZString) return "TRIP:" + LZString.compressToEncodedURIComponent(json);
   return "TRIP-B:" + btoa(unescape(encodeURIComponent(json)));
 }
@@ -1192,6 +1194,14 @@ document.addEventListener("keydown", e => {
 document.addEventListener("input", e => { if (e.target.type === "date") refreshDates(); });
 document.addEventListener("change", e => { if (e.target.type === "date") refreshDates(); });
 
+// Page source for download/file sharing: includes the current trip info (or a still-unapplied link's info) so it is not lost
+function pageSource(){
+  const data = linkData || state.info;
+  const src = PAGE_SRC.replace(/<script id="embedded-trip">[\s\S]*?<\/script>/, "");
+  if (!Object.keys(pack(data)).length || !src.includes("<body>")) return src;
+  return src.replace("<body>", () => `<body><script id="embedded-trip">window.EMBEDDED_HASH="lang=${lang}&${makeCode(data)}";<\/script>`);
+}
+
 // Share: link to the page (with the language and, if present, the trip info code after "#") via the device's share menu, otherwise to the clipboard; when opened locally (file://) the file is shared
 $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
@@ -1201,7 +1211,7 @@ $("shareBtn").addEventListener("click", async e => {
   try {
     if (navigator.share) {
       if (url) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
-      const file = new File([PAGE_SRC], T("dlFile"), {type: "text/html"});
+      const file = new File([pageSource()], T("dlFile"), {type: "text/html"});
       if (navigator.canShare && navigator.canShare({files: [file]})) { await navigator.share({title: T("title"), files: [file]}); return; }
     }
   } catch (err) { if (err && err.name === "AbortError") return; }
@@ -1223,9 +1233,12 @@ function showLinkPanel(){
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
   $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
 }
+const SEEN_KEY = "trip-planner-seen";
+const markSeen = () => { try { if (!location.hash.slice(1) && window.EMBEDDED_HASH) localStorage.setItem(SEEN_KEY, window.EMBEDDED_HASH); } catch(e){} };
 function readLink(){
-  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
-  if (at < 0) { if (/^lang=/.test(raw)) clearHash(); return; }
+  const raw = startHash, at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
+  if (!location.hash.slice(1)) { let seen = null; try { seen = localStorage.getItem(SEEN_KEY); } catch(e){} if (seen === raw) return; }
+  if (at < 0) { if (/^lang=/.test(location.hash.slice(1))) clearHash(); return; }
   let txt = raw.slice(at); try { txt = decodeURIComponent(txt); } catch(e){}
   const d = readCode(txt);
   if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
@@ -1234,9 +1247,9 @@ $("linkApply").addEventListener("click", () => {
   if (!linkData) return;
   state.info = linkData; linkData = null;
   if (document.activeElement) document.activeElement.blur();
-  clearHash(); $("linkPanel").hidden = true; save(); render();
+  markSeen(); clearHash(); $("linkPanel").hidden = true; save(); render();
 });
-$("linkDismiss").addEventListener("click", () => { linkData = null; clearHash(); $("linkPanel").hidden = true; });
+$("linkDismiss").addEventListener("click", () => { linkData = null; markSeen(); clearHash(); $("linkPanel").hidden = true; });
 
 // Download: save the page as a standalone file (e.g. to open it in the browser from an app preview)
 $("dlBtn").addEventListener("click", async e => {
@@ -1244,10 +1257,10 @@ $("dlBtn").addEventListener("click", async e => {
   const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("dlSaved")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = label; b.classList.remove("ok"); }, 3000); };
   try {
     const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
-    if (dl) { await dl.save({filename: T("dlFile"), data: PAGE_SRC}); note(T("dlSaved")); return; }
+    if (dl) { await dl.save({filename: T("dlFile"), data: pageSource()}); note(T("dlSaved")); return; }
   } catch (err) { if (err && err.code === "declined") return; }
   try {
-    const url = URL.createObjectURL(new Blob([PAGE_SRC], {type: "text/html"}));
+    const url = URL.createObjectURL(new Blob([pageSource()], {type: "text/html"}));
     const a = document.createElement("a"); a.href = url; a.download = T("dlFile");
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
