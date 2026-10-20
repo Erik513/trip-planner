@@ -393,7 +393,7 @@ td.x{width:40px;text-align:right}
     <form class="add" id="itemForm">
       <select id="itemCat" data-i18n-attr="aria-label:category" aria-label="Kategorie"></select>
       <input type="text" id="itemInput" data-i18n-attr="placeholder:itemPh;aria-label:itemNew" placeholder="Gegenstand" aria-label="Neuer Gegenstand">
-      <input type="text" id="itemQty" class="qty" data-i18n-attr="placeholder:qtyPh;aria-label:qty" placeholder="Anz." aria-label="Anzahl">
+      <input type="text" inputmode="numeric" autocomplete="off" id="itemQty" class="qty" data-i18n-attr="placeholder:qtyPh;aria-label:qty" placeholder="Anz." aria-label="Anzahl">
       <button type="submit" data-i18n="add">Hinzufügen</button>
     </form>
     <form class="add" id="catForm">
@@ -697,7 +697,7 @@ function render(){
       rows += `<tr class="${x.d?'is-done':''}" data-ci="${ci}" data-ii="${ii}">
         <td class="c"><div class="cell"><button class="handle" type="button" data-ihandle="${ci}-${ii}" aria-label="${T("move")}" title="${T("dragTitle")}">⋮⋮</button><input type="checkbox" id="item-${ci}-${ii}" data-item="${ci}-${ii}" ${x.d?'checked':''} aria-label="${esc(T("packedAria", {x: x.t}))}"></div></td>
         <td><input class="txt edit" type="text" id="eitem-${ci}-${ii}" data-eitem="${ci}-${ii}" value="${esc(x.t)}" aria-label="${T("editItem")}"></td>
-        <td class="q"><input class="edit" type="text" size="4" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
+        <td class="q"><input class="edit" type="text" inputmode="numeric" autocomplete="off" size="4" id="eqty-${ci}-${ii}" data-eqty="${ci}-${ii}" value="${esc(x.q||"")}" aria-label="${T("editQty")}"></td>
         <td class="x"><button class="del" type="button" data-delitem="${ci}-${ii}" aria-label="${T("removeItem")}">×</button></td>
       </tr>`;
     });
