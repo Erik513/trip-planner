@@ -48,6 +48,8 @@ input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)
 input[type=checkbox]:checked::after{opacity:1}
 @media (prefers-reduced-motion:reduce){input[type=checkbox]{transition:none}}
 .is-done .txt{color:var(--done);text-decoration:line-through}
+li.is-done :disabled,tr.is-done :disabled{cursor:not-allowed}
+textarea.edit:disabled,.edit:disabled{opacity:1;-webkit-text-fill-color:currentColor}   /* locked entries keep their (struck-through) text colour */
 .edit{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;width:100%;min-width:0}
 textarea.edit{display:block;box-sizing:border-box;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}   /* border-box: autoGrow() sets the full height */
 .edit:hover{border-bottom-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
@@ -378,8 +380,8 @@ td.x{width:40px;text-align:right}
 .lbl-btn,.lbl-act .map-btn{width:var(--btn-h);height:var(--btn-h)}
 .lbl-act{height:var(--btn-h)}
 /* "add" buttons: light accent fill */
-.add-item,.add-cat,.unit.stop-btn,#suggest,.actions [data-addleg]{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
-.add-item:hover,.add-cat:hover,.unit.stop-btn:hover,#suggest:hover,.actions [data-addleg]:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 26%,transparent);border-color:var(--accent)}
+.add-item,.add-cat,.unit.stop-btn,.actions [data-addleg]{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.add-item:hover,.add-cat:hover,.unit.stop-btn:hover,.actions [data-addleg]:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 26%,transparent);border-color:var(--accent)}
 .add-item{font-size:1.15rem}
 .add-cat{width:auto;flex:1}
 /* primary: accent filled */
@@ -845,6 +847,10 @@ function render(){
   document.querySelectorAll(".tpick").forEach(syncPick);
   updateCountdown();
   updateButtons();
+  // A ticked entry of the to-do, shopping and packing list is locked: only its checkbox stays active
+  document.querySelectorAll("#todoList li.is-done, #shopList li.is-done, #packBody tr.is-done").forEach(row => {
+    row.querySelectorAll("textarea,input:not([type=checkbox]),button").forEach(el => { el.disabled = true; });
+  });
   document.querySelectorAll("[data-clear]").forEach(refreshClearBtn);
   applyCollapse();
   refreshDates();
@@ -1920,7 +1926,7 @@ function makeSortable(listId, key){
   const list = $(listId);
   let drag = null;
   list.addEventListener("pointerdown", e => {
-    const h = e.target.closest(".handle"); if (!h) return;
+    const h = e.target.closest(".handle"); if (!h || h.disabled) return;
     e.preventDefault();
     const li = h.closest("li");
     drag = { li, id: e.pointerId };
@@ -1968,7 +1974,7 @@ makeSortable("shopList", "shop");
 let pdrag = null;
 const body = $("packBody");
 body.addEventListener("pointerdown", e => {
-  const h = e.target.closest(".handle"); if (!h) return;
+  const h = e.target.closest(".handle"); if (!h || h.disabled) return;
   e.preventDefault();
   const tr = h.closest("tr");
   pdrag = { tr, id: e.pointerId };
