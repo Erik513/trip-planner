@@ -947,11 +947,11 @@ function updateButtons(){
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
-  // No stopover / add-leg button once the leg's destination is the trip's destination address (nothing comes after it)
+  // Outbound trip only: no stopover / add-leg button once the leg's destination is the trip's destination address (nothing comes after it); the return trip ends elsewhere
   const addr = (info.address || "").trim().toLowerCase();
   document.querySelectorAll("[data-addstop],[data-addleg][data-after]").forEach(b => {
-    const l = tripLegs(b.dataset.trip || b.dataset.addleg)[+(b.dataset.addstop !== undefined ? b.dataset.addstop : b.dataset.after)], to = ((l && l.to) || "").trim().toLowerCase();
-    b.hidden = !!addr && to === addr;
+    const t = b.dataset.trip || b.dataset.addleg, l = tripLegs(t)[+(b.dataset.addstop !== undefined ? b.dataset.addstop : b.dataset.after)], to = ((l && l.to) || "").trim().toLowerCase();
+    b.hidden = t === "out" && !!addr && to === addr;
   });
   // The time chip: only when the predecessor has a time to take over and the leg does not have exactly that time yet
   document.querySelectorAll("[data-filltime]").forEach(b => {
