@@ -26,13 +26,13 @@ It works offline, without an account and without a server.
 - Card layout (same on phone and desktop): a header row with the number (drag handle) or the meeting point symbol, the **transport** picker (a compact button; it opens the list of common modes `MODES` plus a free "Other …" field, no browser datalist) or the title "Meeting point",
   the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); Google Maps / Apple Maps links at the bottom of the card.
   The meeting point card has place, date and time (date and time in one row).
-- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = own time, or arrival of the previous leg/meeting point + duration.
+- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
   "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy and the field does not already contain it.
 - **Stopover** ("+ Stopover" at the bottom of a leg card): a card between two legs with place, "from" and "until" time and the computed waiting time.
   It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
-  (destination and arrival of the leg); the next leg starts at the stopover's "until" time if it has no time of its own. "Copy from outbound" keeps the stopover
+  (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand). "Copy from outbound" keeps the stopover
   place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:` format stays compatible).
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).

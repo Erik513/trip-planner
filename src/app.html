@@ -892,7 +892,13 @@ function getT(p){
 function setT(p, v){
   state.info = state.info || {};
   if (p.dataset.meet) { const m = state.info[p.dataset.meet + "Meet"]; if (m) m.time = v; }
-  else if (p.dataset.stop) { const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (l && l.stop) l.stop[p.dataset.stop] = v; }
+  else if (p.dataset.stop) {
+    const legs = tripLegs(p.dataset.trip), l = legs[p.dataset.leg]; if (!l || !l.stop) return;
+    const prevVal = l.stop[p.dataset.stop]; l.stop[p.dataset.stop] = v;
+    // "until" is the next leg's departure: it fills (and then follows) the next leg's time as long as that was not set by hand
+    const next = legs[+p.dataset.leg + 1];
+    if (p.dataset.stop === "until" && v && next && (!next.time || next.time === prevVal)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
+  }
   else if (p.dataset.leg !== undefined) { const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (l) l.time = v; }
   else state.info[p.dataset.time] = v;
 }
@@ -1059,7 +1065,7 @@ function updateLegSummary(){
     let prev = meet && meet.time ? toMin(meet.time) : null, endArr = null, lastArr = null;
     legs.forEach((l, i) => {
       const el = document.getElementById(`leg-${t}-${i}-arr`);
-      const start = l.time ? toMin(l.time) : prev;
+      const start = l.time ? toMin(l.time) : null; // only the leg's own departure time counts
       const d = dur(l), arr = start !== null && d > 0 ? start + d : null;
       prev = arr; lastArr = arr; if (arr !== null) endArr = arr;
       // A stopover: the next leg continues from its "until" time; its waiting time is shown on the card
@@ -1301,7 +1307,7 @@ function arrivals(t){
   const meet = (state.info || {})[t + "Meet"];
   let prev = meet && meet.time ? toMin(meet.time) : null;
   return tripLegs(t).map(l => {
-    const start = l.time ? toMin(l.time) : prev, d = parseDur(l.dur, l.unit) || 0;
+    const start = l.time ? toMin(l.time) : null, d = parseDur(l.dur, l.unit) || 0;
     const arr = start !== null && d > 0 ? start + d : null;
     prev = arr;
     if (l.stop && l.stop.until) { let u = toMin(l.stop.until); if (arr !== null) while (u < arr) u += 1440; prev = u; } // the next leg continues after the stopover
