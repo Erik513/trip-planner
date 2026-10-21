@@ -400,7 +400,7 @@ td.x{width:40px;text-align:right}
 .ghost:hover,.list-tabs .tab:hover,.head-right .install-top:hover,.head-right .icon-btn:hover,.map-btn:hover,.lbl-btn:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
 /* icon-only buttons: square */
 .head-right .icon-btn,.add-item,.map-btn,.lbl-btn,.list-actions > button,.newcat-row > .ghost{width:var(--btn-h);padding:0!important}
-.map-btn,.lbl-btn{color:var(--accent)}
+.map-btn,.lbl-btn{color:var(--accent);background:var(--surface)}   /* same fill as the input fields, so they stay visible on the tinted current card */
 .lbl-btn,.lbl-act .map-btn{width:var(--btn-h);height:var(--btn-h)}
 .lbl-act{height:var(--btn-h)}
 /* "add" buttons: light accent fill */
@@ -1094,7 +1094,7 @@ function travelMode(mode){
 function updateMaps(){
   const E = encodeURIComponent, act = document.activeElement;
   // The pin appears only once the place/route fields have been left, not while typing in them
-  const typing = el => { const g = el.closest(".leg"); return !!act && (act === $("i-address") || (g && g.contains(act) && act.matches('[data-legf="from"],[data-legf="to"],[data-meetf="place"]'))); };
+  const typing = el => { const g = el.closest(".leg"); return !!act && (act === $("i-address") || (g && g.contains(act) && act.matches('[data-legf="from"],[data-legf="to"],[data-meetf="place"],[data-stopf="place"]'))); };
   TRIPS.forEach(t => {
     const box = $("legs-" + t), meet = (state.info || {})[t + "Meet"];
     // links: {g: Google, a: Apple, w: Waze, db: Deutsche Bahn}; an empty value hides that entry (the whole menu when Google has none)
@@ -1119,6 +1119,17 @@ function updateMaps(){
       });
     });
   });
+  // Stopover cards: the place
+  TRIPS.forEach(t => $("legs-" + t).querySelectorAll(".leg.stop").forEach(g => {
+    const l = tripLegs(t)[+g.dataset.stopof], q = ((l && l.stop && l.stop.place) || "").trim(), el = g.querySelector("[data-maps]");
+    if (!el) return;
+    el.hidden = !q || typing(el);
+    if (q) {
+      el.querySelector('[data-map="g"]').href = `https://www.google.com/maps/search/?api=1&query=${E(q)}`;
+      el.querySelector('[data-map="a"]').href = `https://maps.apple.com/?q=${E(q)}`;
+      const w = el.querySelector('[data-map="w"]'); w.href = `https://waze.com/ul?q=${E(q)}&navigate=yes`; w.hidden = false;
+    }
+  }));
   // Destination address of the whole trip (menu next to its label)
   const acts = $("addrActs");
   if (!acts.firstChild || acts.dataset.lang !== lang) { acts.innerHTML = MAPPICK("mapOpenPlace"); acts.dataset.lang = lang; }
@@ -1163,7 +1174,7 @@ function renderTrips(){
       <div class="leg-grid">
         <div class="f c-from"><span>${T("place")}</span><input class="fld" type="text" id="stop-${t}-${i}-place" data-stopf="place" value="${esc(l.stop.place || "")}" aria-label="${T("stopPlace")}"></div>
         <div class="f"><span>${T("stopFrom")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="from">${pickInner(`stop-${t}-${i}-from`, T("stopFromLabel"))}</div></div>
-        <div class="f"><span>${T("stopUntil")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="until">${pickInner(`stop-${t}-${i}-until`, T("stopUntilLabel"))}</div></div>
+        <div class="c-durrow"><div class="f"><span>${T("stopUntil")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="until">${pickInner(`stop-${t}-${i}-until`, T("stopUntilLabel"))}</div></div>${MAPPICK("mapOpenPlace")}</div>
       </div>
       <div class="c-arrrow"><button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button><div class="stop-wait" id="stop-${t}-${i}-wait"></div></div>
     </div>`;
@@ -2192,8 +2203,8 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.
     first = false;
   }, () => setSync("syncLocal"));
 })();
-document.addEventListener("focusin", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place)$/.test(e.target.id || "")) { updateMaps(); updateButtons(); } });
-document.addEventListener("focusout", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place)$/.test(e.target.id || "")) setTimeout(() => { updateMaps(); updateButtons(); }); });
+document.addEventListener("focusin", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) { updateMaps(); updateButtons(); } });
+document.addEventListener("focusout", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) setTimeout(() => { updateMaps(); updateButtons(); }); });
 document.addEventListener("focusout", () => { if (needsRender) { needsRender = false; setTimeout(render, 0); } });
 </script>
 
