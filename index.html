@@ -58,6 +58,7 @@ header .sub{display:block}
 h2{font-family:var(--display);font-weight:600;font-size:1.35rem;margin:0 0 4px}
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
 .count{font-family:var(--mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+#countdown{color:var(--accent);font-weight:600}   /* the trip countdown stands out in green */
 
 .todos{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
 .todos li{display:flex;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--line)}
@@ -617,7 +618,7 @@ const I18N = {
     legsEmptyOut: "Noch keine Etappe. Z. B. von zu Hause zum Bahnhof.", legsEmptyRet: "Noch keine Etappe. Z. B. von der Unterkunft zum Bahnhof.",
     approx: "ca.", daySg: "Tag", dayPl: "Tage", enterTimeDur: "Uhrzeit und Dauer eintragen",
     totalApprox: "Gesamt ca. {x}", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
-    cdDays: "In {n} Tagen", cdTomorrow: "Morgen", cdToday: "Heute", cdBon: "Gute Reise!", nightSg: "Nacht", nightPl: "Nächte",
+    cdDays: "In {n} Tagen", cdTomorrow: "Morgen", cdToday: "Heute", cdBon: "Gute Reise!", cdDayOf: "Tag {d} von {n}", cdNightLeft: "noch {n} Nacht", cdNightsLeft: "noch {n} Nächte", cdBackToday: "Heute zurück", nightSg: "Nacht", nightPl: "Nächte",
     exportTitle: "Reise-Infos exportieren",
     exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
     importTitle: "Reise-Infos importieren",
@@ -676,7 +677,7 @@ const I18N = {
     legsEmptyOut: "No legs yet. E.g. from home to the station.", legsEmptyRet: "No legs yet. E.g. from the accommodation to the station.",
     approx: "approx.", daySg: "day", dayPl: "days", enterTimeDur: "Enter time and duration",
     totalApprox: "Total approx. {x}", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
-    cdDays: "In {n} days", cdTomorrow: "Tomorrow", cdToday: "Today", cdBon: "Bon voyage!", nightSg: "night", nightPl: "nights",
+    cdDays: "In {n} days", cdTomorrow: "Tomorrow", cdToday: "Today", cdBon: "Bon voyage!", cdDayOf: "Day {d} of {n}", cdNightLeft: "{n} night left", cdNightsLeft: "{n} nights left", cdBackToday: "Back today", nightSg: "night", nightPl: "nights",
     exportTitle: "Export trip info",
     exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off legs are not included.",
     importTitle: "Import trip info",
@@ -1843,15 +1844,20 @@ function updateCountdown(){
   const i = state.info || {}, out = [];
   const day = s => { const [y,m,d] = s.split("-").map(Number); return Date.UTC(y,m-1,d)/864e5; };
   const n = new Date(), today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())/864e5;
+  const nights = i.outDate && i.retDate ? day(i.retDate) - day(i.outDate) : 0;
+  const nightsTxt = nights > 0 ? `${nights} ${T(nights === 1 ? "nightSg" : "nightPl")}` : "";
   if (i.outDate) {
     const diff = day(i.outDate) - today, back = i.retDate ? day(i.retDate) - today : null;
-    if (diff > 1) out.push(T("cdDays", {n: diff}));
-    else if (diff === 1) out.push(T("cdTomorrow"));
-    else if (diff === 0) out.push(T("cdToday"));
-    else if (back !== null && back >= 0) out.push(T("cdBon"));
-  }
-  if (i.outDate && i.retDate) { const nights = day(i.retDate) - day(i.outDate); if (nights > 0) out.push(`${nights} ${T(nights === 1 ? "nightSg" : "nightPl")}`); }
-  $("countdown").textContent = out.join(" · ");
+    if (diff > 1) out.push(T("cdDays", {n: diff}), nightsTxt);
+    else if (diff === 1) out.push(T("cdTomorrow"), nightsTxt);
+    else if (diff === 0) out.push(T("cdBon"), nightsTxt);          // day of departure
+    else if (back !== null && back > 0) {                          // during the trip: which day, how many nights are left
+      out.push(T("cdDayOf", {d: 1 - diff, n: nights + 1}), T(back === 1 ? "cdNightLeft" : "cdNightsLeft", {n: back}));
+    }
+    else if (back === 0) out.push(T("cdBackToday"));               // day of return
+    else out.push(nightsTxt);
+  } else out.push(nightsTxt);
+  $("countdown").textContent = out.filter(Boolean).join(" · ");
 }
 document.addEventListener("input", e => {
   const k = e.target.dataset && e.target.dataset.info; if (!k) return;

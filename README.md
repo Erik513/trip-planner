@@ -9,7 +9,7 @@ It works offline, without an account and without a server.
 
 ## Sections
 
-1. **Trip info** – trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes),
+1. **Trip info** – trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes), The header of the trip info shows a green countdown (`updateCountdown`): "In 15 days · 3 nights", "Tomorrow", on the day of departure "Bon voyage!", during the trip "Day 2 of 4 · 2 nights left", on the day of return "Back today", afterwards only the nights.
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
 2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter; the section header shows both lists together, e.g. `4/7`, and the packing list header shows `1/15`). The "+" button below the list (next to the trash button) appends an empty entry Ticking an entry moves it up: the first ticked entry goes to the very top, the next one right below the last ticked one; an entry that is unticked again goes to the top of the open entries.
    to the visible list and focuses it (an entry left empty is removed again); the trash button below the list acts on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
