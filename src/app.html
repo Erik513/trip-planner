@@ -370,8 +370,8 @@ td.x{width:40px;text-align:right}
 .lbl-btn,.lbl-act .map-btn{width:var(--btn-h);height:var(--btn-h)}
 .lbl-act{height:var(--btn-h)}
 /* "add" buttons: light accent fill */
-.add-item,.add-cat,.unit.stop-btn,#suggest,[data-addmeet],.actions [data-addleg]{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
-.add-item:hover,.add-cat:hover,.unit.stop-btn:hover,#suggest:hover,[data-addmeet]:hover,.actions [data-addleg]:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 26%,transparent);border-color:var(--accent)}
+.add-item,.add-cat,.unit.stop-btn,#suggest,.actions [data-addleg]{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.add-item:hover,.add-cat:hover,.unit.stop-btn:hover,#suggest:hover,.actions [data-addleg]:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 26%,transparent);border-color:var(--accent)}
 .add-item{font-size:1.15rem}
 .add-cat{width:auto;flex:1}
 /* primary: accent filled */
@@ -458,13 +458,13 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
         <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld auto-grow" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
-      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
+      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
         <div class="legs" id="legs-out"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
-      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
+      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
         <div class="legs" id="legs-ret"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
     </div>
   </section>
