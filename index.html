@@ -340,7 +340,7 @@ td.c{width:64px;white-space:nowrap}
 td.c .cell{display:flex;align-items:center;gap:6px}
 /* tight spacing between handle/checkbox and the item text */
 #packBody td.c{padding-right:4px}
-#packBody td.c + td{padding-left:4px}
+#packBody td.c + td{padding-left:8px}   /* gap between the checkbox and the item text */
 /* quantity column hugs the right edge next to the delete button */
 #packBody td.q{padding-left:0;padding-right:2px;text-align:right}
 #packBody td.q .edit{margin-left:auto;display:block}
@@ -442,6 +442,11 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
   .grp-head .toggle{padding:8px 0}
   .opt{padding:10px 16px}
   #packBody td.x,#packBody tr.cat th{padding-right:4px}
+  table col.cc{width:70px}   /* wide touch screens (e.g. a phone held sideways) keep the roomy columns */
+  table col.cq{width:48px}
+  table col.cx{width:44px}
+}
+@media (pointer:coarse) and (max-width:600px){
   table col.cc{width:62px}
   table col.cq{width:40px}
   table col.cx{width:40px}
