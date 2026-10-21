@@ -124,6 +124,19 @@ async function test(name, fn){
     eq(ev('(() => { const i = document.getElementById("eqty-0-0"); i.setSelectionRange(2, 2); const ev2 = new MouseEvent("mouseup", {bubbles: true, cancelable: true}); i.dispatchEvent(ev2); return [i.selectionStart, i.selectionEnd, ev2.defaultPrevented]; })()'), [0, 2, true], "the mouse-up does not clear it");
   });
 
+  await test("reaching 100 % celebrates once; loading a finished list does not", async () => {
+    await load({"trip-planner-v1": {todos: [{t: "a", d: true}], shop: [], cats: [], info: {}}});
+    ok(ev('document.querySelector(".tag").classList.contains("is-complete")'), "box lit when already complete");
+    ok(!ev('document.getElementById("confetti")'), "no confetti on load");
+    await load({"trip-planner-v1": {todos: [{t: "a", d: true}, {t: "b", d: false}], shop: [], cats: [], info: {}}});
+    ok(!ev('document.querySelector(".tag").classList.contains("is-complete")'), "not complete");
+    ev('document.getElementById("todo-1").click()'); await sleep(150);   // ticking the last entry moves it, then the list is complete
+    ok(ev('!!document.getElementById("confetti")'), "confetti after the last tick");
+    ok(ev('document.querySelector(".tag").classList.contains("is-complete")'), "box lit");
+    ev('document.querySelector("#todoList li .del").click()');
+    await sleep(100);
+  });
+
   await test("old export codes without the meeting duration still load", async () => {
     await load();
     const o = ev('unpack({hm: ["Hbf", "", "08:00"], l: [["A", "B"]]})');
