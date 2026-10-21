@@ -1148,7 +1148,7 @@ function renderTrips(){
         <div class="f c-from"><div class="lbl-row"><span>${T("start")}</span><span class="chips">${fromChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="${T("legStart", {n: i + 1})}"></div>
         <div class="f c-to"><div class="lbl-row"><span>${T("legDest")}</span><span class="chips">${toChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}"></div>
         <div class="f"><div class="lbl-row nowrap"><span>${T("time")}</span><span class="chips"><button type="button" class="unit" data-filltime hidden title="${T(i === 0 ? "fillTimeMeetTitle" : "fillTimePrevTitle")}">${T(i === 0 ? "fillTimeMeet" : "fillTimePrev")}</button></span></div><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
-        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenRoute")}</div>
+        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" inputmode="numeric" maxlength="6" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenRoute")}</div>
         <div class="c-arrrow"><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite" hidden></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}<button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
     </div>${l.stop ? stopCard(l, i) : ""}`;
@@ -1214,8 +1214,15 @@ function updateLegSummary(){
     $("sum-" + t).textContent = out.join(" · ");
   });
 }
+// Duration: digits and one colon only; on a numeric keypad (no colon) the colon is inserted before the last two digits
+const cleanDur = v => {
+  const digits = v.replace(/[^\d:]/g, ""), i = digits.indexOf(":");
+  if (i >= 0) return digits.slice(0, i + 1) + digits.slice(i + 1).replace(/:/g, "").slice(0, 2);
+  return digits.length > 2 ? digits.slice(0, -2) + ":" + digits.slice(-2) : digits;
+};
 document.addEventListener("input", e => {
   const d = e.target.dataset || {};
+  if (d.legf === "dur") { const c = cleanDur(e.target.value); if (c !== e.target.value) e.target.value = c; }
   if (d.legf) { const o = legOf(e.target), l = o && tripLegs(o.t)[o.i]; if (!l) return; l[d.legf] = e.target.value; }
   else if (d.meetf) { const m = state.info[e.target.closest(".leg").dataset.trip + "Meet"]; if (!m) return; m[d.meetf] = e.target.value; }
   else if (d.stopf) { const g = e.target.closest(".leg"), l = tripLegs(g.dataset.trip)[g.dataset.stopof]; if (!l || !l.stop) return; l.stop[d.stopf] = e.target.value; }

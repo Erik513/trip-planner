@@ -28,7 +28,7 @@ It works offline, without an account and without a server.
   "+ Meeting point" sits right next to the section title ("Outbound" / "Return"), it disappears once there is a meeting point.
   A ticked card (meeting point, leg, stopover) is locked: all its fields and buttons (including the map pin) are disabled except the checkbox; unticking unlocks it again (`updateCurrent()`).
   The meeting point card has the place with a map-pin button in one row and below it the time plus a "+ Leg" button (inserts a leg after the meeting point). Every leg card has the same button next to "+ Stopover" and inserts the new leg right after itself (start and time are taken over); the stand-alone "+ Leg" under the list only shows while there is neither a meeting point nor a leg; it takes place on the trip date (no separate date field).
-- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
+- Duration as `H:MM`: only digits and one colon can be typed (`cleanDur`); without a colon the last two digits become the minutes (`230` → `2:30`, handy on numeric keypads). Arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
   "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy and the field does not already contain it.
