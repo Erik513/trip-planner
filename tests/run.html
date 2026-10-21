@@ -169,6 +169,26 @@ async function test(name, fn){
     ok(ev('document.getElementById("total").textContent') === "0 / 2", "progress counts");
   });
 
+  await test("accommodation link: only http(s) is opened, survives the export code", async () => {
+    await load();
+    const n = v => ev(`normUrl(${JSON.stringify(v)})`);
+    eq(n("hotel.example/page"), "https://hotel.example/page"); eq(n("http://a.b"), "http://a.b/");
+    eq(n("javascript:alert(1)"), ""); eq(n("JaVaScRiPt:alert(1)"), ""); eq(n("data:text/html,x"), ""); eq(n("ftp://x.y"), ""); eq(n("  "), "");
+    set('state.info.lodgingUrl = "hotel.example/page"; updateButtons()');
+    ok(!ev('document.getElementById("lodgeLink").hidden') && !ev('document.getElementById("lodgeCopy").hidden') && ev('document.getElementById("lodgePaste").hidden'), "filled: copy and open, no paste");
+    eq(ev('document.getElementById("lodgeHost").textContent'), "hotel.example", "server name");
+    eq(ev('document.getElementById("lodgeLink").rel'), "noopener noreferrer");
+    eq(ev('readCode(makeCode()).lodgingUrl'), "hotel.example/page");
+    // the copy / paste buttons must not take the focus from the field that is being edited (a blur would move them away)
+    const md = w.document.getElementById("lodgeCopy").dispatchEvent(new w.MouseEvent("mousedown", {bubbles: true, cancelable: true}));
+    ok(!md, "mousedown on copy is prevented");
+    set('state.info.lodgingUrl = "javascript:alert(1)"; updateButtons()');
+    ok(ev('document.getElementById("lodgeLink").hidden'), "no open button for a bad link");
+    eq(ev('document.getElementById("lodgeHost").textContent'), "Das ist kein Link", "hint for a bad link");
+    set('state.info.lodgingUrl = ""; updateButtons()');
+    ok(!ev('document.getElementById("lodgePaste").hidden') && ev('document.getElementById("lodgeCopy").hidden') && ev('document.getElementById("lodgeLink").hidden'), "empty: only paste");
+  });
+
   await test("plausibility hints", async () => {
     await load();
     set('state.info.checkin = "2026-11-10"; state.info.checkout = "2026-11-08"; state.info.outDate = "2026-11-10"; state.info.retDate = "2026-11-09"; updateButtons()');
