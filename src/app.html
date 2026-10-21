@@ -98,9 +98,9 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .ghost:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .ghost[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
-.list-actions{justify-content:flex-start;align-items:center}
-.list-actions .add-item{margin:0;width:32px;height:30px}
-.list-actions .ghost.sm{height:30px;box-sizing:border-box}
+.list-actions{justify-content:flex-end;align-items:center}
+.list-actions #addEntry{order:2}   /* add button far right, trash left of it */
+.list-actions > button{box-sizing:border-box;display:inline-grid;place-items:center;width:36px;height:32px;margin:0;padding:0}   /* both buttons the same size */
 .info-grid{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
 .grp{padding-block:12px}
 .grp:first-child{padding-top:2px}
@@ -166,7 +166,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .dlg-panel .add-btn{align-self:flex-start;font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
 .icon-btn{display:inline-grid;place-items:center;padding:6px!important;line-height:0}
 .icon-btn.ok{color:var(--accent);border-color:var(--accent)}
-.head-right{--btn-h:28px;display:contents}
+.head-right{display:contents}
 .head-tools{grid-column:1;grid-row:2;display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
 header .tag{grid-column:2;grid-row:1 / span 2}
 .head-right .langsw,.head-right .icon-btn,.head-right .install-top{height:var(--btn-h);box-sizing:border-box}
@@ -294,8 +294,6 @@ textarea.auto-grow{resize:none;overflow:hidden}
 .sec-head{flex-wrap:wrap}
 .title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sec-btns{display:flex;gap:6px;flex-wrap:wrap}
-.ghost.sm{padding:3px 10px;font-size:.8rem;font-weight:500;border-radius:6px}
-.ghost.sm[data-clear]{display:inline-flex;align-items:center;justify-content:center;min-width:34px}
 .del[data-armed="1"]{color:#fff;background:#b8443a}
 button:disabled{opacity:.4;cursor:default}
 .ghost:disabled:hover,.add .ghost:disabled:hover{background:transparent;color:var(--muted)}
@@ -356,16 +354,46 @@ td.x{width:40px;text-align:right}
   th,td{padding:8px 8px}
 }
 
+/* ---- Buttons: one style everywhere ----
+   size by context (--btn-h), shape/border/type always the same: neutral = outlined, "add" = light accent fill,
+   primary = accent filled, icon buttons are square, chips are the compact variant */
+:root{--btn-h:34px;--btn-r:8px}
+.leg{--btn-h:40px}   /* buttons inside a card are as high as the fields next to them */
+.ghost,.list-tabs .tab,.head-right .install-top,.head-right .icon-btn,.add-item,.add-cat,.tdone,.map-btn,.lbl-btn,.unit.stop-btn,.dlg-panel .add-btn,.langsw{
+  box-sizing:border-box;height:var(--btn-h);min-height:0;padding:0 12px;border:1px solid var(--line);border-radius:var(--btn-r);
+  font:inherit;font-size:.82rem;font-weight:600;line-height:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:transparent;color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.ghost:hover,.list-tabs .tab:hover,.head-right .install-top:hover,.head-right .icon-btn:hover,.map-btn:hover,.lbl-btn:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+/* icon-only buttons: square */
+.head-right .icon-btn,.add-item,.map-btn,.lbl-btn,.list-actions > button,.newcat-row > .ghost{width:var(--btn-h);padding:0!important}
+.map-btn,.lbl-btn{color:var(--accent)}
+.lbl-btn,.lbl-act .map-btn{width:var(--btn-h);height:var(--btn-h)}
+.lbl-act{height:var(--btn-h)}
+/* "add" buttons: light accent fill */
+.add-item,.add-cat,.unit.stop-btn,#suggest,[data-addmeet],.actions [data-addleg]{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.add-item:hover,.add-cat:hover,.unit.stop-btn:hover,#suggest:hover,[data-addmeet]:hover,.actions [data-addleg]:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 26%,transparent);border-color:var(--accent)}
+.add-item{font-size:1.15rem}
+.add-cat{width:auto;flex:1}
+/* primary: accent filled */
+.tdone{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tdone:hover{background:var(--accent);filter:brightness(1.08)}
+/* tabs: the selected one is filled */
+.list-tabs .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+/* language switch: same outline and height as the buttons */
+.langsw{padding:0;overflow:hidden;gap:0}
+.langsw button{height:100%;padding:0 12px;border-radius:0;font-size:.78rem}
+/* chips ("Meeting point", "← End" …): the compact variant */
+.unit:not(.stop-btn){box-sizing:border-box;height:calc(var(--btn-h) - 10px);display:inline-flex;align-items:center;padding:0 9px;border-radius:calc(var(--btn-r) - 2px);background:transparent;color:var(--muted);font-size:.74rem}
+.unit:not(.stop-btn):hover{color:var(--fg);background:var(--hover)}
+.ghost[data-armed="1"],#fromOut[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
+tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant inside the category row */
+.newcat-row .add-cat{height:var(--btn-h)}
+.newcat-row{align-items:center}
+
 /* Touch devices: bigger tap targets (the layout above is tuned for a mouse) */
 @media (pointer:coarse){
-  .ghost.sm{padding:9px 13px}
-  .head-right{--btn-h:38px}
-  .head-right .langsw button{padding:0 14px}
-  .head-right .icon-btn{padding:0 13px!important}
-  .head-right .install-top{padding:0 14px}
-  .list-tabs .tab{padding:10px 14px}
+  :root{--btn-h:42px}
   .dlg-tabs button{padding:10px 14px}
-  .add-item{width:38px;height:38px}
   .del{padding:9px 12px;min-width:38px;min-height:38px}
   .handle,.chandle{padding:12px 8px}
   input[type=checkbox]{width:26px;height:26px}
@@ -375,8 +403,6 @@ td.x{width:40px;text-align:right}
   .leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{min-height:31px}
   .mode-opts .opt{padding-top:12px;padding-bottom:12px}
   .unit{padding:7px 10px}
-  .map-btn{width:40px;height:40px}
-  .lbl-btn,.lbl-act .map-btn{width:42px;height:42px}
   .lbl-act{height:42px}
   .map-pop a{padding:12px 14px}
   .grp-head .toggle{padding:8px 0}

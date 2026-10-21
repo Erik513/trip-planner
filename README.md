@@ -124,6 +124,7 @@ Code comments are written in English.
 - Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
 - Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
+- Buttons share one style (CSS block "Buttons: one style everywhere"): outlined = neutral, light accent fill = "add" actions, accent filled = primary (`.tdone`), icon buttons are square, chips (`.unit`) are the compact variant. The height comes from `--btn-h` (34px, 42px on touch, 40px inside leg cards next to the fields). New buttons must use these classes instead of getting their own sizing.
 - Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they show the question as text, see `refreshClearBtn`),
   "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
