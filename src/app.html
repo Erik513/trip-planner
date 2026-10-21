@@ -319,6 +319,8 @@ thead th:nth-child(3){text-align:right;padding-left:0;padding-right:2px}
 #packBody tr.dragging{box-shadow:0 4px 14px rgba(0,0,0,.15);position:relative;z-index:2}
 #packBody.is-dragging, #packBody.is-dragging *{cursor:grabbing;user-select:none}
 td.x{width:40px;text-align:right}
+#packBody td.x,#packBody tr.cat th{padding-right:8px}   /* the delete crosses of items and categories sit on one line */
+#packBody td.x{padding-left:0}
 .note{color:var(--muted);font-size:.85rem;margin:10px 0 0}
 .foot{display:flex;justify-content:flex-end}
 .reset{background:transparent;color:var(--muted);border:1px solid var(--line)}
@@ -394,8 +396,11 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
 @media (pointer:coarse){
   :root{--btn-h:42px}
   .dlg-tabs button{padding:10px 14px}
-  .del{padding:9px 12px;min-width:38px;min-height:38px}
-  .handle,.chandle{padding:12px 8px}
+  .del{padding:6px 10px;min-width:36px;min-height:36px}
+  .handle,.chandle{padding:8px 8px}
+  /* compact rows (the 16px text stays: smaller would make iPhones zoom into the fields) */
+  #packBody td,#packBody th{padding-top:4px;padding-bottom:4px}
+  .todos li{padding:5px 14px}
   input[type=checkbox]{width:26px;height:26px}
   .leg-no{width:30px;height:30px}
   .leg-mode{height:40px}
@@ -407,9 +412,11 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
   .map-pop a{padding:12px 14px}
   .grp-head .toggle{padding:8px 0}
   .opt{padding:10px 16px}
-  #packBody td.x,#packBody th.x{padding-left:0;padding-right:2px}
-  table col.cc{width:70px}
-  table col.cx{width:44px}
+  #packBody td.x,#packBody tr.cat th{padding-right:4px}
+  table col.cc{width:62px}
+  table col.cq{width:40px}
+  table col.cx{width:40px}
+  #packBody td:nth-child(2){padding-right:0}   /* more room for the item names */
 }
 </style>
 
