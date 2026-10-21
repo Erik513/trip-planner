@@ -29,6 +29,13 @@ header .sub{display:block}
 .tag{font-family:var(--mono);font-size:.8rem;border:1.5px dashed var(--accent);color:var(--accent);
   border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:150px;font-variant-numeric:tabular-nums}
 .tag b{font-size:1.25rem;color:var(--fg)}
+.tag.is-complete{border-style:solid;background:var(--accent-soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent),0 0 18px color-mix(in srgb,var(--accent) 45%,transparent);animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 55%,transparent),0 0 26px color-mix(in srgb,var(--accent) 70%,transparent)}}
+@media (prefers-reduced-motion:reduce){.tag.is-complete{animation:none}}
+#confetti{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:60}
+#celebrate-badge{position:fixed;left:50%;top:38%;z-index:61;pointer-events:none;transform:translate(-50%,-50%) scale(.3);opacity:0;font:800 clamp(3rem,17vw,9rem)/1 var(--display);white-space:nowrap;color:#fff;
+  text-shadow:0 0 18px var(--accent),0 0 48px var(--accent),0 6px 0 #0f7c74;animation:badge 4s ease-out forwards}
+@keyframes badge{0%{transform:translate(-50%,-50%) scale(.3) rotate(-8deg);opacity:0}7%{transform:translate(-50%,-50%) scale(1.25) rotate(3deg);opacity:1}13%{transform:translate(-50%,-50%) scale(1) rotate(0)}30%{transform:translate(-50%,-50%) scale(1.08)}45%{transform:translate(-50%,-50%) scale(1)}60%{transform:translate(-50%,-50%) scale(1.08)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(1.1)}}
 .tag b.is-none{font-size:.9rem;font-family:var(--body);font-weight:600;color:var(--muted)}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .sync{font-size:.72rem;color:var(--muted);min-height:1em}
@@ -630,7 +637,7 @@ const I18N = {
     fillPrev: "Vorheriges Ziel", fillPrevTitle: "Ziel der vorherigen Etappe als Start übernehmen", fillDestEnd: "Zieladresse als Ziel übernehmen",
     legsEmptyOut: "Noch keine Etappe. Z. B. von zu Hause zum Bahnhof.", legsEmptyRet: "Noch keine Etappe. Z. B. von der Unterkunft zum Bahnhof.",
     approx: "ca.", daySg: "Tag", dayPl: "Tage", enterTimeDur: "Uhrzeit und Dauer eintragen",
-    totalApprox: "Gesamt ca. {x}", tripRange: "{s} <b>-</b> ca. {a} ({t})", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
+    allDone: "Alles geschafft! 🎉", totalApprox: "Gesamt ca. {x}", tripRange: "{s} <b>-</b> ca. {a} ({t})", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
     cdDays: "In {n} Tagen", cdTomorrow: "Morgen", cdToday: "Heute", cdBon: "Gute Reise!", cdDayOf: "Tag {d} von {n}", cdNightLeft: "noch {n} Nacht", cdNightsLeft: "noch {n} Nächte", cdBackToday: "Heute zurück", nightSg: "Nacht", nightPl: "Nächte",
     exportTitle: "Reise-Infos exportieren", qrShow: "QR-Code", qrHint: "Mit der Kamera eines anderen Geräts scannen – der Planer öffnet sich mit diesen Reise-Infos.", qrTooLong: "Zu viele Daten für einen QR-Code",
     exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
@@ -691,7 +698,7 @@ const I18N = {
     fillPrev: "Previous destination", fillPrevTitle: "Use previous segment's destination as start", fillDestEnd: "Use address as destination",
     legsEmptyOut: "No segments yet. E.g. from home to the station.", legsEmptyRet: "No segments yet. E.g. from the accommodation to the station.",
     approx: "approx.", daySg: "day", dayPl: "days", enterTimeDur: "Enter time and duration",
-    totalApprox: "Total approx. {x}", tripRange: "{s} <b>-</b> approx. {a} ({t})", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
+    allDone: "All done! 🎉", totalApprox: "Total approx. {x}", tripRange: "{s} <b>-</b> approx. {a} ({t})", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
     cdDays: "In {n} days", cdTomorrow: "Tomorrow", cdToday: "Today", cdBon: "Bon voyage!", cdDayOf: "Day {d} of {n}", cdNightLeft: "{n} night left", cdNightsLeft: "{n} nights left", cdBackToday: "Back today", nightSg: "night", nightPl: "nights",
     exportTitle: "Export trip info", qrShow: "QR code", qrHint: "Scan with the camera of another device – the planner opens with this trip info.", qrTooLong: "Too much data for a QR code",
     exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off segments are not included.",
@@ -737,8 +744,8 @@ const SUGGEST = [
   [["Gesundheit", "Health"], [[["Eigene Medikamente", "Own medication"]], [["Schmerztabletten", "Painkillers"]], [["Pflaster", "Plasters"]]]],
   [["Technik", "Tech"], [[["Handy + Ladekabel", "Phone + charging cable"]], [["Powerbank", "Power bank"]], [["Kopfhörer", "Headphones"]]]],
   [["Dokumente & Geld", "Documents & money"], [[["Personalausweis", "ID card / passport"]], [["Bankkarte & etwas Bargeld", "Bank card & some cash"]], [["Krankenkassenkarte", "Health insurance card"]], [["Buchungsbestätigung", "Booking confirmation"]], [["Führerschein", "Driver's licence"]]]],
-  [["Handgepäck", "Hand luggage"], [[["Flüssigkeiten im Klarsichtbeutel (max. 100 ml)", "Liquids in a clear bag (max. 100 ml)"]], [["Nackenkissen", "Neck pillow"]], [["Schlafmaske & Ohrstöpsel", "Sleep mask & earplugs"]], [["Wechselkleidung", "Spare clothes"]], [["Leere Trinkflasche", "Empty water bottle"]], [["Buch / E-Reader", "Book / e-reader"]]]],
   [["Lebensmittel", "Food"], [[["Snacks für die Fahrt", "Snacks for the trip"]], [["Wasserflasche / Getränke", "Water bottle / drinks"]], [["Obst", "Fruit"]], [["Brotdose / Proviant", "Lunch box / packed meal"]], [["Kaffee / Tee", "Coffee / tea"]], [["Frühstücksvorrat", "Breakfast supplies"]]]],
+  [["Handgepäck", "Hand luggage"], [[["Flüssigkeiten im Klarsichtbeutel (max. 100 ml)", "Liquids in a clear bag (max. 100 ml)"]], [["Nackenkissen", "Neck pillow"]], [["Schlafmaske & Ohrstöpsel", "Sleep mask & earplugs"]], [["Wechselkleidung", "Spare clothes"]], [["Leere Trinkflasche", "Empty water bottle"]], [["Buch / E-Reader", "Book / e-reader"]]]],
   [["Sonstiges", "Misc"], [[["Tagesrucksack", "Daypack"]], [["Beutel für Schmutzwäsche", "Bag for dirty laundry"]], [["Regenschirm", "Umbrella"]]]]
 ];
 // Transport modes for the suggestion list of the "Transport" field [de, en]
@@ -910,11 +917,63 @@ function render(){
   $("total").textContent = all ? `${allDone} / ${all}` : T("progressNone");   // nothing planned yet: a hint instead of "0 / 0"
   $("total").classList.toggle("is-none", !all);
   $("totalBar").style.width = all ? (allDone/all*100)+"%" : "0";
+  // 100 %: the progress box lights up for good, and reaching it (not merely loading it) celebrates once
+  const complete = all > 0 && allDone === all;
+  $("total").closest(".tag").classList.toggle("is-complete", complete);
+  if (complete && wasComplete === false) celebrate();
+  wasComplete = complete;
+}
+let lastTick = null;   // where the last checkbox was ticked: the confetti bursts from there
+let wasComplete = null;   // null until the first render, so a page that is already complete does not celebrate on load
+// Big celebration on a canvas (no library), about 8 seconds: a pop at the ticked checkbox, cannons from the bottom corners, fireworks
+// every moment and a steady rain of confetti, plus a big "100 %" badge. With reduced motion only the glow and the message.
+function celebrate(){
+  notify(T("allDone"));
+  try { navigator.vibrate && navigator.vibrate([60, 40, 60, 40, 60, 40, 60, 40, 200]); } catch (e) {}
+  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  document.querySelectorAll("#confetti, #celebrate-badge").forEach(e => e.remove());
+  const cv = document.createElement("canvas"); cv.id = "confetti"; cv.setAttribute("aria-hidden", "true");
+  const dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; document.body.appendChild(cv);
+  const g = cv.getContext("2d"); g.scale(dpr, dpr);
+  const badge = document.createElement("div"); badge.id = "celebrate-badge"; badge.setAttribute("aria-hidden", "true"); badge.textContent = "100 %"; document.body.appendChild(badge);
+  setTimeout(() => badge.remove(), 4200);
+  const cols = ["#4fc2b6", "#0f7c74", "#f2c14e", "#ee6c4d", "#8ecae6", "#ffffff", "#ff7bac", "#b388ff"];
+  const from = lastTick && Date.now() - lastTick.at < 1500 ? lastTick : {x: W / 2, y: H / 2};
+  const rnd = (a, b) => a + Math.random() * (b - a), pick = a => a[Math.random() * a.length | 0], shapes = ["rect", "rect", "circle", "star", "ribbon"];
+  let ps = [];
+  // n particles from a point; angle range [a0, a1] in radians (0 = right, -PI/2 = up), speed range, gravity range
+  const burst = (x, y, n, a0, a1, v0, v1, g0 = .09, g1 = .16) => { for (let i = 0; i < n; i++) { const a = rnd(a0, a1), v = rnd(v0, v1), shape = pick(shapes);
+    ps.push({x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: rnd(6, 13), h: shape === "ribbon" ? rnd(14, 26) : rnd(4, 10), r: rnd(0, 6), vr: rnd(-.4, .4), c: pick(cols), shape, sway: rnd(0, 6), g: rnd(g0, g1)}); } };
+  const T0 = performance.now(), END = 8200, RAIN_END = 5600;
+  // timeline of the one-off events (ms)
+  const events = [[0, () => burst(from.x, from.y, 190, 0, Math.PI * 2, 4, 17)]];
+  [250, 2800].forEach(d => { events.push([d, () => { burst(0, H, 80, -Math.PI * .45, -Math.PI * .2, 12, 26); burst(W, H, 80, -Math.PI * .8, -Math.PI * .55, 12, 26); }]); });
+  for (let d = 900; d < 5400; d += 650) events.push([d, () => burst(W * rnd(.12, .88), H * rnd(.15, .55), 75, 0, Math.PI * 2, 2, 12)]);   // fireworks
+  events.sort((a, b) => a[0] - b[0]);
+  let last = T0, next = 0;
+  (function frame(now){
+    const t = now - T0, k = Math.min(2.5, (now - last) / 16.67); last = now;   // k = 1 at 60 fps, so the speed is the same on 120 Hz screens
+    while (next < events.length && events[next][0] <= t) events[next++][1]();
+    if (t < RAIN_END && ps.length < 700) for (let i = 0; i < 2 * k; i++) burst(rnd(0, W), -12, 1, Math.PI * .35, Math.PI * .65, 1, 4, .03, .07);   // the steady rain
+    g.clearRect(0, 0, W, H);
+    ps = ps.filter(p => p.y < H + 40);
+    ps.forEach(p => {
+      p.vy += p.g * k; p.vx *= Math.pow(.992, k); p.vy *= Math.pow(.994, k); p.x += (p.vx + Math.sin((t + p.sway * 300) / 280) * (p.shape === "ribbon" ? 1.2 : .5)) * k; p.y += p.vy * k; p.r += p.vr * k;
+      g.save(); g.globalAlpha = Math.max(0, Math.min(1, (END - t) / 2000)); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c;
+      if (p.shape === "circle") { g.beginPath(); g.arc(0, 0, p.w / 2, 0, 7); g.fill(); }
+      else if (p.shape === "star") { g.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 ? p.w * .22 : p.w * .6, aa = i * Math.PI / 5; g.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr); } g.closePath(); g.fill(); }
+      else g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      g.restore();
+    });
+    if (t < END && (ps.length || t < RAIN_END)) requestAnimationFrame(frame); else cv.remove();
+  })(T0);
 }
 
 document.addEventListener("change", e => {
   const t = e.target;
   let newId = t.id;
+  { const r = t.getBoundingClientRect(); lastTick = {x: r.left + r.width / 2, y: r.top + r.height / 2, at: Date.now()}; }
   // To-dos and shopping: a ticked entry moves up to the end of the ticked block (the first one to the very top);
   // an unticked entry goes to the top of the open ones
   const move = (key, i, prefix) => {
@@ -1104,7 +1163,7 @@ function migrate(s){
   // [flag, German name, English name, names it is inserted in front of]
   if (Array.isArray(s.cats)) [
     ["v2cats", "Lebensmittel", "Food", ["sonstiges", "misc"]],
-    ["v3cats", "Handgepäck", "Hand luggage", ["lebensmittel", "food", "sonstiges", "misc"]]
+    ["v3cats", "Handgepäck", "Hand luggage", ["sonstiges", "misc"]]
   ].forEach(([flag, de, en, before]) => {
     if (s[flag]) return;
     const norm = x => (x || "").trim().toLowerCase();
@@ -2301,6 +2360,11 @@ if (navigator.storage && navigator.storage.persist && /^https?:$/.test(location.
 // PWA: the service worker (sw.js) makes the app work offline; skipped for local files and sandboxed previews
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 
+// Quantity cell: clicking it selects its content, so a new number simply replaces the old one
+// (the mouse-up that ends the click would clear the selection again, hence the second select)
+document.addEventListener("focusin", e => { const t = e.target; if (t.dataset && t.dataset.eqty !== undefined) { t.select(); t._justFocused = true; setTimeout(() => { t._justFocused = false; }, 400); } });
+document.addEventListener("mouseup", e => { const t = e.target; if (t._justFocused) { e.preventDefault(); t.select(); } });
+document.addEventListener("touchend", e => { const t = e.target; if (t._justFocused) { setTimeout(() => t.select(), 0); } });
 // Intro card for first-time visitors: shown until it has been dismissed once (a per-device convenience, so localStorage directly)
 try { if (localStorage.getItem("trip-planner-intro") !== "1") $("intro").hidden = false; } catch(e) { $("intro").hidden = false; }
 $("introOk").addEventListener("click", () => { $("intro").hidden = true; try { localStorage.setItem("trip-planner-intro", "1"); } catch(e) {} });
