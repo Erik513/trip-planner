@@ -114,6 +114,16 @@ async function test(name, fn){
     ok(!ev('document.querySelector("#legs-out img, #sum-out img")'), "no injected element");
   });
 
+  await test("clicking a quantity cell selects its content", async () => {
+    await load();
+    set('state.cats = [{name: "K", items: [{t: "Hose", d: false, q: "12"}]}]');
+    const input = w.document.getElementById("eqty-0-0"), r = input.getBoundingClientRect(), f = frame.getBoundingClientRect();
+    ok(r.width > 0, "quantity cell visible");
+    ev('document.getElementById("eqty-0-0").dispatchEvent(new FocusEvent("focusin", {bubbles: true}))');
+    eq([input.selectionStart, input.selectionEnd], [0, 2], "all of the content is selected");
+    eq(ev('(() => { const i = document.getElementById("eqty-0-0"); i.setSelectionRange(2, 2); const ev2 = new MouseEvent("mouseup", {bubbles: true, cancelable: true}); i.dispatchEvent(ev2); return [i.selectionStart, i.selectionEnd, ev2.defaultPrevented]; })()'), [0, 2, true], "the mouse-up does not clear it");
+  });
+
   await test("old export codes without the meeting duration still load", async () => {
     await load();
     const o = ev('unpack({hm: ["Hbf", "", "08:00"], l: [["A", "B"]]})');

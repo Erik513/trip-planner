@@ -2301,6 +2301,11 @@ if (navigator.storage && navigator.storage.persist && /^https?:$/.test(location.
 // PWA: the service worker (sw.js) makes the app work offline; skipped for local files and sandboxed previews
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 
+// Quantity cell: clicking it selects its content, so a new number simply replaces the old one
+// (the mouse-up that ends the click would clear the selection again, hence the second select)
+document.addEventListener("focusin", e => { const t = e.target; if (t.dataset && t.dataset.eqty !== undefined) { t.select(); t._justFocused = true; setTimeout(() => { t._justFocused = false; }, 400); } });
+document.addEventListener("mouseup", e => { const t = e.target; if (t._justFocused) { e.preventDefault(); t.select(); } });
+document.addEventListener("touchend", e => { const t = e.target; if (t._justFocused) { setTimeout(() => t.select(), 0); } });
 // Intro card for first-time visitors: shown until it has been dismissed once (a per-device convenience, so localStorage directly)
 try { if (localStorage.getItem("trip-planner-intro") !== "1") $("intro").hidden = false; } catch(e) { $("intro").hidden = false; }
 $("introOk").addEventListener("click", () => { $("intro").hidden = true; try { localStorage.setItem("trip-planner-intro", "1"); } catch(e) {} });
