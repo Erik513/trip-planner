@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trip Planner – checks</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font:15px system-ui;margin:16px;max-width:980px}
+  .ok{color:#0a7d55}.bad{color:#c0392b;font-weight:700}
+  li{margin:2px 0} pre{margin:2px 0 6px 18px;white-space:pre-wrap;color:#555}
+  iframe{width:900px;height:700px;border:1px solid #bbb}
+</style>
+</head>
+<body>
+<h1>Trip Planner – checks</h1>
+<p>Serve the repository (<code>python -m http.server 8766</code>) and open <code>/tests/run.html</code>.
+The page loads <code>../index.html</code> in a frame and exercises it. It backs up the localStorage of this origin first
+and restores it afterwards, but run it on a throw-away origin (e.g. <code>http://localhost:8766</code>) anyway.</p>
+<p id="summary"><b>Running …</b></p>
+<ul id="out"></ul>
+<iframe id="app" title="app under test"></iframe>
+<script>
+const KEYS = ["trip-planner-v1", "trip-planner-v1-prev", "trip-planner-lang", "trip-planner-theme", "trip-planner-intro", "trip-planner-v1-broken"];
+const backup = Object.fromEntries(KEYS.map(k => [k, localStorage.getItem(k)]));
+const restore = () => KEYS.forEach(k => backup[k] === null ? localStorage.removeItem(k) : localStorage.setItem(k, backup[k]));
+const frame = document.getElementById("app");
+const results = [];
+let w, ev;
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function load(storage){
+  // storage: object of localStorage entries to start with (null = fresh start)
+  KEYS.forEach(k => localStorage.removeItem(k));
+  localStorage.setItem("trip-planner-lang", "de");
+  localStorage.setItem("trip-planner-intro", "1");
+  Object.entries(storage || {}).forEach(([k, v]) => localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v)));
+  return new Promise(res => { frame.onload = () => setTimeout(() => { w = frame.contentWindow; ev = c => w.eval(c); res(); }, 150); frame.src = "../index.html?t=" + Date.now(); });
+}
+const eq = (a, b, msg) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error((msg || "") + " expected " + JSON.stringify(b) + " got " + JSON.stringify(a)); };
+const ok = (c, msg) => { if (!c) throw new Error(msg || "assertion failed"); };
+const iso = d => { const x = new Date(); x.setDate(x.getDate() + d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
+const set = code => { ev(code); ev("save(); render();"); };
+
+async function test(name, fn){
+  try { await fn(); results.push([name, true]); } catch (e) { results.push([name, false, e.message]); }
+}
+
+(async () => {
+  await load();
+
+  await test("a stored state with null entries does not break the start-up", async () => {
+    await load({"trip-planner-v1": {todos: [null, {t: "keep me"}], cats: [null, {name: "X", items: [null, {t: "i1"}]}], info: {outLegs: [null, {from: "a", stop: "bad"}]}}});
+    eq(ev('document.querySelectorAll("#todoList li").length'), 1, "todos rendered");
+    eq(ev('state.todos[0].t'), "keep me");
+    ok(!ev('!!document.querySelector("#rescueReset")'), "no rescue panel");
+  });
+
+  await test("sanitize fixes wrong types", async () => {
+    await load();
+    eq(ev('JSON.stringify(sanitize({todos: "x", shop: [5, {t: 3}], cats: [{name: null, items: "zz"}], info: []}))'),
+       '{"todos":[],"shop":[{"t":"3","d":false}],"cats":[{"name":"","items":[]}],"info":{}}');
+  });
+
+  await test("export code round trip keeps meeting point duration and stopover", async () => {
+    await load();
+    const info = {destination: "Garmisch", outDate: "2026-11-05", outMeet: {place: "Hbf", date: "", time: "08:00", dur: "0:30"},
+      outLegs: [{from: "A", to: "B", mode: "Train", time: "09:00", dur: "2:00", stop: {place: "H", from: "10:00", until: "10:20"}}]};
+    w.__info = info;
+    const back = ev('readCode((state.info = __info, makeCode()))');
+    eq(back.outMeet.dur, "0:30");
+    eq([back.outLegs[0].stop.place, back.outLegs[0].stop.from, back.outLegs[0].stop.until], ["H", "10:00", "10:20"]);
+  });
+
+  await test("old export codes without the meeting duration still load", async () => {
+    await load();
+    const o = ev('unpack({hm: ["Hbf", "", "08:00"], l: [["A", "B"]]})');
+    eq(o.outMeet.dur, "");
+    eq(o.outLegs.length, 1);
+  });
+
+  await test("duration input cleaning", async () => {
+    await load();
+    const c = v => ev(`cleanDur(${JSON.stringify(v)})`);
+    eq(c("abc2h30"), "2:30"); eq(c("230"), "2:30"); eq(c("1230"), "12:30"); eq(c("12"), "12"); eq(c("2::30"), "2:30"); eq(c("2:3x0"), "2:30");
+    eq(ev('parseDur("2:30")'), 150); eq(ev('parseDur("0:20")'), 20); eq(ev('parseDur("1,5")'), 90); eq(ev('parseDur("")'), null);
+  });
+
+  await test("countdown texts", async () => {
+    await load();
+    const t = (o, r) => { ev(`state.info.outDate = ${JSON.stringify(o === null ? "" : iso(o))}; state.info.retDate = ${JSON.stringify(r === null ? "" : iso(r))}; updateCountdown();`); return ev('document.getElementById("countdown").textContent'); };
+    eq(t(15, 18), "In 15 Tagen · 3 Nächte"); eq(t(1, 4), "Morgen · 3 Nächte"); eq(t(0, 3), "Gute Reise! · 3 Nächte");
+    eq(t(-1, 2), "Tag 2 von 4 · noch 2 Nächte"); eq(t(-2, 1), "Tag 3 von 4 · noch 1 Nacht"); eq(t(-3, 0), "Heute zurück");
+    eq(t(-5, -2), "3 Nächte"); eq(t(-2, null), ""); eq(t(null, null), ""); eq(t(0, 0), "Gute Reise!");
+  });
+
+  await test("stopover: duration drives 'until', the next leg follows unless set by hand", async () => {
+    await load();
+    set('state.info = {outLegs: [{from: "A", to: "B", mode: "Train", time: "09:00", dur: "2:00", d: false}, {from: "B", to: "C", mode: "Car", time: "11:00", dur: "1:00", d: false}], retLegs: []}');
+    ev('document.querySelector(\'[data-addstop="0"]\').click()');
+    const inp = w.document.getElementById("stop-out-0-dur");
+    inp.value = "030"; inp.dispatchEvent(new w.Event("input", {bubbles: true}));
+    eq(ev('state.info.outLegs[0].stop.until'), "11:30"); eq(ev('state.info.outLegs[1].time'), "11:30");
+    ev('setT(document.querySelector(\'.tpick[data-stop="from"]\'), "11:15")');
+    eq(ev('state.info.outLegs[0].stop.until'), "11:45", "until follows from");
+    set('state.info.outLegs[1].time = "12:45"');
+    ev('setT(document.querySelector(\'.tpick[data-stop="from"]\'), "11:20")');
+    eq(ev('state.info.outLegs[1].time'), "12:45", "a manual time stays");
+  });
+
+  await test("meeting point end time feeds the first leg", async () => {
+    await load();
+    set('state.info = {outMeet: {place: "Hbf", date: "", time: "08:00", dur: "0:30"}, outLegs: [], retLegs: []}');
+    eq(ev('meetEnd(state.info.outMeet)'), "08:30");
+    ev('document.querySelector(\'#legs-out [data-addleg]\').click()');
+    eq(ev('state.info.outLegs[0].time'), "08:30");
+  });
+
+  await test("add-leg / stopover buttons: hidden on the outbound destination only", async () => {
+    await load();
+    set('state.info = {address: "Zielort 1", outLegs: [{from: "A", to: "zielort 1", mode: "Car", time: "09:00", dur: "1:00", d: false}], retLegs: [{from: "Z", to: "Zielort 1", mode: "Car", time: "15:00", dur: "1:00", d: false}]}');
+    eq(ev('[...document.querySelectorAll("#legs-out [data-addstop], #legs-out [data-addleg][data-after]")].map(b => b.hidden)'), [true, true]);
+    eq(ev('[...document.querySelectorAll("#legs-ret [data-addstop], #legs-ret [data-addleg][data-after]")].map(b => b.hidden)'), [false, false]);
+  });
+
+  await test("ticked cards and entries are locked, delete cross stays usable", async () => {
+    await load();
+    set('state.todos = [{t: "a", d: true}, {t: "b", d: false}]; state.cats = [{name: "K", items: [{t: "Hose", d: true}, {t: "Hemd", d: false}]}]; state.info = {outLegs: [{from: "A", to: "B", mode: "Car", time: "09:00", dur: "1:00", d: true}], retLegs: []}');
+    await sleep(60);
+    eq(ev('[...document.querySelectorAll("#todoList li.is-done :is(textarea, .handle)")].map(e => e.disabled)'), [true, true]);
+    eq(ev('[...document.querySelectorAll("#todoList li.is-done .del, #packBody tr.is-done .del, .leg.is-done .del")].map(e => e.disabled)'), [false, false, false]);
+    eq(ev('[...document.querySelectorAll("#todoList li:not(.is-done) textarea")].map(e => e.disabled)'), [false]);
+    ok(ev('[...document.querySelectorAll(".leg.is-done :is(input, button, select, textarea):not(.leg-chk):not(.del)")].every(e => e.disabled)'), "leg controls locked");
+  });
+
+  await test("ticked to-dos move to the top, in the order of ticking", async () => {
+    await load();
+    set('state.todos = ["a", "b", "c", "d"].map(t => ({t, d: false}))');
+    const click = i => ev(`document.getElementById("todo-${i}").click()`);
+    const order = () => ev('state.todos.map(x => x.t + (x.d ? "✓" : "")).join(" ")');
+    click(2); eq(order(), "c✓ a b d"); click(3); eq(order(), "c✓ d✓ a b"); click(0); eq(order(), "d✓ c a b");
+  });
+
+  await test("packing list drag only commits a valid result", async () => {
+    await load();
+    const mk = '[{name: "A", items: [{t: "a1", d: false}]}, {name: "B", items: []}, {name: "C", items: [{t: "c1", d: false}, {t: "c2", d: false}]}]';
+    const bad = [];
+    for (const src of ["0-0", "2-0", "2-1"]) for (let k = 0; k < 7; k++) {
+      set(`state.cats = ${mk}`);
+      const body = w.document.getElementById("packBody"), h = body.querySelector(`[data-ihandle="${src}"]`);
+      h.setPointerCapture = () => {}; body.setPointerCapture = () => {};
+      const fire = (t, y) => h.dispatchEvent(new w.PointerEvent(t, {bubbles: true, pointerId: 1, clientY: y, clientX: 50, cancelable: true}));
+      fire("pointerdown", 0);
+      const others = [...body.children].filter(r => !r.classList.contains("dragging")), r = others[Math.min(k, others.length - 1)].getBoundingClientRect();
+      fire("pointermove", r.top + 2); if (k === 4) ev("render()"); fire("pointermove", r.top + 2); fire("pointerup", 0);
+      const flat = ev("state.cats").flatMap(c => c.items);
+      if (flat.length !== 3 || flat.some(i => !i || !i.t)) bad.push([src, k]);
+    }
+    eq(bad, []);
+  });
+
+  await test("first start: hint instead of 0/0, compact packing list, suggestions highlighted", async () => {
+    await load();
+    eq(ev('document.getElementById("total").textContent'), "Noch nichts geplant");
+    ok(ev('document.getElementById("suggest").classList.contains("is-primary")'), "suggestions primary");
+    eq(ev('document.querySelectorAll("#packBody tr.ph").length'), 0, "no 'still empty' rows");
+    ok(!ev('document.getElementById("packHint").hidden'), "hint visible");
+    set('state.todos = [{t: "x", d: false}]; state.cats[0].items = [{t: "Hose", d: false}]');
+    ok(!ev('document.getElementById("suggest").classList.contains("is-primary")'), "no longer primary");
+    ok(ev('document.getElementById("total").textContent') === "0 / 2", "progress counts");
+  });
+
+  await test("plausibility hints", async () => {
+    await load();
+    set('state.info.checkin = "2026-11-10"; state.info.checkout = "2026-11-08"; state.info.outDate = "2026-11-10"; state.info.retDate = "2026-11-09"; updateButtons()');
+    ok(!ev('document.getElementById("warnStay").hidden') && !ev('document.getElementById("warnRet").hidden'), "both shown");
+    set('state.info.checkout = "2026-11-12"; state.info.retDate = "2026-11-12"; updateButtons()');
+    ok(ev('document.getElementById("warnStay").hidden') && ev('document.getElementById("warnRet").hidden'), "both hidden");
+  });
+
+  await test("layout: fields of one leg row share their top edge, chips or not", async () => {
+    await load();
+    set('state.info = {address: "Zielort", outMeet: {place: "Hbf", date: "", time: "08:00", dur: "0:30"}, outLegs: [{from: "A", to: "B", mode: "Train", time: "09:00", dur: "2:00", d: false}, {from: "", to: "", mode: "", time: "", dur: "", d: false}, {from: "B", to: "Zielort", mode: "Car", time: "12:00", dur: "1:00", d: false}], retLegs: []}');
+    await sleep(60);
+    const rows = ev('[...document.querySelectorAll("#legs-out .leg:not(.stop):not(.meet)")].map(g => { const t = e => e && Math.round(e.getBoundingClientRect().top * 10) / 10; return [t(g.querySelector(".c-from .fld")), t(g.querySelector(".c-to .fld")), t(g.querySelector(".tpick .fld, .tpick .tbtn")), t(g.querySelector(".dur-box"))]; })');
+    rows.forEach(r => { eq(r[0], r[1], "start/destination"); eq(r[2], r[3], "time/duration"); });
+  });
+
+  restore();
+  const failed = results.filter(r => !r[1]);
+  document.getElementById("summary").innerHTML = failed.length ? `<span class="bad">${failed.length} of ${results.length} checks failed</span>` : `<span class="ok">All ${results.length} checks passed</span>`;
+  document.getElementById("out").innerHTML = results.map(([n, p, m]) => `<li class="${p ? "ok" : "bad"}">${p ? "✓" : "✗"} ${n}${p ? "" : `<pre>${m}</pre>`}</li>`).join("");
+  document.title = (failed.length ? "FAIL " : "PASS ") + document.title;
+})();
+</script>
+</body>
+</html>

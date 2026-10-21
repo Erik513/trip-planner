@@ -9,7 +9,7 @@ It works offline, without an account and without a server.
 
 ## Sections
 
-1. **Trip info** – trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes),
+1. **Trip info** – (first visit: a dismissible "How it works" card; "Nothing planned yet" instead of 0/0; hints when check-out is before check-in or the return trip before the outbound trip) trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes), The header of the trip info shows a green countdown (`updateCountdown`): "In 15 days · 3 nights", "Tomorrow", on the day of departure "Bon voyage!", during the trip "Day 2 of 4 · 2 nights left", on the day of return "Back today", afterwards only the nights.
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
 2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter; the section header shows both lists together, e.g. `4/7`, and the packing list header shows `1/15`). The "+" button below the list (next to the trash button) appends an empty entry Ticking an entry moves it up: the first ticked entry goes to the very top, the next one right below the last ticked one; an entry that is unticked again goes to the top of the open entries.
    to the visible list and focuses it (an entry left empty is removed again); the trash button below the list acts on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
@@ -127,6 +127,7 @@ Code comments are written in English.
 - Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
 - Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
+- English wording: a travel leg is called "Segment" in the English UI ("Etappe" in German).
 - Layout is grid based: fields that sit side by side must share their top edge. Label rows in a leg card are always as high as a chip (`calc(var(--btn-h) - 10px)`), whether a chip is shown or not; do not add elements that make one cell of a row taller than its neighbours.
 - Buttons share one style (CSS block "Buttons: one style everywhere"): outlined = neutral, light accent fill = "add" actions, accent filled = primary (`.tdone`), icon buttons are square, chips (`.unit`) are the compact variant. The height comes from `--btn-h` (34px, 42px on touch, 40px inside leg cards next to the fields). New buttons must use these classes instead of getting their own sizing.
 - Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they only turn red and the question moves into the tooltip, see `refreshClearBtn`),
@@ -137,5 +138,6 @@ Code comments are written in English.
 
 ### Testing
 
-No test framework. What has worked: open `index.html` with Playwright (Python), click through the flows, check desktop (900 px),
-phone (390 px) and dark mode via screenshots, catch `pageerror` – each in both languages.
+- **Automatic checks:** `tests/run.html` loads `index.html` in a frame and runs about 15 checks (damaged stored data, export/import round trip, duration input, countdown texts, stopover and meeting point times, locking of ticked entries, reordering of ticked to-dos, drag and drop validation, first-start state, plausibility hints, alignment of the fields in a leg card).
+  Serve the repository (`python -m http.server 8766`), open `http://localhost:8766/tests/run.html` and wait for "All … checks passed" (the page title turns to PASS/FAIL). It backs up the localStorage of the origin and restores it afterwards; use a throw-away origin anyway. Run it before every push.
+- **By hand:** click through the flows, check desktop (900 px), phone (375 px, also sideways) and dark mode, both languages; real-device things (touch drag, install, offline, share sheet) can only be tested on a phone.
