@@ -265,7 +265,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
   .leg .c-arrrow{display:contents}
   .leg .c-arrrow .stop-btn{align-self:end;flex:none}
   .leg .c-arrrow [data-addstop]{grid-column:3}
-  .leg .c-arrrow [data-addleg]{grid-column:4}
+  .leg .c-arrrow [data-addleg]{grid-column:4;margin-left:0}   /* same width as + Stopover (the auto margin is only for the phone layout) */
   .leg .c-arrrow .arr{grid-column:1 / -1}
 }
 .c-durrow .map-btn{width:40px;height:40px}
@@ -276,6 +276,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .dur-box input{flex:1;min-width:0;height:100%;font:inherit;line-height:normal;color:var(--fg);background:transparent;border:0;padding:0;font-variant-numeric:tabular-nums}
 .leg .fld{box-sizing:border-box;height:40px}
 .dur-box input:focus{outline:none}
+.dur-box:has(input:disabled){opacity:.4;cursor:not-allowed}   /* locked (ticked) card */
 .dur-box:focus-within{border-color:var(--accent)}
 .unit-lbl{flex:none;font-size:.72rem;color:var(--muted);white-space:nowrap}
 .unit{flex:none;font:inherit;font-size:.78rem;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:6px;padding:2px 7px;cursor:pointer}
