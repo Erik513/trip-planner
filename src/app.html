@@ -864,12 +864,20 @@ function render(){
 
 document.addEventListener("change", e => {
   const t = e.target;
-  if (t.dataset.todo !== undefined) state.todos[t.dataset.todo].d = t.checked;
-  else if (t.dataset.shop !== undefined) state.shop[t.dataset.shop].d = t.checked;
+  let newId = t.id;
+  // To-dos and shopping: a ticked entry moves up to the end of the ticked block (the first one to the very top);
+  // an unticked entry goes to the top of the open ones
+  const move = (key, i, prefix) => {
+    const arr = state[key], it = arr[i]; it.d = t.checked; arr.splice(i, 1);
+    let at = 0; arr.forEach((x, k) => { if (x.d) at = k + 1; });
+    arr.splice(at, 0, it); newId = `${prefix}-${at}`;
+  };
+  if (t.dataset.todo !== undefined) move("todos", +t.dataset.todo, "todo");
+  else if (t.dataset.shop !== undefined) move("shop", +t.dataset.shop, "shop");
   else if (t.dataset.item) { const [c,i] = t.dataset.item.split("-"); state.cats[c].items[i].d = t.checked; }
   else return;
   save(); render();
-  const again = document.getElementById(t.id); if (again) again.focus();
+  const again = document.getElementById(newId); if (again) again.focus();
 });
 // Editing: save while typing, delete empty entries when leaving the field
 // Long texts wrap instead of being cut off: the fields are textareas that grow with their content
