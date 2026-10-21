@@ -139,6 +139,9 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .share-head strong{font-family:var(--display);font-weight:600}
 .share-hint{margin:0;color:var(--muted);font-size:.88rem}
 .share-code{font-family:var(--mono);font-size:.78rem;line-height:1.4;resize:vertical;word-break:break-all}
+.qr-box{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.qr-title{align-self:flex-start;font-family:var(--display);font-weight:600}
+.qr-box svg{display:block;width:100%;max-width:340px;height:auto;background:#fff;border-radius:8px}   /* always black on white, also in dark mode */
 .share-foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
 .share-msg{margin-right:auto;font-size:.85rem;color:var(--muted)}
 .share-msg.err{color:#b8443a}
@@ -494,6 +497,7 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
       <p class="share-hint" id="shareHint"></p>
       <textarea class="fld share-code" id="shareCode" rows="4" spellcheck="false" data-i18n-attr="aria-label:codeLabel" aria-label="Reise-Infos Code"></textarea>
       <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy" data-i18n="copy">Kopieren</button><button type="button" class="tdone" id="importApply" data-i18n="apply">Übernehmen</button></div>
+      <div class="qr-box" id="qrBox" hidden><strong class="qr-title" data-i18n="qrShow">QR-Code</strong><div id="qrImg" role="img" data-i18n-attr="aria-label:qrShow"></div><p class="share-hint" data-i18n="qrHint"></p></div>
     </div>
     <div class="info-grid" id="infoGrid">
       <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3><span class="grp-acts"><span class="lbl-act" id="wx" hidden><a class="lbl-btn" target="_blank" rel="noopener" id="wxLink" data-i18n-attr="title:weather;aria-label:weather"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M2.2 3.2l1.1 1.1M1.5 8H3M13.8 3.2l-1.1 1.1"/><path d="M7 20h10a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 11.5 4.25 4.25 0 0 0 7 20z"/></svg></a></span><span class="lbl-act" id="addrActs"></span></span></div><div class="sub">
@@ -571,6 +575,7 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
 <div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button type="button" id="undoBtn" data-i18n="undo">Rückgängig</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 const KEY = "trip-planner-v1";
 const LEGACY_KEY = "packliste-v2"; // German-era storage key, read once so existing data is found
@@ -626,7 +631,7 @@ const I18N = {
     approx: "ca.", daySg: "Tag", dayPl: "Tage", enterTimeDur: "Uhrzeit und Dauer eintragen",
     totalApprox: "Gesamt ca. {x}", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
     cdDays: "In {n} Tagen", cdTomorrow: "Morgen", cdToday: "Heute", cdBon: "Gute Reise!", cdDayOf: "Tag {d} von {n}", cdNightLeft: "noch {n} Nacht", cdNightsLeft: "noch {n} Nächte", cdBackToday: "Heute zurück", nightSg: "Nacht", nightPl: "Nächte",
-    exportTitle: "Reise-Infos exportieren",
+    exportTitle: "Reise-Infos exportieren", qrShow: "QR-Code", qrHint: "Mit der Kamera eines anderen Geräts scannen – der Planer öffnet sich mit diesen Reise-Infos.", qrTooLong: "Zu viele Daten für einen QR-Code",
     exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
     importTitle: "Reise-Infos importieren",
     importHint: "Füge hier den Code oder den ganzen Link ein, den du bekommen hast. Deine aktuellen Reise-Infos werden dabei ersetzt.",
@@ -687,7 +692,7 @@ const I18N = {
     approx: "approx.", daySg: "day", dayPl: "days", enterTimeDur: "Enter time and duration",
     totalApprox: "Total approx. {x}", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
     cdDays: "In {n} days", cdTomorrow: "Tomorrow", cdToday: "Today", cdBon: "Bon voyage!", cdDayOf: "Day {d} of {n}", cdNightLeft: "{n} night left", cdNightsLeft: "{n} nights left", cdBackToday: "Back today", nightSg: "night", nightPl: "nights",
-    exportTitle: "Export trip info",
+    exportTitle: "Export trip info", qrShow: "QR code", qrHint: "Scan with the camera of another device – the planner opens with this trip info.", qrTooLong: "Too much data for a QR code",
     exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off segments are not included.",
     importTitle: "Import trip info",
     importHint: "Paste the code or the whole link you received here. Your current trip info will be replaced.",
@@ -1625,7 +1630,7 @@ function arrivals(t){
 }
 
 // Export / import of the trip info as a shareable code (ticks are not included)
-const CODE_PREFIX = "TRIP:";
+const CODE_PREFIX = "TRIP2:";
 const STR_KEYS = ["destination","lodging","lodgingUrl","address","checkin","checkinTime","checkout","checkoutTime","notes","outDate","retDate"];
 function cleanInfo(src){
   const s = v => typeof v === "string" ? v.slice(0, 2000) : "", out = {};
@@ -1658,19 +1663,27 @@ function unpack(c){
   if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
 }
-function makeCode(){
+// Compact codes: "TRIP2:" = deflate-raw (built into the browser, no library) + base64url of the packed JSON.
+// Older formats ("TRIP:" LZ-String, "TRIP-B:", "TRIP-INFO:", legacy "URLAUB…") are still read; browsers without the compression API write "TRIP:".
+const b64uEnc = bytes => { let t = ""; bytes.forEach(x => t += String.fromCharCode(x)); return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const b64uDec = str => { const t = atob(str.replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(t.length); for (let i = 0; i < t.length; i++) a[i] = t.charCodeAt(i); return a; };
+const pipeBytes = async (bytes, stream) => { const w = stream.writable.getWriter(); w.write(bytes); w.close(); return new Uint8Array(await new Response(stream.readable).arrayBuffer()); };
+const CAN_DEFLATE = typeof CompressionStream === "function" && typeof DecompressionStream === "function";
+async function makeCode(){
   const json = JSON.stringify(pack(state.info));
+  if (CAN_DEFLATE) { try { return "TRIP2:" + b64uEnc(await pipeBytes(new TextEncoder().encode(json), new CompressionStream("deflate-raw"))); } catch (e) {} }
   if (window.LZString) return "TRIP:" + LZString.compressToEncodedURIComponent(json);
   return "TRIP-B:" + btoa(unescape(encodeURIComponent(json)));
 }
-function readCode(text){
+async function readCode(text){
   const t = (text || "").trim(); if (!t) return null;
-  const m = t.match(/(?:TRIP|URLAUB)(-INFO|-B)?:([A-Za-z0-9+\/=$_-]+)/);  // URLAUB = legacy prefix
+  const m = t.match(/(TRIP2|TRIP|URLAUB)(-INFO|-B)?:([A-Za-z0-9+\/=$_-]+)/);  // URLAUB = legacy prefix
   try {
     if (!m) return t.startsWith("{") ? cleanInfo(modernInfo(JSON.parse(t))) : null;
-    const body = m[2];
-    if (m[1] === "-INFO") { const o = JSON.parse(decodeURIComponent(escape(atob(body)))); return cleanInfo(modernInfo(o && o.info ? o.info : o)); }
-    if (m[1] === "-B") return unpack(JSON.parse(decodeURIComponent(escape(atob(body)))));
+    const body = m[3];
+    if (m[1] === "TRIP2") { if (!CAN_DEFLATE) return null; return unpack(JSON.parse(new TextDecoder().decode(await pipeBytes(b64uDec(body), new DecompressionStream("deflate-raw"))))); }
+    if (m[2] === "-INFO") { const o = JSON.parse(decodeURIComponent(escape(atob(body)))); return cleanInfo(modernInfo(o && o.info ? o.info : o)); }
+    if (m[2] === "-B") return unpack(JSON.parse(decodeURIComponent(escape(atob(body)))));
     if (!window.LZString) return null;
     const json = LZString.decompressFromEncodedURIComponent(body);
     return json ? unpack(JSON.parse(json)) : null;
@@ -1683,11 +1696,14 @@ function openShare(mode){
   if (state.collapsed.info) { state.collapsed.info = false; save(); applyCollapse(); }
   const P = $("sharePanel"), code = $("shareCode"), msg = $("shareMsg");
   P.hidden = false; P.dataset.mode = mode; msg.textContent = ""; msg.classList.remove("err");
+  $("qrBox").hidden = true;
   const ap = $("importApply"); ap.dataset.armed = "0"; ap.textContent = T("apply");
   if (mode === "export") {
     $("shareTitle").textContent = T("exportTitle");
     $("shareHint").textContent = T("exportHint");
-    code.value = makeCode(); code.readOnly = true;
+    code.value = ""; code.readOnly = true;
+    $("qrBox").hidden = true;   // the QR code is drawn below the code, as its own section, as soon as the code is ready
+    makeCode().then(async c => { if (P.dataset.mode === "export") { code.value = c; if (window.qrcode) { await showQr(); $("qrBox").hidden = P.dataset.mode !== "export"; } } });
     $("shareCopy").hidden = false; ap.hidden = true;
   } else {
     $("shareTitle").textContent = T("importTitle");
@@ -1696,6 +1712,15 @@ function openShare(mode){
     $("shareCopy").hidden = true; ap.hidden = false;
     code.focus();
   }
+}
+// QR code of the share link (or of the plain code when the page is not served over http/https): scan it with another device
+async function showQr(){
+  const code = $("shareCode").value || await makeCode();
+  const url = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] + "#lang=" + lang + "&" + code : code;
+  try {
+    const qr = qrcode(0, "L"); qr.addData(url); qr.make();
+    $("qrImg").innerHTML = qr.createSvgTag({cellSize: 4, margin: 4, scalable: true});
+  } catch (e) { $("qrImg").textContent = T("qrTooLong"); }
 }
 function copyCode(){
   const code = $("shareCode"), msg = $("shareMsg");
@@ -1715,9 +1740,9 @@ $("importBtn").addEventListener("click", () => openShare("import"));
 $("shareCopy").addEventListener("click", copyCode);
 $("shareClose").addEventListener("click", () => { $("sharePanel").hidden = true; });
 $("shareCode").addEventListener("focus", e => { if (e.target.readOnly) e.target.select(); });
-$("importApply").addEventListener("click", e => {
+$("importApply").addEventListener("click", async e => {
   const b = e.currentTarget, msg = $("shareMsg");
-  const data = readCode($("shareCode").value);
+  const data = await readCode($("shareCode").value);
   if (!data || !Object.keys(data).length) { msg.textContent = T("invalidCode"); msg.classList.add("err"); return; }
   msg.classList.remove("err");
   const info = state.info || {}, has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
@@ -1777,7 +1802,7 @@ $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
   const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
   if (!/^https?:$/.test(location.protocol)) { note(T("shareFail")); return; }
-  const url = location.href.split("#")[0] + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
+  const url = location.href.split("#")[0] + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + await makeCode() : "");
   try {
     if (navigator.share) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
   } catch (err) { if (err && err.name === "AbortError") return; }
@@ -1798,11 +1823,11 @@ function showLinkPanel(){
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
   $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
 }
-function readLink(){
-  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
+async function readLink(){
+  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP2|TRIP|URLAUB)(?:-INFO|-B)?:/);
   if (at < 0) { if (/^lang=/.test(raw)) clearHash(); return; }
   let txt = raw.slice(at); try { txt = decodeURIComponent(txt); } catch(e){}
-  const d = readCode(txt);
+  const d = await readCode(txt);
   if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
 }
 $("linkApply").addEventListener("click", () => {

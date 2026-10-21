@@ -1,4 +1,4 @@
-"""Builds the standalone index.html from src/app.html (fonts and lz-string embedded, works offline).
+"""Builds the standalone index.html from src/app.html (fonts, lz-string and the QR generator embedded, works offline).
 Usage:  python3 build.py
 """
 import base64, re, pathlib
@@ -20,6 +20,9 @@ s = s.replace("<style>", "<style>\n" + "\n".join(faces) + "\n", 1)
 # Replace lz-string from the CDN with the local copy
 s = re.sub(r'<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/[^"]+"></script>',
            lambda m: "<script>\n" + (root / "vendor/lz-string.min.js").read_text(encoding="utf-8") + "\n</script>", s)
+# The same for the QR code generator (qrcode-generator 1.4.4, MIT)
+s = re.sub(r'<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@[^"]+"></script>',
+           lambda m: "<script>\n" + (root / "vendor/qrcode.min.js").read_text(encoding="utf-8") + "\n</script>", s)
 # Remove the Claude-specific meta tag, move the title into <head>
 s = re.sub(r'<meta name="claude:viewport-fit-sides"[^>]*>\n?', "", s)
 title = re.search(r"<title>.*?</title>", s).group(0)

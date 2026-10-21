@@ -66,9 +66,37 @@ async function test(name, fn){
     const info = {destination: "Garmisch", outDate: "2026-11-05", outMeet: {place: "Hbf", date: "", time: "08:00", dur: "0:30"},
       outLegs: [{from: "A", to: "B", mode: "Train", time: "09:00", dur: "2:00", stop: {place: "H", from: "10:00", until: "10:20"}}]};
     w.__info = info;
-    const back = ev('readCode((state.info = __info, makeCode()))');
+    const back = await ev('(async () => readCode(await (state.info = __info, makeCode())))()');
     eq(back.outMeet.dur, "0:30");
     eq([back.outLegs[0].stop.place, back.outLegs[0].stop.from, back.outLegs[0].stop.until], ["H", "10:00", "10:20"]);
+  });
+
+  await test("TRIP2 codes are shorter than the old ones and old codes still load", async () => {
+    await load();
+    w.__info = {destination: "Garmisch-Partenkirchen", lodging: "Hotel Alpenblick", lodgingUrl: "https://www.airbnb.de/rooms/1234567890?check_in=2026-11-05",
+      address: "Zugspitzstraße 1, 82467 Garmisch-Partenkirchen", outDate: "2026-11-05", retDate: "2026-11-08",
+      outMeet: {place: "Hamburg Hauptbahnhof", date: "", time: "08:00", dur: "0:30"},
+      outLegs: [{from: "Hamburg Hauptbahnhof", to: "München Hauptbahnhof", mode: "Bahn", time: "08:30", dur: "5:30", stop: {place: "Hannover", from: "10:00", until: "10:20"}},
+                {from: "München Hauptbahnhof", to: "Garmisch-Partenkirchen Bahnhof", mode: "Bahn", time: "14:30", dur: "1:20"}]};
+    const r = await ev('(async () => { state.info = __info; const neu = await makeCode(), alt = "TRIP:" + LZString.compressToEncodedURIComponent(JSON.stringify(pack(state.info))), b = "TRIP-B:" + btoa(unescape(encodeURIComponent(JSON.stringify(pack(state.info))))); return {neu, alt, a: JSON.stringify(await readCode(neu)), b: JSON.stringify(await readCode(alt)), c: JSON.stringify(await readCode(b)), n: neu.length, m: alt.length}; })()');
+    ok(r.neu.startsWith("TRIP2:"), "new prefix"); ok(r.n < r.m * 0.8, "at least 20% shorter: " + r.n + " vs " + r.m);
+    eq(r.a, r.b, "TRIP2 reads like TRIP"); eq(r.a, r.c, "TRIP-B still readable");
+    eq(await ev('readCode("TRIP2:@@@")'), null, "broken code gives null");
+  });
+
+  await test("export panel: code and QR code are separate sections; too much data gives a hint", async () => {
+    await load();
+    set('state.info = {destination: "Garmisch", lodging: "Hotel", outLegs: [{from: "A", to: "B", mode: "Bahn", time: "09:00", dur: "2:00"}], retLegs: []}');
+    ev('openShare("export")'); await sleep(400);
+    ok(ev('document.getElementById("shareCode").value.startsWith("TRIP2:")'), "code shown");
+    ok(ev('!document.getElementById("qrBox").hidden'), "QR section shown without a click");
+    ok(ev('document.getElementById("qrBox").parentElement === document.getElementById("sharePanel")') && ev('!document.getElementById("shareCode").contains(document.getElementById("qrBox"))'), "own section");
+    ok(ev('document.querySelector("#qrImg svg") ? document.querySelector("#qrImg svg").outerHTML.length : 0') > 1000, "an SVG was drawn");
+    ev('document.getElementById("shareClose").click(); openShare("import")'); await sleep(100);
+    ok(ev('document.getElementById("qrBox").hidden'), "no QR section when importing");
+    ev('openShare("export")'); await sleep(400);
+    ev('document.getElementById("shareCode").value = "A".repeat(4000)'); await ev('showQr()');   // far more than a QR code can hold
+    ok(!ev('document.querySelector("#qrImg svg")'), "no SVG for too much data");
   });
 
   await test("old export codes without the meeting duration still load", async () => {
@@ -178,7 +206,7 @@ async function test(name, fn){
     ok(!ev('document.getElementById("lodgeLink").hidden') && !ev('document.getElementById("lodgeCopy").hidden') && ev('document.getElementById("lodgePaste").hidden'), "filled: copy and open, no paste");
     eq(ev('document.getElementById("lodgeHost").textContent'), "hotel.example", "server name");
     eq(ev('document.getElementById("lodgeLink").rel'), "noopener noreferrer");
-    eq(ev('readCode(makeCode()).lodgingUrl'), "hotel.example/page");
+    eq((await ev('(async () => readCode(await makeCode()))()')).lodgingUrl, "hotel.example/page");
     // the copy / paste buttons must not take the focus from the field that is being edited (a blur would move them away)
     const md = w.document.getElementById("lodgeCopy").dispatchEvent(new w.MouseEvent("mousedown", {bubbles: true, cancelable: true}));
     ok(!md, "mousedown on copy is prevented");
