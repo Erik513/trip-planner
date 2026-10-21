@@ -340,7 +340,7 @@ td.c{width:64px;white-space:nowrap}
 td.c .cell{display:flex;align-items:center;gap:6px}
 /* tight spacing between handle/checkbox and the item text */
 #packBody td.c{padding-right:4px}
-#packBody td.c + td{padding-left:4px}
+#packBody td.c + td{padding-left:8px}   /* gap between the checkbox and the item text */
 /* quantity column hugs the right edge next to the delete button */
 #packBody td.q{padding-left:0;padding-right:2px;text-align:right}
 #packBody td.q .edit{margin-left:auto;display:block}
@@ -442,6 +442,11 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
   .grp-head .toggle{padding:8px 0}
   .opt{padding:10px 16px}
   #packBody td.x,#packBody tr.cat th{padding-right:4px}
+  table col.cc{width:70px}   /* wide touch screens (e.g. a phone held sideways) keep the roomy columns */
+  table col.cq{width:48px}
+  table col.cx{width:44px}
+}
+@media (pointer:coarse) and (max-width:600px){
   table col.cc{width:62px}
   table col.cq{width:40px}
   table col.cx{width:40px}
@@ -506,7 +511,7 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2></div></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2></div><span class="count" id="listCount"></span></div>
     <div class="list-tabs" role="tablist">
       <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
       <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
@@ -595,7 +600,7 @@ const I18N = {
     move: "Verschieben (Alt + Pfeiltasten)", dragTitle: "Ziehen zum Sortieren", done: "Erledigt",
     editTodo: "To-do bearbeiten", removeTodo: "To-do entfernen", todoEmpty: "Noch keine To-dos. Tippe auf +, um das erste hinzuzufügen.",
     bought: "Gekauft", editShop: "Einkauf bearbeiten", removeShop: "Einkauf entfernen", shopEmpty: "Noch nichts auf der Liste. Tippe auf +.",
-    packCount: "{d} / {n} gepackt",
+    packCount: "{d}/{n}",
     renameCat: "Kategorie umbenennen", delCat: "Kategorie mit Inhalt löschen", delCatTitle: "Kategorie löschen",
     clickAgain: "Nochmal klicken zum Löschen", stillEmpty: "Noch leer", packedAria: "{x} gepackt",
     editItem: "Gegenstand bearbeiten", editQty: "Anzahl bearbeiten", removeItem: "Gegenstand entfernen",
@@ -654,7 +659,7 @@ const I18N = {
     move: "Move (Alt + arrow keys)", dragTitle: "Drag to reorder", done: "Done",
     editTodo: "Edit to-do", removeTodo: "Remove to-do", todoEmpty: "No to-dos yet. Tap + to add the first one.",
     bought: "Bought", editShop: "Edit shopping item", removeShop: "Remove shopping item", shopEmpty: "Nothing on the list yet. Tap +.",
-    packCount: "{d} / {n} packed",
+    packCount: "{d}/{n}",
     renameCat: "Rename category", delCat: "Delete category and its items", delCatTitle: "Delete category",
     clickAgain: "Click again to delete", stillEmpty: "Still empty", packedAria: "{x} packed",
     editItem: "Edit item", editQty: "Edit quantity", removeItem: "Remove item",
@@ -702,10 +707,10 @@ const T = (k, v) => {
 // Label of a "clear" button: the to-do / shopping button names the list it acts on
 const clearLabel = (b, sure) => T(({todos: ["clearTodos", "clearTodosSure"], shop: ["clearShop", "clearShopSure"]}[b.dataset.clear] || ["clearAll", "clearSure"])[sure ? 1 : 0]);
 const ICON_TRASH = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
-// A "clear" button shows a trash icon (name in the tooltip); while the confirmation is pending it shows the question as text
+// A "clear" button shows a trash icon (name in the tooltip); while the confirmation is pending it turns red (like the delete cross of a card)
+// and the question is only in the tooltip / aria-label
 function refreshClearBtn(b){
-  if (b.dataset.armed === "1") { b.textContent = clearLabel(b, true); b.removeAttribute("title"); return; }
-  const l = clearLabel(b);
+  const l = clearLabel(b, b.dataset.armed === "1");
   b.innerHTML = ICON_TRASH; b.title = l; b.setAttribute("aria-label", l);
 }
 const plusDays = d => d ? ` (+${d} ${T(d > 1 ? "dayPl" : "daySg")})` : "";
@@ -861,6 +866,7 @@ function render(){
   rows += `<tr class="newcat"><td colspan="4"><div class="newcat-row"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button><button type="button" class="ghost sm" data-clear="pack"></button></div></td></tr>`;
   $("packBody").innerHTML = rows;
   $("packCount").textContent = T("packCount", {d: pd, n: pt});
+  $("listCount").textContent = `${td + sd}/${state.todos.length + st}`;   // to-dos and shopping together
 
   const all = state.todos.length + pt + st, allDone = td + pd + sd;
   // Trip info
@@ -873,7 +879,7 @@ function render(){
   updateButtons();
   // A ticked entry of the to-do, shopping and packing list is locked: only its checkbox stays active
   document.querySelectorAll("#todoList li.is-done, #shopList li.is-done, #packBody tr.is-done").forEach(row => {
-    row.querySelectorAll("textarea,input:not([type=checkbox]),button").forEach(el => { el.disabled = true; });
+    row.querySelectorAll("textarea,input:not([type=checkbox]),button:not(.del)").forEach(el => { el.disabled = true; });   // the delete cross stays usable
   });
   document.querySelectorAll("[data-clear]").forEach(refreshClearBtn);
   applyCollapse();
@@ -887,12 +893,20 @@ function render(){
 
 document.addEventListener("change", e => {
   const t = e.target;
-  if (t.dataset.todo !== undefined) state.todos[t.dataset.todo].d = t.checked;
-  else if (t.dataset.shop !== undefined) state.shop[t.dataset.shop].d = t.checked;
+  let newId = t.id;
+  // To-dos and shopping: a ticked entry moves up to the end of the ticked block (the first one to the very top);
+  // an unticked entry goes to the top of the open ones
+  const move = (key, i, prefix) => {
+    const arr = state[key], it = arr[i]; it.d = t.checked; arr.splice(i, 1);
+    let at = 0; arr.forEach((x, k) => { if (x.d) at = k + 1; });
+    arr.splice(at, 0, it); newId = `${prefix}-${at}`;
+  };
+  if (t.dataset.todo !== undefined) move("todos", +t.dataset.todo, "todo");
+  else if (t.dataset.shop !== undefined) move("shop", +t.dataset.shop, "shop");
   else if (t.dataset.item) { const [c,i] = t.dataset.item.split("-"); state.cats[c].items[i].d = t.checked; }
   else return;
   save(); render();
-  const again = document.getElementById(t.id); if (again) again.focus();
+  const again = document.getElementById(newId); if (again) again.focus();
 });
 // Editing: save while typing, delete empty entries when leaving the field
 // Long texts wrap instead of being cut off: the fields are textareas that grow with their content
@@ -1414,9 +1428,9 @@ function updateCurrent(){
       const done = g.querySelector(".leg-chk").checked;
       g.classList.toggle("is-done", done);
       g.classList.toggle("current", !done && !found);
-      // A ticked card is locked: everything but its checkbox is disabled
+      // A ticked card is locked: everything but its checkbox and its delete cross is disabled
       g.querySelectorAll("input,button,select,textarea").forEach(el => {
-        if (el.classList.contains("leg-chk")) return;
+        if (el.classList.contains("leg-chk") || el.classList.contains("del")) return;   // checkbox and delete cross stay usable
         if (done) { if (!el.disabled) { el.disabled = true; el.dataset.locked = "1"; } }
         else if (el.dataset.locked) { el.disabled = false; delete el.dataset.locked; }
       });
