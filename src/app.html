@@ -139,6 +139,9 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .share-head strong{font-family:var(--display);font-weight:600}
 .share-hint{margin:0;color:var(--muted);font-size:.88rem}
 .share-code{font-family:var(--mono);font-size:.78rem;line-height:1.4;resize:vertical;word-break:break-all}
+.qr-box{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.qr-title{align-self:flex-start;font-family:var(--display);font-weight:600}
+.qr-box svg{display:block;width:100%;max-width:340px;height:auto;background:#fff;border-radius:8px}   /* always black on white, also in dark mode */
 .share-foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
 .share-msg{margin-right:auto;font-size:.85rem;color:var(--muted)}
 .share-msg.err{color:#b8443a}
@@ -231,6 +234,17 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .c-durrow{display:flex;align-items:flex-end;gap:10px;min-width:0}
 .c-durrow > .f{flex:1 1 0;min-width:0}
 .map-pick{position:relative;flex:none}
+.fld-wrap{position:relative;display:flex;align-items:center;flex:1;min-width:0}
+.fld-wrap .fld{padding-right:74px}   /* room for two buttons (copy + open) */
+.fld-btns{position:absolute;top:50%;transform:translateY(-50%);display:flex}
+.fld-right{right:5px;gap:2px}
+.fld-btn{box-sizing:border-box;width:30px;height:30px;display:inline-grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;text-decoration:none;transition:background .15s,color .15s,border-color .15s}   /* the neutral grey button style */
+.fld-btn[hidden]{display:none}
+.fld-btn:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 10%,transparent)}   /* neutral grey hover, no green glow */
+.fld-btn.fld-open,.fld-btn.fld-open:hover{color:var(--accent)}
+.fld-btn svg{width:20px;height:20px}
+.fld-host{min-height:1.2em;padding-left:6px;font-size:.8rem;color:var(--muted)}   /* the line is always reserved, so nothing below moves */
+.fld-host.is-bad{color:#d1584c;font-weight:600}
 .lbl-act{display:flex;align-items:center;height:32px}
 .lbl-act .map-pick{display:flex}
 .grp-acts{display:flex;gap:8px;align-items:center;margin-left:auto}
@@ -411,6 +425,8 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
 /* Touch devices: bigger tap targets (the layout above is tuned for a mouse) */
 @media (pointer:coarse){
   :root{--btn-h:42px}
+  .fld-btn{width:36px;height:36px}
+  .fld-wrap .fld{padding-right:86px}
   .dlg-tabs button{padding:10px 14px}
   .del{padding:6px 10px;min-width:36px;min-height:36px}
   .handle,.chandle{padding:8px 8px}
@@ -481,11 +497,13 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
       <p class="share-hint" id="shareHint"></p>
       <textarea class="fld share-code" id="shareCode" rows="4" spellcheck="false" data-i18n-attr="aria-label:codeLabel" aria-label="Reise-Infos Code"></textarea>
       <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy" data-i18n="copy">Kopieren</button><button type="button" class="tdone" id="importApply" data-i18n="apply">Übernehmen</button></div>
+      <div class="qr-box" id="qrBox" hidden><strong class="qr-title" data-i18n="qrShow">QR-Code</strong><div id="qrImg" role="img" data-i18n-attr="aria-label:qrShow"></div><p class="share-hint" data-i18n="qrHint"></p></div>
     </div>
     <div class="info-grid" id="infoGrid">
       <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3><span class="grp-acts"><span class="lbl-act" id="wx" hidden><a class="lbl-btn" target="_blank" rel="noopener" id="wxLink" data-i18n-attr="title:weather;aria-label:weather"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M2.2 3.2l1.1 1.1M1.5 8H3M13.8 3.2l-1.1 1.1"/><path d="M7 20h10a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 11.5 4.25 4.25 0 0 0 7 20z"/></svg></a></span><span class="lbl-act" id="addrActs"></span></span></div><div class="sub">
         <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span></div><input class="fld" id="i-destination" data-info="destination" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
         <label class="f"><span data-i18n="lodging">Unterkunft</span><input class="fld" id="i-lodging" data-info="lodging" type="text"></label>
+        <label class="f wide"><span data-i18n="lodgingUrl">Link zur Unterkunft</span><div class="fld-wrap"><input class="fld" id="i-lodging-url" data-info="lodgingUrl" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://…" data-i18n-attr="aria-label:lodgingUrl"><span class="fld-btns fld-right"><button type="button" class="fld-btn" id="lodgeCopy" hidden data-i18n-attr="title:copyField;aria-label:copyField"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg></button><a class="fld-btn fld-open" id="lodgeLink" hidden target="_blank" rel="noopener noreferrer" data-i18n-attr="title:openLodging;aria-label:openLodging"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg></a><button type="button" class="fld-btn" id="lodgePaste" data-i18n-attr="title:pasteField;aria-label:pasteField"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M11 14h10"/><path d="m17 10 4 4-4 4"/></svg></button></span></div><small class="fld-host" id="lodgeHost" aria-live="polite"></small></label>
         <label class="f wide"><div class="lbl-row"><span data-i18n="address">Zieladresse</span></div><input class="fld" id="i-address" data-info="address" type="text"></label>
         <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-checkin" data-info="checkin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-checkin-time" data-info="checkinTime" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
@@ -557,6 +575,7 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
 <div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button type="button" id="undoBtn" data-i18n="undo">Rückgängig</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 const KEY = "trip-planner-v1";
 const LEGACY_KEY = "packliste-v2"; // German-era storage key, read once so existing data is found
@@ -582,7 +601,7 @@ const I18N = {
     warnStay: "Check-out liegt vor dem Check-in", warnRet: "Die Rückfahrt liegt vor der Hinfahrt",
     tripInfo: "Reise-Infos", export: "Exportieren", import: "Importieren", clearAll: "Inhalt leeren", clearSure: "Wirklich leeren?", clearTodos: "To-dos leeren", clearTodosSure: "To-dos wirklich leeren?", clearShop: "Einkauf leeren", clearShopSure: "Einkauf wirklich leeren?",
     close: "Schließen", copy: "Kopieren", apply: "Übernehmen", codeLabel: "Reise-Infos Code",
-    grpTrip: "Reise & Unterkunft", destination: "Reisezielort", lodging: "Unterkunft", address: "Zieladresse",
+    grpTrip: "Reise & Unterkunft", destination: "Reisezielort", lodging: "Unterkunft", lodgingUrl: "Link zur Unterkunft", openLodging: "Seite der Unterkunft öffnen", notALink: "Das ist kein Link", copyField: "Link kopieren", pasteField: "Aus der Zwischenablage einfügen", copiedOk: "Kopiert ✓", clipFail: "Kopieren nicht möglich", pasteBlocked: "Der Browser blockiert das Einfügen per Button – im Feld lange drücken und „Einfügen“ wählen", clipEmpty: "Zwischenablage ist leer", address: "Zieladresse",
     checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in Datum", checkinTime: "Check-in Uhrzeit",
     checkoutDate: "Check-out Datum", checkoutTime: "Check-out Uhrzeit", notes: "Notizen", weather: "Wetter",
     outbound: "Hinfahrt", ret: "Rückfahrt", date: "Datum",
@@ -612,7 +631,7 @@ const I18N = {
     approx: "ca.", daySg: "Tag", dayPl: "Tage", enterTimeDur: "Uhrzeit und Dauer eintragen",
     totalApprox: "Gesamt ca. {x}", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
     cdDays: "In {n} Tagen", cdTomorrow: "Morgen", cdToday: "Heute", cdBon: "Gute Reise!", cdDayOf: "Tag {d} von {n}", cdNightLeft: "noch {n} Nacht", cdNightsLeft: "noch {n} Nächte", cdBackToday: "Heute zurück", nightSg: "Nacht", nightPl: "Nächte",
-    exportTitle: "Reise-Infos exportieren",
+    exportTitle: "Reise-Infos exportieren", qrShow: "QR-Code", qrHint: "Mit der Kamera eines anderen Geräts scannen – der Planer öffnet sich mit diesen Reise-Infos.", qrTooLong: "Zu viele Daten für einen QR-Code",
     exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
     importTitle: "Reise-Infos importieren",
     importHint: "Füge hier den Code oder den ganzen Link ein, den du bekommen hast. Deine aktuellen Reise-Infos werden dabei ersetzt.",
@@ -643,7 +662,7 @@ const I18N = {
     warnStay: "Check-out is before check-in", warnRet: "The return trip is before the outbound trip",
     tripInfo: "Trip info", export: "Export", import: "Import", clearAll: "Clear all", clearSure: "Really clear?", clearTodos: "Clear to-dos", clearTodosSure: "Really clear to-dos?", clearShop: "Clear shopping", clearShopSure: "Really clear shopping?",
     close: "Close", copy: "Copy", apply: "Apply", codeLabel: "Trip info code",
-    grpTrip: "Trip & accommodation", destination: "Destination", lodging: "Accommodation", address: "Address",
+    grpTrip: "Trip & accommodation", destination: "Destination", lodging: "Accommodation", lodgingUrl: "Accommodation link", openLodging: "Open the accommodation page", notALink: "This is not a link", copyField: "Copy link", pasteField: "Paste from the clipboard", copiedOk: "Copied ✓", clipFail: "Copying is not possible", pasteBlocked: "The browser blocks pasting by button – long-press in the field and choose “Paste”", clipEmpty: "The clipboard is empty", address: "Address",
     checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in date", checkinTime: "Check-in time",
     checkoutDate: "Check-out date", checkoutTime: "Check-out time", notes: "Notes", weather: "Weather",
     outbound: "Outbound trip", ret: "Return trip", date: "Date",
@@ -673,7 +692,7 @@ const I18N = {
     approx: "approx.", daySg: "day", dayPl: "days", enterTimeDur: "Enter time and duration",
     totalApprox: "Total approx. {x}", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
     cdDays: "In {n} days", cdTomorrow: "Tomorrow", cdToday: "Today", cdBon: "Bon voyage!", cdDayOf: "Day {d} of {n}", cdNightLeft: "{n} night left", cdNightsLeft: "{n} nights left", cdBackToday: "Back today", nightSg: "night", nightPl: "nights",
-    exportTitle: "Export trip info",
+    exportTitle: "Export trip info", qrShow: "QR code", qrHint: "Scan with the camera of another device – the planner opens with this trip info.", qrTooLong: "Too much data for a QR code",
     exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off segments are not included.",
     importTitle: "Import trip info",
     importHint: "Paste the code or the whole link you received here. Your current trip info will be replaced.",
@@ -1009,6 +1028,16 @@ function updateButtons(){
     b.hidden = !v || v === field;
   });
   set("#fromOut", !tripLegs("out").length);
+  // Accommodation link: one slot inside the field. Empty: paste. Filled: copy, and open when it is a valid http(s) link;
+  // below the field the server name (or a hint for something that is not a link). Only http(s) links are ever opened.
+  const lodgeTxt = (info.lodgingUrl || "").trim(), lodgeUrl = normUrl(lodgeTxt);
+  $("lodgePaste").hidden = !!lodgeTxt;
+  $("lodgeCopy").hidden = !lodgeTxt;
+  $("lodgeLink").hidden = !lodgeUrl;
+  if (lodgeUrl) $("lodgeLink").href = lodgeUrl;
+  const host = $("lodgeHost");
+  host.textContent = !lodgeTxt ? "" : lodgeUrl ? new URL(lodgeUrl).hostname.replace(/^www\./, "") : T("notALink");
+  host.classList.toggle("is-bad", !!lodgeTxt && !lodgeUrl);
   const dest = (info.destination || "").trim();
   // Weather: only once the field has been left (not while typing)
   $("wx").hidden = !dest || document.activeElement === $("i-destination");
@@ -1107,6 +1136,26 @@ function travelMode(mode){
   if (/rad|bike|cycl/.test(m)) return ["bicycling", ""];
   return ["", ""];
 }
+// "hotel.example/page" -> "https://hotel.example/page"; anything that is not http(s) (e.g. javascript:) gives ""
+const normUrl = v => {
+  v = String(v || "").trim(); if (!v) return "";
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(v) && !/^(javascript|data|vbscript|file):/i.test(v)) v = "https://" + v;
+  try { const u = new URL(v); return /^https?:$/.test(u.protocol) ? u.href : ""; } catch (e) { return ""; }
+};
+// Accommodation link field: copy / paste (clipboard) / open
+function setLodgeUrl(v){ state.info = state.info || {}; state.info.lodgingUrl = v; $("i-lodging-url").value = v; save(); updateButtons(); }
+$("lodgeCopy").addEventListener("click", async () => {
+  const v = (state.info.lodgingUrl || "").trim(); if (!v) return;
+  try { await navigator.clipboard.writeText(v); notify(T("copiedOk")); }
+  catch (e) { const ta = document.createElement("textarea"); ta.value = v; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (x) {} ta.remove(); notify(ok ? T("copiedOk") : T("clipFail")); }
+});
+$("lodgePaste").addEventListener("click", async () => {
+  try { const t = (await navigator.clipboard.readText()).trim(); if (t) setLodgeUrl(t); else notify(T("clipEmpty")); }
+  catch (e) {
+    // The browser refused (no permission, an insecure address, an embedded view, or no support): let the user paste by hand instead
+    $("i-lodging-url").focus(); notify(T("pasteBlocked"));
+  }
+});
 function updateMaps(){
   const E = encodeURIComponent, act = document.activeElement;
   // The pin appears only once the place/route fields have been left, not while typing in them
@@ -1581,8 +1630,8 @@ function arrivals(t){
 }
 
 // Export / import of the trip info as a shareable code (ticks are not included)
-const CODE_PREFIX = "TRIP:";
-const STR_KEYS = ["destination","lodging","address","checkin","checkinTime","checkout","checkoutTime","notes","outDate","retDate"];
+const CODE_PREFIX = "TRIP2:";
+const STR_KEYS = ["destination","lodging","lodgingUrl","address","checkin","checkinTime","checkout","checkoutTime","notes","outDate","retDate"];
 function cleanInfo(src){
   const s = v => typeof v === "string" ? v.slice(0, 2000) : "", out = {};
   if (!src || typeof src !== "object") return null;
@@ -1592,7 +1641,7 @@ function cleanInfo(src){
   return out;
 }
 // Short code: compact keys, omit empty fields, legs as lists, then compressed
-const SHORT = {destination:"z", lodging:"u", address:"a", checkin:"ci", checkinTime:"cz", checkout:"co", checkoutTime:"oz", notes:"n", outDate:"d", retDate:"r"};
+const SHORT = {destination:"z", lodging:"u", lodgingUrl:"ul", address:"a", checkin:"ci", checkinTime:"cz", checkout:"co", checkoutTime:"oz", notes:"n", outDate:"d", retDate:"r"};
 const trimArr = a => { while (a.length && !a[a.length - 1]) a.pop(); return a; };
 function pack(info){
   const i = cleanInfo(info) || {}, c = {};
@@ -1614,19 +1663,27 @@ function unpack(c){
   if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
 }
-function makeCode(){
+// Compact codes: "TRIP2:" = deflate-raw (built into the browser, no library) + base64url of the packed JSON.
+// Older formats ("TRIP:" LZ-String, "TRIP-B:", "TRIP-INFO:", legacy "URLAUB…") are still read; browsers without the compression API write "TRIP:".
+const b64uEnc = bytes => { let t = ""; bytes.forEach(x => t += String.fromCharCode(x)); return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const b64uDec = str => { const t = atob(str.replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(t.length); for (let i = 0; i < t.length; i++) a[i] = t.charCodeAt(i); return a; };
+const pipeBytes = async (bytes, stream) => { const w = stream.writable.getWriter(); w.write(bytes); w.close(); return new Uint8Array(await new Response(stream.readable).arrayBuffer()); };
+const CAN_DEFLATE = typeof CompressionStream === "function" && typeof DecompressionStream === "function";
+async function makeCode(){
   const json = JSON.stringify(pack(state.info));
+  if (CAN_DEFLATE) { try { return "TRIP2:" + b64uEnc(await pipeBytes(new TextEncoder().encode(json), new CompressionStream("deflate-raw"))); } catch (e) {} }
   if (window.LZString) return "TRIP:" + LZString.compressToEncodedURIComponent(json);
   return "TRIP-B:" + btoa(unescape(encodeURIComponent(json)));
 }
-function readCode(text){
+async function readCode(text){
   const t = (text || "").trim(); if (!t) return null;
-  const m = t.match(/(?:TRIP|URLAUB)(-INFO|-B)?:([A-Za-z0-9+\/=$_-]+)/);  // URLAUB = legacy prefix
+  const m = t.match(/(TRIP2|TRIP|URLAUB)(-INFO|-B)?:([A-Za-z0-9+\/=$_-]+)/);  // URLAUB = legacy prefix
   try {
     if (!m) return t.startsWith("{") ? cleanInfo(modernInfo(JSON.parse(t))) : null;
-    const body = m[2];
-    if (m[1] === "-INFO") { const o = JSON.parse(decodeURIComponent(escape(atob(body)))); return cleanInfo(modernInfo(o && o.info ? o.info : o)); }
-    if (m[1] === "-B") return unpack(JSON.parse(decodeURIComponent(escape(atob(body)))));
+    const body = m[3];
+    if (m[1] === "TRIP2") { if (!CAN_DEFLATE) return null; return unpack(JSON.parse(new TextDecoder().decode(await pipeBytes(b64uDec(body), new DecompressionStream("deflate-raw"))))); }
+    if (m[2] === "-INFO") { const o = JSON.parse(decodeURIComponent(escape(atob(body)))); return cleanInfo(modernInfo(o && o.info ? o.info : o)); }
+    if (m[2] === "-B") return unpack(JSON.parse(decodeURIComponent(escape(atob(body)))));
     if (!window.LZString) return null;
     const json = LZString.decompressFromEncodedURIComponent(body);
     return json ? unpack(JSON.parse(json)) : null;
@@ -1639,11 +1696,14 @@ function openShare(mode){
   if (state.collapsed.info) { state.collapsed.info = false; save(); applyCollapse(); }
   const P = $("sharePanel"), code = $("shareCode"), msg = $("shareMsg");
   P.hidden = false; P.dataset.mode = mode; msg.textContent = ""; msg.classList.remove("err");
+  $("qrBox").hidden = true;
   const ap = $("importApply"); ap.dataset.armed = "0"; ap.textContent = T("apply");
   if (mode === "export") {
     $("shareTitle").textContent = T("exportTitle");
     $("shareHint").textContent = T("exportHint");
-    code.value = makeCode(); code.readOnly = true;
+    code.value = ""; code.readOnly = true;
+    $("qrBox").hidden = true;   // the QR code is drawn below the code, as its own section, as soon as the code is ready
+    makeCode().then(async c => { if (P.dataset.mode === "export") { code.value = c; if (window.qrcode) { await showQr(); $("qrBox").hidden = P.dataset.mode !== "export"; } } });
     $("shareCopy").hidden = false; ap.hidden = true;
   } else {
     $("shareTitle").textContent = T("importTitle");
@@ -1652,6 +1712,15 @@ function openShare(mode){
     $("shareCopy").hidden = true; ap.hidden = false;
     code.focus();
   }
+}
+// QR code of the share link (or of the plain code when the page is not served over http/https): scan it with another device
+async function showQr(){
+  const code = $("shareCode").value || await makeCode();
+  const url = /^https?:$/.test(location.protocol) ? location.href.split("#")[0] + "#lang=" + lang + "&" + code : code;
+  try {
+    const qr = qrcode(0, "L"); qr.addData(url); qr.make();
+    $("qrImg").innerHTML = qr.createSvgTag({cellSize: 4, margin: 4, scalable: true});
+  } catch (e) { $("qrImg").textContent = T("qrTooLong"); }
 }
 function copyCode(){
   const code = $("shareCode"), msg = $("shareMsg");
@@ -1671,9 +1740,9 @@ $("importBtn").addEventListener("click", () => openShare("import"));
 $("shareCopy").addEventListener("click", copyCode);
 $("shareClose").addEventListener("click", () => { $("sharePanel").hidden = true; });
 $("shareCode").addEventListener("focus", e => { if (e.target.readOnly) e.target.select(); });
-$("importApply").addEventListener("click", e => {
+$("importApply").addEventListener("click", async e => {
   const b = e.currentTarget, msg = $("shareMsg");
-  const data = readCode($("shareCode").value);
+  const data = await readCode($("shareCode").value);
   if (!data || !Object.keys(data).length) { msg.textContent = T("invalidCode"); msg.classList.add("err"); return; }
   msg.classList.remove("err");
   const info = state.info || {}, has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
@@ -1733,7 +1802,7 @@ $("shareBtn").addEventListener("click", async e => {
   const b = e.currentTarget;
   const note = t => { notify(t); b.title = t; b.classList.toggle("ok", t === T("shareCopied")); clearTimeout(b._t); b._t = setTimeout(() => { b.title = T("shareTitle"); b.classList.remove("ok"); }, 3000); };
   if (!/^https?:$/.test(location.protocol)) { note(T("shareFail")); return; }
-  const url = location.href.split("#")[0] + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + makeCode() : "");
+  const url = location.href.split("#")[0] + "#lang=" + lang + (Object.keys(pack(state.info)).length ? "&" + await makeCode() : "");
   try {
     if (navigator.share) { await navigator.share({title: T("title"), text: T("shareText"), url}); return; }
   } catch (err) { if (err && err.name === "AbortError") return; }
@@ -1754,11 +1823,11 @@ function showLinkPanel(){
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : false;
   $("linkPanel").hidden = false; $("linkHint").textContent = T(has(state.info || {}) ? "linkHintReplace" : "linkHint");
 }
-function readLink(){
-  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP|URLAUB)(?:-INFO|-B)?:/);
+async function readLink(){
+  const raw = location.hash.slice(1), at = raw.search(/(?:TRIP2|TRIP|URLAUB)(?:-INFO|-B)?:/);
   if (at < 0) { if (/^lang=/.test(raw)) clearHash(); return; }
   let txt = raw.slice(at); try { txt = decodeURIComponent(txt); } catch(e){}
-  const d = readCode(txt);
+  const d = await readCode(txt);
   if (d && Object.keys(d).length) { linkData = d; showLinkPanel(); } else clearHash();
 }
 $("linkApply").addEventListener("click", () => {
@@ -1938,7 +2007,7 @@ function dropEmpty(){
 }
 // Pressing "+" must not blur the field being edited: blurring an empty item removes it and redraws the table,
 // which moves the button away and swallows the click (the first tap would do nothing)
-document.addEventListener("mousedown", e => { if (e.target.closest && e.target.closest(".add-item, .add-cat")) e.preventDefault(); });
+document.addEventListener("mousedown", e => { if (e.target.closest && e.target.closest(".add-item, .add-cat, .fld-btn")) e.preventDefault(); });
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.additem !== undefined) {
@@ -2253,7 +2322,7 @@ $("introOk").addEventListener("click", () => { $("intro").hidden = true; try { l
     first = false;
   }, () => setSync("syncLocal"));
 })();
-document.addEventListener("focusin", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) { updateMaps(); updateButtons(); } });
-document.addEventListener("focusout", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) setTimeout(() => { updateMaps(); updateButtons(); }); });
+document.addEventListener("focusin", e => { if (/^(i-address|i-destination|i-lodging-url|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) { updateMaps(); updateButtons(); } });
+document.addEventListener("focusout", e => { if (/^(i-address|i-destination|i-lodging-url|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) setTimeout(() => { updateMaps(); updateButtons(); }); });
 document.addEventListener("focusout", () => { if (needsRender) { needsRender = false; setTimeout(render, 0); } });
 </script>

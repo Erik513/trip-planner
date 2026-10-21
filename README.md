@@ -9,7 +9,7 @@ It works offline, without an account and without a server.
 
 ## Sections
 
-1. **Trip info** – (first visit: a dismissible "How it works" card; "Nothing planned yet" instead of 0/0; hints when check-out is before check-in or the return trip before the outbound trip) trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes), The header of the trip info shows a green countdown (`updateCountdown`): "In 15 days · 3 nights", "Tomorrow", on the day of departure "Bon voyage!", during the trip "Day 2 of 4 · 2 nights left", on the day of return "Back today", afterwards only the nights.
+1. **Trip info** – (first visit: a dismissible "How it works" card; "Nothing planned yet" instead of 0/0; hints when check-out is before check-in or the return trip before the outbound trip) trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation with a link field (one slot inside the field that follows its content: empty = paste from the clipboard, filled = copy and, for a valid link, open; the server name or "This is not a link" is shown below the field in a reserved line; only http(s) links are ever opened, `normUrl`), address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes), The header of the trip info shows a green countdown (`updateCountdown`): "In 15 days · 3 nights", "Tomorrow", on the day of departure "Bon voyage!", during the trip "Day 2 of 4 · 2 nights left", on the day of return "Back today", afterwards only the nights.
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
 2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter; the section header shows both lists together, e.g. `4/7`, and the packing list header shows `1/15`). The "+" button below the list (next to the trash button) appends an empty entry Ticking an entry moves it up: the first ticked entry goes to the very top, the next one right below the last ticked one; an entry that is unticked again goes to the top of the open entries.
    to the visible list and focuses it (an entry left empty is removed again); the trash button below the list acts on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
@@ -38,7 +38,7 @@ It works offline, without an account and without a server.
 - **Stopover** ("+ Stopover" at the bottom left of a leg card; on the outbound trip hidden when the leg's destination is the trip's destination address; the return trip always shows it): a card between two legs with place (with its own map-pin menu), time and duration (like a leg; "until" = time + duration is derived and shown as "Departure approx." bottom right).
   It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
   (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand: an empty time, the previous "until", the stopover's "from" or the leg's rounded arrival still count as automatic). "Copy from outbound" keeps the stopover
-  place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:` format stays compatible).
+  place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:`/`TRIP2:` formats stay compatible).
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
 
@@ -47,10 +47,10 @@ It works offline, without an account and without a server.
 - Header: small buttons of equal height to the left of the progress tag – install, "EN | DE", light/dark (moon/sun) and share (chain icon). Deliberately small and subtle
   (`.langsw`, `.icon-btn`), not styled like the progress tag.
 - **Share button:** shares the page address via `navigator.share`, otherwise copies it to the clipboard. The address always carries
-  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). (Sharing needs the page to be served over http(s); a locally opened file cannot share.)
+  the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP2:…`). (Sharing needs the page to be served over http(s); a locally opened file cannot share.)
 - **Opening a link:** the language from the link is adopted only if the device has no own language choice yet. If it contains trip info, a notice at the top asks "Apply?" / "Dismiss"; only after confirmation the trip info is
   replaced (with "Undo"), then the hash is removed.
-- **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
+- **Export/import:** code `TRIP2:` + base64url of the compact JSON compressed with `deflate-raw` (the browser's built-in `CompressionStream`, about 35 % shorter than before; browsers without it write `TRIP:` + lz-string `compressToEncodedURIComponent`). Reading is asynchronous (`readCode`, `makeCode` return promises) and accepts `TRIP2:`, `TRIP:`, `TRIP-B:`, `TRIP-INFO:` and the legacy `URLAUB…`. The export panel shows the code and, as a separate section below it with its own heading, a **QR code** of the share link (plain code when the page is not served over http(s)); scanning it opens the planner with the trip info (`showQr`, black on white also in dark mode; too much data gives a hint instead). The earlier German-era formats
   (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
 - Only the trip info is shared; to-dos, shopping list and packing list stay local. There is no synchronisation between devices –
   whoever changes something shares again. Backup/export of the other lists and real-time sync are intentionally not provided.
@@ -89,8 +89,8 @@ copy of the HTML file (files opened from the file manager have no reliable stora
 
 ```
 src/app.html      Source (HTML + CSS + JS in one file) – develop here
-build.py          builds index.html from it: fonts + lz-string embedded, works offline
-vendor/           lz-string.min.js (1.5.0) and woff2 fonts (Bricolage Grotesque, Figtree, JetBrains Mono)
+build.py          builds index.html from it: fonts, lz-string and the QR generator embedded, works offline
+vendor/           lz-string.min.js (1.5.0), qrcode.min.js (qrcode-generator 1.4.4, MIT, https://github.com/kazuhikoarase/qrcode-generator) and woff2 fonts (Bricolage Grotesque, Figtree, JetBrains Mono)
 index.html        Result for GitHub Pages – do NOT edit by hand, always rebuild
 manifest.webmanifest, sw.js, icons/    PWA files (edited by hand, served as they are)
 ```
@@ -109,7 +109,7 @@ Code comments are written in English.
   (`data-theme` on `<html>`, applied by a tiny script in the `<head>` of `index.html` to avoid a flash; the CSS tokens live in `:root`).
 - `SUGGEST` (default categories + packing suggestions) and `MODES` (transport modes) are bilingual lists `[de, en]`;
   `translateDefaults()` translates default names on language switch, anything typed by the user stays.
-- Data format, storage key `trip-planner-v1` and export prefix `TRIP:` are language-independent and must not change.
+- Data format, storage key `trip-planner-v1` and export prefixes `TRIP:`/`TRIP2:` are language-independent and must not change.
 - Code identifiers (functions, variables, CSS classes, ids, data keys) are English; German appears only in UI texts and in the
   legacy-migration code.
 
@@ -138,6 +138,6 @@ Code comments are written in English.
 
 ### Testing
 
-- **Automatic checks:** `tests/run.html` loads `index.html` in a frame and runs about 15 checks (damaged stored data, export/import round trip, duration input, countdown texts, stopover and meeting point times, locking of ticked entries, reordering of ticked to-dos, drag and drop validation, first-start state, plausibility hints, alignment of the fields in a leg card).
-  Serve the repository (`python -m http.server 8766`), open `http://localhost:8766/tests/run.html` and wait for "All … checks passed" (the page title turns to PASS/FAIL). It backs up the localStorage of the origin and restores it afterwards; use a throw-away origin anyway. Run it before every push.
+- **Automatic checks:** `tests/run.html` loads `index.html` in a frame and runs about 16 checks (damaged stored data, export/import round trip, duration input, countdown texts, stopover and meeting point times, locking of ticked entries, reordering of ticked to-dos, drag and drop validation, first-start state, plausibility hints, alignment of the fields in a leg card).
+  **`python tests/run.py`** runs them headless in the background (needs `pip install playwright` and `python -m playwright install chromium`; prints the result, exit code 0 = all passed). To watch them, serve the repository (`python -m http.server 8766`) and open `http://localhost:8766/tests/run.html` (the page title turns to PASS/FAIL). It backs up the localStorage of the origin and restores it afterwards; use a throw-away origin anyway. Run it before every push.
 - **By hand:** click through the flows, check desktop (900 px), phone (375 px, also sideways) and dark mode, both languages; real-device things (touch drag, install, offline, share sheet) can only be tested on a phone.
