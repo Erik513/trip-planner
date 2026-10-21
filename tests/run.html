@@ -99,6 +99,13 @@ async function test(name, fn){
     ok(!ev('document.querySelector("#qrImg svg")'), "no SVG for too much data");
   });
 
+  await test("trip summary: start - arrival (duration)", async () => {
+    await load();
+    set('state.info = {outLegs: [{from: "A", to: "B", mode: "Train", time: "10:40", dur: "2:00"}, {from: "B", to: "C", mode: "Train", time: "13:00", dur: "1:28"}], retLegs: [{from: "C", to: "A", mode: "Car", time: "", dur: "2:00"}]}');
+    eq(ev('document.getElementById("sum-out").textContent'), "10:40 - ca. 14:28 (3 Std 48 Min)");
+    eq(ev('document.getElementById("sum-ret").textContent'), "Gesamt ca. 2 Std", "no start time: the old wording");
+  });
+
   await test("old export codes without the meeting duration still load", async () => {
     await load();
     const o = ev('unpack({hm: ["Hbf", "", "08:00"], l: [["A", "B"]]})');
