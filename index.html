@@ -250,9 +250,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .map-pop a:hover{background:var(--hover)}
 .map-pop a::after{content:" ↗";color:var(--accent)}
 .c-arrrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:10px}
-.c-arrrow .stop-btn{grid-column:1;grid-row:1}   /* the stopover button always sits left, the arrival text bottom right */
-.c-arrrow .arr{grid-column:2;grid-row:1;text-align:right}
-.c-arrrow:not(:has(.stop-btn:not([hidden]))):has(.arr[hidden]){display:none}
+.c-arrrow .arr{grid-column:1 / -1;order:2;text-align:right}   /* buttons on top, the arrival text bottom right */
 .c-arrrow .stop-btn{height:40px;padding:0 10px;min-width:0}
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
@@ -1006,7 +1004,7 @@ if (!langStored || adoptHashLang) translateDefaults(lang);
 
 // Links to Google Maps / Apple Maps: location for the meeting point, route for legs
 const ICON_PIN = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
-const MAPPICK = key => `<div class="map-pick" data-maps hidden><button type="button" class="map-btn" aria-haspopup="menu" aria-expanded="false" aria-label="${T(key)}" title="${T(key)}">${ICON_PIN}</button><div class="map-pop" role="menu" hidden><a role="menuitem" target="_blank" rel="noopener" data-map="g">Google Maps</a><a role="menuitem" target="_blank" rel="noopener" data-map="a">${T("appleMaps")}</a></div></div>`;
+const MAPPICK = key => `<div class="map-pick" data-maps hidden><button type="button" class="map-btn" aria-haspopup="menu" aria-expanded="false" aria-label="${T(key)}" title="${T(key)}">${ICON_PIN}</button><div class="map-pop" role="menu" hidden><a role="menuitem" target="_blank" rel="noopener" data-map="g">Google Maps</a><a role="menuitem" target="_blank" rel="noopener" data-map="a">${T("appleMaps")}</a><a role="menuitem" target="_blank" rel="noopener" data-map="w" hidden>Waze</a><a role="menuitem" target="_blank" rel="noopener" data-map="db" hidden>DB Navigator</a></div></div>`;
 function travelMode(mode){
   const m = (mode || "").toLowerCase();
   if (/auto|taxi|mitfahr|pkw|wagen|car|drive|driving|cab/.test(m)) return ["driving", "d"];
@@ -1019,9 +1017,10 @@ function updateMaps(){
   const E = encodeURIComponent;
   TRIPS.forEach(t => {
     const box = $("legs-" + t), meet = (state.info || {})[t + "Meet"];
-    const set = (el, g, a) => { if (!el) return; el.hidden = !g; if (g) { el.querySelector('[data-map="g"]').href = g; el.querySelector('[data-map="a"]').href = a; } };
+    // links: {g: Google, a: Apple, w: Waze, db: Deutsche Bahn}; an empty value hides that entry (the whole menu when Google has none)
+    const set = (el, links) => { if (!el) return; el.hidden = !links.g; ["g", "a", "w", "db"].forEach(k => { const x = el.querySelector(`[data-map="${k}"]`); x.hidden = !links[k]; if (links[k]) x.href = links[k]; }); };
     if (meet) { const q = (meet.place || "").trim();
-      set(box.querySelector(".meet [data-maps]"), q && `https://www.google.com/maps/search/?api=1&query=${E(q)}`, `https://maps.apple.com/?q=${E(q)}`); }
+      set(box.querySelector(".meet [data-maps]"), q ? {g: `https://www.google.com/maps/search/?api=1&query=${E(q)}`, a: `https://maps.apple.com/?q=${E(q)}`, w: `https://waze.com/ul?q=${E(q)}&navigate=yes`} : {}); }
     tripLegs(t).forEach((l, i) => {
       const a = (l.from || "").trim(), b = (l.to || "").trim(), [gm, am] = travelMode(l.mode);
       const date = (state.info || {})[t + "Date"] || "";
@@ -1030,7 +1029,14 @@ function updateMaps(){
       const g = !(a && b) ? "" : Number.isFinite(when)
         ? `https://www.google.com/maps/dir/${E(a)}/${E(b)}/data=!4m6!4m5!2m3!6e0!7e2!8j${when}!3e3`
         : `https://www.google.com/maps/dir/?api=1&origin=${E(a)}&destination=${E(b)}${gm ? `&travelmode=${gm}` : ""}`;
-      set(box.querySelector(`.leg[data-leg="${i}"] [data-maps]`), g, `https://maps.apple.com/?saddr=${E(a)}&daddr=${E(b)}${am ? `&dirflg=${am}` : ""}`);
+      const mode = (l.mode || "").toLowerCase();
+      set(box.querySelector(`.leg[data-leg="${i}"] [data-maps]`), {
+        g,
+        a: `https://maps.apple.com/?saddr=${E(a)}&daddr=${E(b)}${am ? `&dirflg=${am}` : ""}`,
+        // Waze only knows a destination and only makes sense by car; the DB timetable only for trains
+        w: a && b && gm === "driving" ? `https://waze.com/ul?q=${E(b)}&navigate=yes` : "",
+        db: a && b && /bahn|zug|train|rail/.test(mode) ? `https://www.bahn.de/buchung/fahrplan/suche#so=${E(a)}&zo=${E(b)}&kl=2${/^\d{4}-\d\d-\d\d$/.test(date) && /^\d\d:\d\d$/.test(l.time || "") ? `&hd=${date}T${l.time}:00` : ""}&soid=&zoid=` : "",
+      });
     });
   });
 }
@@ -1039,6 +1045,7 @@ function renderTrips(){
     const box = $("legs-" + t), legs = tripLegs(t), meet = (state.info || {})[t + "Meet"];
     const count = legs.length + legs.filter(l => l.stop).length + (meet ? 1 : 0);
     document.querySelector(`[data-addmeet="${t}"]`).hidden = !!meet;
+    document.querySelector(`.actions [data-addleg="${t}"]`).hidden = !!meet || legs.length > 0;
     if (box.contains(document.activeElement) && box.querySelectorAll(".leg").length === count) return;
     let html = "";
     if (meet) html += `
@@ -1094,7 +1101,7 @@ function renderTrips(){
         <div class="f c-to"><div class="lbl-row"><span>${T("legDest")}</span><span class="chips">${toChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}"></div>
         <div class="f"><div class="lbl-row nowrap"><span>${T("time")}</span><span class="chips"><button type="button" class="unit" data-filltime hidden title="${T(i === 0 ? "fillTimeMeetTitle" : "fillTimePrevTitle")}">${T(i === 0 ? "fillTimeMeet" : "fillTimePrev")}</button></span></div><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
         <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenRoute")}</div>
-        <div class="c-arrrow"><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite" hidden></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}</div>
+        <div class="c-arrrow"><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite" hidden></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}<button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
     </div>${l.stop ? stopCard(l, i) : ""}`;
     }).join("");
@@ -1180,13 +1187,14 @@ document.addEventListener("click", e => {
     return;
   }
   if (d.addleg) {
-    const t = d.addleg, legs = tripLegs(t), prev = legs[legs.length - 1], meet = state.info[t + "Meet"];
+    // The new leg goes after the leg whose button was used (after the meeting point = first)
+    const t = d.addleg, legs = tripLegs(t), k = d.after !== undefined ? +d.after : -1, prev = legs[k], meet = state.info[t + "Meet"];
     // Start = destination of the previous leg, time = its arrival (rounded up to 5 minutes)
-    const arr = arrivals(t)[legs.length - 1];
+    const arr = arrivals(t)[k];
     const time = prev && arr != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(arr / 5) * 5) : "";
-    legs.push({from: prev ? ((prev.stop && prev.stop.place) || prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time: prev && prev.stop && prev.stop.until ? prev.stop.until : time, dur: "", to: ""});
+    legs.splice(k + 1, 0, {from: prev ? ((prev.stop && prev.stop.place) || prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time: prev && prev.stop && prev.stop.until ? prev.stop.until : time, dur: "", to: ""});
     save(); render();
-    const i = legs.length - 1;
+    const i = k + 1;
     $(legs[i].from ? `leg-${t}-${i}-to` : `leg-${t}-${i}-from`).focus(); // start known: type the destination next
     return;
   }
