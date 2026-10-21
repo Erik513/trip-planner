@@ -48,8 +48,10 @@ input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)
 input[type=checkbox]:checked::after{opacity:1}
 @media (prefers-reduced-motion:reduce){input[type=checkbox]{transition:none}}
 .is-done .txt{color:var(--done);text-decoration:line-through}
+li.is-done :disabled,tr.is-done :disabled{cursor:not-allowed}
+textarea.edit:disabled,.edit:disabled{opacity:1;-webkit-text-fill-color:currentColor}   /* locked entries keep their (struck-through) text colour */
 .edit{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;width:100%;min-width:0}
-textarea.edit{display:block;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}
+textarea.edit{display:block;box-sizing:border-box;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}   /* border-box: autoGrow() sets the full height */
 .edit:hover{border-bottom-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .edit:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--fg)}
 td.q .edit{font-family:var(--mono);color:var(--muted);width:3ch;text-align:right}
@@ -83,6 +85,8 @@ tr.cat .chandle{flex:none;color:color-mix(in srgb, var(--fg) 55%, var(--accent-s
 tr.newcat td{padding:8px}
 .add-cat{width:100%;font:inherit;font-weight:600;color:var(--accent);background:transparent;border:1.5px dashed var(--line);border-radius:8px;padding:8px;cursor:pointer;transition:background .15s}
 .add-cat:hover{background:var(--hover)}
+.newcat-row{display:flex;gap:8px;align-items:stretch}
+.newcat-row .add-cat{flex:1;width:auto}
 .add-item{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--accent);font:inherit;font-size:1.15rem;font-weight:600;line-height:1;cursor:pointer}
 .add-item:hover{background:var(--hover)}
 .list-tabs{display:flex;align-items:center;gap:6px;margin-bottom:10px}
@@ -90,13 +94,15 @@ tr.newcat td{padding:8px}
 .list-tabs .tab:hover{color:var(--fg);background:var(--hover)}
 .list-tabs .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .tab-count{font-family:var(--mono);font-size:.78rem;opacity:.85;font-variant-numeric:tabular-nums}
-.list-tabs .add-item{margin-left:auto}
 tr.cat .cat-row .edit{font-family:var(--display);font-weight:600;font-size:1rem;flex:1}
 tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .ghost{font:inherit;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:8px 14px;cursor:pointer}
 .ghost:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .ghost[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
+.list-actions{justify-content:flex-end;align-items:center}
+.list-actions #addEntry{order:2}   /* add button far right, trash left of it */
+.list-actions > button{box-sizing:border-box;display:inline-grid;place-items:center;width:36px;height:32px;margin:0;padding:0}   /* both buttons the same size */
 .info-grid{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
 .grp{padding-block:12px}
 .grp:first-child{padding-top:2px}
@@ -162,7 +168,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .dlg-panel .add-btn{align-self:flex-start;font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;background:var(--accent);color:var(--surface);cursor:pointer}
 .icon-btn{display:inline-grid;place-items:center;padding:6px!important;line-height:0}
 .icon-btn.ok{color:var(--accent);border-color:var(--accent)}
-.head-right{--btn-h:28px;display:contents}
+.head-right{display:contents}
 .head-tools{grid-column:1;grid-row:2;display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
 header .tag{grid-column:2;grid-row:1 / span 2}
 .head-right .langsw,.head-right .icon-btn,.head-right .install-top{height:var(--btn-h);box-sizing:border-box}
@@ -201,7 +207,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .chips{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .lbl-row.nowrap{flex-wrap:nowrap}
 /* every label row in a leg card is as tall as one that holds a chip, so neighbouring fields line up */
-.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{display:flex;align-items:center;min-height:22px}
+.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{display:flex;align-items:flex-end;min-height:calc(var(--btn-h) - 10px)}   /* as high as a chip, so fields stay level whether a chip is shown or not */
 .leg.stop{border-style:dashed}
 .leg.stop .leg-no{background:var(--muted);font-weight:700}
 .stop-wait{font-size:.85rem;color:var(--muted)}
@@ -209,17 +215,20 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .leg-no{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--surface);font-family:var(--mono);font-size:.78rem;display:grid;place-items:center}
 .leg-grid{min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .leg-grid .c-from,.leg-grid .c-to{grid-column:span 2}
-.leg.meet .leg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.leg.meet .c-placerow{grid-column:1 / -1}
-.c-meetadd{display:flex;align-items:flex-end}
-.c-meetadd .stop-btn{width:100%;height:40px;padding:0 10px}
+.leg-grid .c-wide{grid-column:1 / -1}
 /* the "add" buttons inside a card: a light accent fill, readable on the tinted current card too */
-.c-meetadd .stop-btn,.c-arrrow .stop-btn{color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
-.c-meetadd .stop-btn:hover,.c-arrrow .stop-btn:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
-.leg-grid .c-arrrow{grid-column:span 2;min-width:0}
+.c-arrrow .stop-btn{color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.c-arrrow .stop-btn:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+.leg-grid .c-arrrow{grid-column:1 / -1;min-width:0}
 .c-durrow{display:flex;align-items:flex-end;gap:10px;min-width:0}
 .c-durrow > .f{flex:1 1 0;min-width:0}
 .map-pick{position:relative;flex:none}
+.lbl-act{display:flex;align-items:center;height:32px}
+.lbl-act .map-pick{display:flex}
+.grp-acts{display:flex;gap:8px;align-items:center;margin-left:auto}
+.lbl-btn,.lbl-act .map-btn{box-sizing:border-box;display:inline-grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);cursor:pointer}
+.lbl-btn:hover,.lbl-act .map-btn:hover{background:var(--hover)}
+.lbl-act .map-pop{left:auto;right:0}
 .map-btn{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--accent);cursor:pointer}
 .map-btn:hover{background:var(--hover)}
 .map-btn[aria-expanded="true"]{border-color:var(--accent)}
@@ -227,9 +236,18 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .map-pop a{padding:9px 12px;border-radius:6px;color:var(--fg);font-weight:600;font-size:.95rem;text-decoration:none}
 .map-pop a:hover{background:var(--hover)}
 .map-pop a::after{content:" ↗";color:var(--accent)}
-.c-arrrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:10px}
-.c-arrrow .arr{grid-column:1 / -1;order:2;text-align:right}   /* buttons on top, the arrival text bottom right */
-.c-arrrow .stop-btn{height:40px;padding:0 10px;min-width:0}
+.c-arrrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}   /* buttons left, the arrival text right (own line on phones) */
+.c-arrrow .stop-btn{flex:0 0 170px;height:40px;padding:0 10px;min-width:0}
+.c-arrrow .arr,.c-arrrow .stop-wait{margin-left:auto;order:2;text-align:right}
+.c-arrrow [data-addleg]{margin-left:auto}   /* + Leg is always on the right, + Stopover on the left */
+/* wide screens: the buttons sit in the same row as time and duration (columns 3 and 4), the arrival text below on the right */
+@media (min-width:601px){
+  .leg .c-arrrow{display:contents}
+  .leg .c-arrrow .stop-btn{align-self:end;flex:none}
+  .leg .c-arrrow [data-addstop]{grid-column:3}
+  .leg .c-arrrow [data-addleg]{grid-column:4;margin-left:0}   /* same width as + Stopover (the auto margin is only for the phone layout) */
+  .leg .c-arrrow .arr{grid-column:1 / -1}
+}
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
 .arr{color:var(--fg);font-size:.8rem;align-self:end}   /* plain text, only the time is accented */
@@ -238,6 +256,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .dur-box input{flex:1;min-width:0;height:100%;font:inherit;line-height:normal;color:var(--fg);background:transparent;border:0;padding:0;font-variant-numeric:tabular-nums}
 .leg .fld{box-sizing:border-box;height:40px}
 .dur-box input:focus{outline:none}
+.dur-box:has(input:disabled){opacity:.4;cursor:not-allowed}   /* locked (ticked) card */
 .dur-box:focus-within{border-color:var(--accent)}
 .unit-lbl{flex:none;font-size:.72rem;color:var(--muted);white-space:nowrap}
 .unit{flex:none;font:inherit;font-size:.78rem;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:6px;padding:2px 7px;cursor:pointer}
@@ -245,6 +264,8 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 @media (max-width:600px){
   .leg-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .leg-grid .c-from,.leg-grid .c-to{grid-column:1 / -1}
+  .c-arrrow .stop-btn{flex:0 0 calc(50% - 5px)}
+  .c-arrrow .arr{flex:1 1 100%;order:2}
   .unit-lbl{display:none}
 }
 .leg .fld{background:var(--surface)}
@@ -269,7 +290,8 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .opt[aria-selected="true"]{background:var(--accent);color:var(--surface)}
 .tfoot{display:flex;justify-content:space-between;gap:6px;border-top:1px solid var(--line);padding-top:6px}
 .tdone{font:inherit;font-size:.8rem;font-weight:600;border:0;border-radius:6px;padding:3px 12px;background:var(--accent);color:var(--surface);cursor:pointer}
-.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}   /* label to box */
+.f > span:first-child,.f > .lbl-row > span:first-child,.f > label > span:first-child{padding-left:6px}   /* labels sit slightly inside the box edge */
 .f.wide{grid-column:1/-1}
 .f span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .fld{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%;box-sizing:border-box}
@@ -280,8 +302,6 @@ textarea.auto-grow{resize:none;overflow:hidden}
 .sec-head{flex-wrap:wrap}
 .title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sec-btns{display:flex;gap:6px;flex-wrap:wrap}
-.ghost.sm{padding:3px 10px;font-size:.8rem;font-weight:500;border-radius:6px}
-.ghost.sm[data-clear]{display:inline-flex;align-items:center;justify-content:center;min-width:34px}
 .del[data-armed="1"]{color:#fff;background:#b8443a}
 button:disabled{opacity:.4;cursor:default}
 .ghost:disabled:hover,.add .ghost:disabled:hover{background:transparent;color:var(--muted)}
@@ -307,6 +327,8 @@ thead th:nth-child(3){text-align:right;padding-left:0;padding-right:2px}
 #packBody tr.dragging{box-shadow:0 4px 14px rgba(0,0,0,.15);position:relative;z-index:2}
 #packBody.is-dragging, #packBody.is-dragging *{cursor:grabbing;user-select:none}
 td.x{width:40px;text-align:right}
+#packBody td.x,#packBody tr.cat th{padding-right:8px}   /* the delete crosses of items and categories sit on one line */
+#packBody td.x{padding-left:0}
 .note{color:var(--muted);font-size:.85rem;margin:10px 0 0}
 .foot{display:flex;justify-content:flex-end}
 .reset{background:transparent;color:var(--muted);border:1px solid var(--line)}
@@ -342,32 +364,66 @@ td.x{width:40px;text-align:right}
   th,td{padding:8px 8px}
 }
 
+/* ---- Buttons: one style everywhere ----
+   size by context (--btn-h), shape/border/type always the same: neutral = outlined, "add" = light accent fill,
+   primary = accent filled, icon buttons are square, chips are the compact variant */
+:root{--btn-h:34px;--btn-r:8px}
+.leg{--btn-h:40px}   /* buttons inside a card are as high as the fields next to them */
+.ghost,.list-tabs .tab,.head-right .install-top,.head-right .icon-btn,.add-item,.add-cat,.tdone,.map-btn,.lbl-btn,.unit.stop-btn,.dlg-panel .add-btn,.langsw{
+  box-sizing:border-box;height:var(--btn-h);min-height:0;padding:0 12px;border:1px solid var(--line);border-radius:var(--btn-r);
+  font:inherit;font-size:.82rem;font-weight:600;line-height:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:transparent;color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.ghost:hover,.list-tabs .tab:hover,.head-right .install-top:hover,.head-right .icon-btn:hover,.map-btn:hover,.lbl-btn:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+/* icon-only buttons: square */
+.head-right .icon-btn,.add-item,.map-btn,.lbl-btn,.list-actions > button,.newcat-row > .ghost{width:var(--btn-h);padding:0!important}
+.map-btn,.lbl-btn{color:var(--accent);background:var(--surface)}   /* same fill as the input fields, so they stay visible on the tinted current card */
+.lbl-btn,.lbl-act .map-btn{width:var(--btn-h);height:var(--btn-h)}
+.lbl-act{height:var(--btn-h)}
+/* "add" buttons: light accent fill */
+.add-item,.add-cat,.unit.stop-btn,.actions [data-addleg]{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.add-item:hover,.add-cat:hover,.unit.stop-btn:hover,.actions [data-addleg]:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 26%,transparent);border-color:var(--accent)}
+.add-item{font-size:1.15rem}
+.add-cat{width:auto;flex:1}
+/* primary: accent filled */
+.tdone{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tdone:hover{background:var(--accent);filter:brightness(1.08)}
+/* tabs: the selected one is filled */
+.list-tabs .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+/* language switch: same outline and height as the buttons */
+.langsw{padding:0;overflow:hidden;gap:0}
+.langsw button{height:100%;padding:0 12px;border-radius:0;font-size:.78rem}
+/* chips ("Meeting point", "← End" …): the compact variant */
+.unit:not(.stop-btn){box-sizing:border-box;height:calc(var(--btn-h) - 10px);display:inline-flex;align-items:center;padding:0 9px;border-radius:calc(var(--btn-r) - 2px);background:transparent;color:var(--muted);font-size:.74rem}
+.unit:not(.stop-btn):hover{color:var(--fg);background:var(--hover)}
+.ghost[data-armed="1"],#fromOut[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
+tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant inside the category row */
+.newcat-row .add-cat{height:var(--btn-h)}
+.newcat-row{align-items:center}
+
 /* Touch devices: bigger tap targets (the layout above is tuned for a mouse) */
 @media (pointer:coarse){
-  .ghost.sm{padding:9px 13px}
-  .head-right{--btn-h:38px}
-  .head-right .langsw button{padding:0 14px}
-  .head-right .icon-btn{padding:0 13px!important}
-  .head-right .install-top{padding:0 14px}
-  .list-tabs .tab{padding:10px 14px}
+  :root{--btn-h:42px}
   .dlg-tabs button{padding:10px 14px}
-  .add-item{width:38px;height:38px}
-  .del{padding:9px 12px;min-width:38px;min-height:38px}
-  .handle,.chandle{padding:12px 8px}
+  .del{padding:6px 10px;min-width:36px;min-height:36px}
+  .handle,.chandle{padding:8px 8px}
+  /* compact rows (the 16px text stays: smaller would make iPhones zoom into the fields) */
+  #packBody td,#packBody th{padding-top:4px;padding-bottom:4px}
+  .todos li{padding:5px 14px}
   input[type=checkbox]{width:26px;height:26px}
   .leg-no{width:30px;height:30px}
   .leg-mode{height:40px}
   .leg-grid .unit{padding:5px 10px}
-  .leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{min-height:31px}
   .mode-opts .opt{padding-top:12px;padding-bottom:12px}
   .unit{padding:7px 10px}
-  .map-btn{width:40px;height:40px}
+  .lbl-act{height:42px}
   .map-pop a{padding:12px 14px}
   .grp-head .toggle{padding:8px 0}
   .opt{padding:10px 16px}
-  #packBody td.x,#packBody th.x{padding-left:0;padding-right:2px}
-  table col.cc{width:70px}
-  table col.cx{width:44px}
+  #packBody td.x,#packBody tr.cat th{padding-right:4px}
+  table col.cc{width:62px}
+  table col.cq{width:40px}
+  table col.cx{width:40px}
+  #packBody td:nth-child(2){padding-right:0}   /* more room for the item names */
 }
 </style>
 
@@ -408,38 +464,38 @@ td.x{width:40px;text-align:right}
       <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy" data-i18n="copy">Kopieren</button><button type="button" class="tdone" id="importApply" data-i18n="apply">Übernehmen</button></div>
     </div>
     <div class="info-grid" id="infoGrid">
-      <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3></div><div class="sub">
-        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span><span class="maps" id="wx" hidden><a target="_blank" rel="noopener" id="wxLink" data-i18n="weather">Wetter</a></span></div><input class="fld" id="i-destination" data-info="destination" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
+      <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3><span class="grp-acts"><span class="lbl-act" id="wx" hidden><a class="lbl-btn" target="_blank" rel="noopener" id="wxLink" data-i18n-attr="title:weather;aria-label:weather"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M2.2 3.2l1.1 1.1M1.5 8H3M13.8 3.2l-1.1 1.1"/><path d="M7 20h10a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 11.5 4.25 4.25 0 0 0 7 20z"/></svg></a></span><span class="lbl-act" id="addrActs"></span></span></div><div class="sub">
+        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span></div><input class="fld" id="i-destination" data-info="destination" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
         <label class="f"><span data-i18n="lodging">Unterkunft</span><input class="fld" id="i-lodging" data-info="lodging" type="text"></label>
-        <label class="f wide"><span data-i18n="address">Zieladresse</span><input class="fld" id="i-address" data-info="address" type="text"></label>
+        <label class="f wide"><div class="lbl-row"><span data-i18n="address">Zieladresse</span></div><input class="fld" id="i-address" data-info="address" type="text"></label>
         <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-checkin" data-info="checkin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-checkin-time" data-info="checkinTime" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
         <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld auto-grow" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
-      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
+      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
         <div class="legs" id="legs-out"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
-      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
+      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
         <div class="legs" id="legs-ret"></div>
-        <div class="actions"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
+        <div class="actions"><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
     </div>
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listClear" data-clear="todos"></button></div></div></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2></div></div>
     <div class="list-tabs" role="tablist">
       <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
       <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
-      <button type="button" class="add-item" id="addEntry" data-i18n-attr="aria-label:addItem;title:addItem" aria-label="Eintrag hinzufügen" title="Eintrag hinzufügen">+</button>
     </div>
     <ul class="todos" id="todoList"></ul>
     <ul class="todos" id="shopList" hidden></ul>
+    <div class="actions list-actions"><button type="button" class="add-item" id="addEntry" data-i18n-attr="aria-label:addItem;title:addItem" aria-label="Eintrag hinzufügen" title="Eintrag hinzufügen">+</button><button type="button" class="ghost sm" id="listClear" data-clear="todos"></button></div>
   </section>
 
   <section data-col="pack">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest" data-i18n-attr="title:suggestTitle;aria-label:suggestTitle">+ Vorschläge</button><button type="button" class="ghost sm" data-clear="pack"></button></div></div><span class="count" id="packCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest" data-i18n-attr="title:suggestTitle;aria-label:suggestTitle">+ Vorschläge</button></div></div><span class="count" id="packCount"></span></div>
     <div class="table-box">
       <table>
         <colgroup><col class="cc"><col><col class="cq"><col class="cx"></colgroup>
@@ -543,8 +599,8 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    shareFail: "Nicht möglich", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
-    stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
+    shareFail: "Nicht möglich", rescueTitle: "Die gespeicherten Daten konnten nicht geladen werden", rescueText: "Kopiere den Text unten zur Sicherheit, bevor du neu startest.", rescueReset: "Neu starten", rescueConfirm: "Gespeicherte Daten verwerfen und neu starten?", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
+    stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", departApprox: "Abfahrt ca. {x}", stopDurLabel: "Zwischenstopp Dauer", meetDurLabel: "Treffpunkt Dauer", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
     installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.", installIosTip: "Nur als App auf dem Home-Bildschirm bleiben deine Daten dauerhaft gespeichert.",
@@ -602,8 +658,8 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    shareFail: "Not possible", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
-    stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
+    shareFail: "Not possible", rescueTitle: "The saved data could not be loaded", rescueText: "Copy the text below for safety before you start over.", rescueReset: "Start over", rescueConfirm: "Discard the saved data and start over?", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
+    stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", departApprox: "Departure approx. {x}", stopDurLabel: "Stopover duration", meetDurLabel: "Meeting point duration", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
     installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.", installIosTip: "Only as an app on your Home Screen does your data stay stored for good.",
@@ -669,14 +725,31 @@ const defaults = {
 
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY)); } catch(e) { state = null; }
-if (!state || !state.todos || !state.cats) state = structuredClone(defaults);
+if (!state || typeof state !== "object" || !state.todos || !state.cats) state = structuredClone(defaults);
+// Bring a stored state into the expected shape so that one broken entry cannot take the whole page down
+function sanitize(st){
+  const arr = v => Array.isArray(v) ? v : [], obj = v => v && typeof v === "object" && !Array.isArray(v);
+  const entry = x => ({...x, t: String(x.t == null ? "" : x.t), d: !!x.d});
+  st.todos = arr(st.todos).filter(obj).map(entry);
+  st.shop = arr(st.shop).filter(obj).map(entry);
+  st.cats = arr(st.cats).filter(obj).map(c => ({...c, name: String(c.name == null ? "" : c.name), items: arr(c.items).filter(obj).map(entry)}));
+  if (!obj(st.info)) st.info = {};
+  ["outLegs", "retLegs"].forEach(k => { if (k in st.info) st.info[k] = arr(st.info[k]).filter(obj).map(l => ({...l, stop: obj(l.stop) ? l.stop : undefined})); });
+  if (!obj(st.collapsed)) delete st.collapsed;
+  return st;
+}
+try { sanitize(state); } catch(e) { console.error(e); state = structuredClone(defaults); }
 // Saving: immediately to localStorage, plus automatically to the Artifact database (across devices)
 let synced = null; // last known state in the database (for partial updates)
 let dbRef = null, writing = false, dirty = false, timer = null, needsRender = false;
 let syncKey = "";
 const setSync = k => { syncKey = k; const el = document.getElementById("sync"); if (el) el.textContent = k ? T(k) : ""; };
 const save = () => {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+  try {
+    const now = JSON.stringify(state), before = localStorage.getItem(KEY);
+    if (before && before !== now) localStorage.setItem(KEY + "-prev", before);
+    localStorage.setItem(KEY, now);
+  } catch(e){}
   if (!dbRef) return;
   dirty = true; setSync("syncSaving");
   clearTimeout(timer); timer = setTimeout(flush, 500);
@@ -761,7 +834,7 @@ function render(){
     });
   });
   if (!state.cats.length) rows = `<tr class="ph"><td colspan="4" class="empty">${T("packEmpty")}</td></tr>`;
-  rows += `<tr class="newcat"><td colspan="4"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button></td></tr>`;
+  rows += `<tr class="newcat"><td colspan="4"><div class="newcat-row"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button><button type="button" class="ghost sm" data-clear="pack"></button></div></td></tr>`;
   $("packBody").innerHTML = rows;
   $("packCount").textContent = T("packCount", {d: pd, n: pt});
 
@@ -774,6 +847,10 @@ function render(){
   document.querySelectorAll(".tpick").forEach(syncPick);
   updateCountdown();
   updateButtons();
+  // A ticked entry of the to-do, shopping and packing list is locked: only its checkbox stays active
+  document.querySelectorAll("#todoList li.is-done, #shopList li.is-done, #packBody tr.is-done").forEach(row => {
+    row.querySelectorAll("textarea,input:not([type=checkbox]),button").forEach(el => { el.disabled = true; });
+  });
   document.querySelectorAll("[data-clear]").forEach(refreshClearBtn);
   applyCollapse();
   refreshDates();
@@ -872,11 +949,11 @@ function updateButtons(){
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
-  // No stopover button once the leg's destination is the trip's destination address (nothing comes after it)
+  // Outbound trip only: no stopover / add-leg button once the leg's destination is the trip's destination address (nothing comes after it); the return trip ends elsewhere
   const addr = (info.address || "").trim().toLowerCase();
-  document.querySelectorAll("[data-addstop]").forEach(b => {
-    const l = tripLegs(b.dataset.trip)[+b.dataset.addstop], to = ((l && l.to) || "").trim().toLowerCase();
-    b.hidden = !!addr && to === addr;
+  document.querySelectorAll("[data-addstop],[data-addleg][data-after]").forEach(b => {
+    const t = b.dataset.trip || b.dataset.addleg, l = tripLegs(t)[+(b.dataset.addstop !== undefined ? b.dataset.addstop : b.dataset.after)], to = ((l && l.to) || "").trim().toLowerCase();
+    b.hidden = t === "out" && !!addr && to === addr;
   });
   // The time chip: only when the predecessor has a time to take over and the leg does not have exactly that time yet
   document.querySelectorAll("[data-filltime]").forEach(b => {
@@ -891,7 +968,8 @@ function updateButtons(){
   });
   set("#fromOut", !tripLegs("out").length);
   const dest = (info.destination || "").trim();
-  $("wx").hidden = !dest;
+  // Weather: only once the field has been left (not while typing)
+  $("wx").hidden = !dest || document.activeElement === $("i-destination");
   if (dest) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(dest)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(dest)}`;
   document.querySelectorAll(".sec-btns").forEach(c => { c.hidden = ![...c.children].some(b => !b.hidden); });
 }
@@ -932,11 +1010,9 @@ function setT(p, v){
   state.info = state.info || {};
   if (p.dataset.meet) { const m = state.info[p.dataset.meet + "Meet"]; if (m) m.time = v; }
   else if (p.dataset.stop) {
-    const legs = tripLegs(p.dataset.trip), l = legs[p.dataset.leg]; if (!l || !l.stop) return;
-    const prevVal = l.stop[p.dataset.stop]; l.stop[p.dataset.stop] = v;
-    // "until" is the next leg's departure: it fills (and then follows) the next leg's time as long as that was not set by hand
-    const next = legs[+p.dataset.leg + 1];
-    if (p.dataset.stop === "until" && v && next && (!next.time || next.time === prevVal)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
+    const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (!l || !l.stop) return;
+    if (p.dataset.stop === "until") setStopUntil(p.dataset.trip, +p.dataset.leg, v);
+    else { l.stop[p.dataset.stop] = v; recalcStop(p.dataset.trip, +p.dataset.leg); }   // "from" moves "until" along (same duration)
   }
   else if (p.dataset.leg !== undefined) { const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (l) l.time = v; }
   else state.info[p.dataset.time] = v;
@@ -990,11 +1066,13 @@ function travelMode(mode){
   return ["", ""];
 }
 function updateMaps(){
-  const E = encodeURIComponent;
+  const E = encodeURIComponent, act = document.activeElement;
+  // The pin appears only once the place/route fields have been left, not while typing in them
+  const typing = el => { const g = el.closest(".leg"); return !!act && (act === $("i-address") || (g && g.contains(act) && act.matches('[data-legf="from"],[data-legf="to"],[data-meetf="place"],[data-stopf="place"]'))); };
   TRIPS.forEach(t => {
     const box = $("legs-" + t), meet = (state.info || {})[t + "Meet"];
     // links: {g: Google, a: Apple, w: Waze, db: Deutsche Bahn}; an empty value hides that entry (the whole menu when Google has none)
-    const set = (el, links) => { if (!el) return; el.hidden = !links.g; ["g", "a", "w", "db"].forEach(k => { const x = el.querySelector(`[data-map="${k}"]`); x.hidden = !links[k]; if (links[k]) x.href = links[k]; }); };
+    const set = (el, links) => { if (!el) return; el.hidden = !links.g || typing(el); ["g", "a", "w", "db"].forEach(k => { const x = el.querySelector(`[data-map="${k}"]`); x.hidden = !links[k]; if (links[k]) x.href = links[k]; }); };
     if (meet) { const q = (meet.place || "").trim();
       set(box.querySelector(".meet [data-maps]"), q ? {g: `https://www.google.com/maps/search/?api=1&query=${E(q)}`, a: `https://maps.apple.com/?q=${E(q)}`, w: `https://waze.com/ul?q=${E(q)}&navigate=yes`} : {}); }
     tripLegs(t).forEach((l, i) => {
@@ -1015,6 +1093,27 @@ function updateMaps(){
       });
     });
   });
+  // Stopover cards: the place
+  TRIPS.forEach(t => $("legs-" + t).querySelectorAll(".leg.stop").forEach(g => {
+    const l = tripLegs(t)[+g.dataset.stopof], q = ((l && l.stop && l.stop.place) || "").trim(), el = g.querySelector("[data-maps]");
+    if (!el) return;
+    el.hidden = !q || typing(el);
+    if (q) {
+      el.querySelector('[data-map="g"]').href = `https://www.google.com/maps/search/?api=1&query=${E(q)}`;
+      el.querySelector('[data-map="a"]').href = `https://maps.apple.com/?q=${E(q)}`;
+      const w = el.querySelector('[data-map="w"]'); w.href = `https://waze.com/ul?q=${E(q)}&navigate=yes`; w.hidden = false;
+    }
+  }));
+  // Destination address of the whole trip (menu next to its label)
+  const acts = $("addrActs");
+  if (!acts.firstChild || acts.dataset.lang !== lang) { acts.innerHTML = MAPPICK("mapOpenPlace"); acts.dataset.lang = lang; }
+  const addrQ = ((state.info || {}).address || "").trim(), ael = acts.firstElementChild;
+  ael.hidden = !addrQ || typing(ael);
+  if (addrQ) {
+    ael.querySelector('[data-map="g"]').href = `https://www.google.com/maps/search/?api=1&query=${E(addrQ)}`;
+    ael.querySelector('[data-map="a"]').href = `https://maps.apple.com/?q=${E(addrQ)}`;
+    const w = ael.querySelector('[data-map="w"]'); w.href = `https://waze.com/ul?q=${E(addrQ)}&navigate=yes`; w.hidden = false;
+  }
 }
 function renderTrips(){
   TRIPS.forEach(t => {
@@ -1033,9 +1132,10 @@ function renderTrips(){
         <button class="del" type="button" data-delmeet="${t}" aria-label="${T("removeMeet")}" title="${T("removeMeet")}">×</button>
       </div>
       <div class="leg-grid">
-        <div class="c-durrow c-placerow"><div class="f"><span>${T("place")}</span><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="f c-wide"><span>${T("place")}</span><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>
         <div class="f"><span>${T("time")}</span><div class="tpick" data-meet="${t}">${pickInner(`meet-${t}-time`, T("meetTime"))}</div></div>
-        <div class="c-meetadd"><button type="button" class="unit stop-btn" data-addleg="${t}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
+        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" inputmode="numeric" maxlength="6" placeholder="0:00" autocomplete="off" id="meet-${t}-dur" data-meetf="dur" value="${esc(durOf(meet.dur))}" aria-label="${T("meetDurLabel")}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="c-arrrow"><div class="arr" id="meet-${t}-dep" aria-live="polite" hidden></div><button type="button" class="unit stop-btn" data-addleg="${t}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
     </div>`;
     const stopCard = (l, i) => `
@@ -1047,11 +1147,11 @@ function renderTrips(){
         <button class="del" type="button" data-delstop="${i}" aria-label="${T("removeStop")}" title="${T("removeStop")}">×</button>
       </div>
       <div class="leg-grid">
-        <div class="f c-from"><span>${T("place")}</span><input class="fld" type="text" id="stop-${t}-${i}-place" data-stopf="place" value="${esc(l.stop.place || "")}" aria-label="${T("stopPlace")}"></div>
-        <div class="f"><span>${T("stopFrom")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="from">${pickInner(`stop-${t}-${i}-from`, T("stopFromLabel"))}</div></div>
-        <div class="f"><span>${T("stopUntil")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="until">${pickInner(`stop-${t}-${i}-until`, T("stopUntilLabel"))}</div></div>
+        <div class="f c-wide"><span>${T("place")}</span><input class="fld" type="text" id="stop-${t}-${i}-place" data-stopf="place" value="${esc(l.stop.place || "")}" aria-label="${T("stopPlace")}"></div>
+        <div class="f"><span>${T("time")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="from">${pickInner(`stop-${t}-${i}-from`, T("stopFromLabel"))}</div></div>
+        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" inputmode="numeric" maxlength="6" placeholder="0:00" autocomplete="off" id="stop-${t}-${i}-dur" data-stopf="dur" value="${esc(stopDurText(l.stop))}" aria-label="${T("stopDurLabel")}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="c-arrrow"><div class="arr" id="stop-${t}-${i}-wait" aria-live="polite" hidden></div><button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
-      <div class="stop-wait" id="stop-${t}-${i}-wait"></div>
     </div>`;
     html += legs.map((l, i) => {
       const fromChips = i === 0
@@ -1076,7 +1176,7 @@ function renderTrips(){
         <div class="f c-from"><div class="lbl-row"><span>${T("start")}</span><span class="chips">${fromChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="${T("legStart", {n: i + 1})}"></div>
         <div class="f c-to"><div class="lbl-row"><span>${T("legDest")}</span><span class="chips">${toChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}"></div>
         <div class="f"><div class="lbl-row nowrap"><span>${T("time")}</span><span class="chips"><button type="button" class="unit" data-filltime hidden title="${T(i === 0 ? "fillTimeMeetTitle" : "fillTimePrevTitle")}">${T(i === 0 ? "fillTimeMeet" : "fillTimePrev")}</button></span></div><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
-        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenRoute")}</div>
+        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" inputmode="numeric" maxlength="6" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenRoute")}</div>
         <div class="c-arrrow"><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite" hidden></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}<button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
     </div>${l.stop ? stopCard(l, i) : ""}`;
@@ -1097,14 +1197,40 @@ function parseDur(s, unit){
   return null;
 }
 const fmtHM = mins => `${Math.floor(mins / 60)}:${pad(mins % 60)}`;
+const durOf = v => { const m = parseDur(v); return v == null || v === "" ? "" : m === null ? String(v) : fmtHM(m); };
+const addMin = (hhmm, m) => { const [h, mi] = hhmm.split(":").map(Number), v = (((h * 60 + mi + m) % 1440) + 1440) % 1440; return `${pad(Math.floor(v / 60))}:${pad(v % 60)}`; };
+// A stopover stores its duration (`dur`); "until" is derived (from + dur). Older data only has from/until: the duration is the difference
+function stopDurText(st){
+  if (st.dur != null && st.dur !== "") return durOf(st.dur);
+  if (st.from && st.until) { let w = toMinHM(st.until) - toMinHM(st.from); if (w < 0) w += 1440; return fmtHM(w); }
+  return "";
+}
+const toMinHM = x => { const [h, m] = x.split(":").map(Number); return h * 60 + m; };
+// Meeting point: end time = time + duration (the first leg continues from it)
+const meetEnd = m => !m || !m.time ? "" : (parseDur(m.dur) ? addMin(m.time, parseDur(m.dur)) : m.time);
+// Set the stopover's "until" and let the next leg follow it as long as its time was not set by hand
+function setStopUntil(t, i, v){
+  const legs = tripLegs(t), l = legs[i]; if (!l || !l.stop) return;
+  const prevVal = l.stop.until; l.stop.until = v;
+  const next = legs[i + 1];
+  // "set by hand" = anything but empty, the previous "until", the stopover's "from" or the leg's rounded arrival (the values it gets automatically)
+  const a = arrivals(t)[i], auto = a != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(a / 5) * 5) : "";
+  if (v && next && (!next.time || next.time === prevVal || next.time === l.stop.from || next.time === auto)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
+}
+function recalcStop(t, i){
+  const l = tripLegs(t)[i], d = l && l.stop ? parseDur(l.stop.dur) : null;
+  if (l && l.stop && l.stop.from && d !== null) setStopUntil(t, i, addMin(l.stop.from, d));
+}
 function durText(l){ const m = parseDur(l.dur, l.unit); return m === null ? String(l.dur ?? "") : fmtHM(m); }
 const legOf = el => { const g = el.closest(".leg"); return g ? { t: g.dataset.trip, i: g.dataset.leg } : null; };
 document.addEventListener("focusout", e => {
-  if (!e.target.dataset || e.target.dataset.legf !== "dur") return;
-  const o = legOf(e.target), l = o && tripLegs(o.t)[o.i]; if (!l) return;
-  const m = parseDur(e.target.value, l.unit);
-  if (m !== null) { l.dur = fmtHM(m); e.target.value = l.dur; }
-  delete l.unit; save(); updateLegSummary();
+  const d = e.target.dataset; if (!d || (d.legf !== "dur" && d.stopf !== "dur" && d.meetf !== "dur")) return;
+  const g = e.target.closest(".leg"); if (!g) return;
+  const holder = d.legf ? tripLegs(g.dataset.trip)[g.dataset.leg] : d.stopf ? (tripLegs(g.dataset.trip)[g.dataset.stopof] || {}).stop : (state.info || {})[g.dataset.trip + "Meet"];
+  if (!holder) return;
+  const m = parseDur(e.target.value, holder.unit);
+  if (m !== null) { holder.dur = fmtHM(m); e.target.value = holder.dur; }
+  delete holder.unit; save(); updateLegSummary();
 });
 function updateLegSummary(){
   updateMaps();
@@ -1115,6 +1241,8 @@ function updateLegSummary(){
     const dur = l => { const m = parseDur(l.dur, l.unit); return m === null ? 0 : m; };
     // Arrival per leg: own time + duration, otherwise arrival of the previous leg (or meeting point) + duration
     let prev = meet && meet.time ? toMin(meet.time) : null, endArr = null, lastArr = null;
+    const depEl = document.getElementById(`meet-${t}-dep`), mEnd = meetEnd(meet);
+    if (depEl) { depEl.hidden = !(meet && meet.time && parseDur(meet.dur)); if (!depEl.hidden) depEl.innerHTML = T("departApprox", {x: `<b>${mEnd}</b>`}); }
     legs.forEach((l, i) => {
       const el = document.getElementById(`leg-${t}-${i}-arr`);
       const start = l.time ? toMin(l.time) : null; // only the leg's own departure time counts
@@ -1124,10 +1252,7 @@ function updateLegSummary(){
       if (l.stop) {
         if (l.stop.until) { let u = toMin(l.stop.until); if (arr !== null) while (u < arr) u += 1440; prev = u; }
         const wEl = document.getElementById(`stop-${t}-${i}-wait`);
-        if (wEl) {
-          if (l.stop.from && l.stop.until) { let wait = toMin(l.stop.until) - toMin(l.stop.from); if (wait < 0) wait += 1440; wEl.textContent = T("stopWait", {x: fmtHM(wait)}); }
-          else wEl.textContent = "";
-        }
+        if (wEl) { wEl.hidden = !l.stop.until; if (l.stop.until) wEl.innerHTML = `${T("departApprox", {x: `<b>${l.stop.until}</b>`})}`; }
       }
       if (el) {
         el.hidden = arr === null;
@@ -1142,11 +1267,18 @@ function updateLegSummary(){
     $("sum-" + t).textContent = out.join(" · ");
   });
 }
+// Duration: digits and one colon only; on a numeric keypad (no colon) the colon is inserted before the last two digits
+const cleanDur = v => {
+  const digits = v.replace(/[^\d:]/g, ""), i = digits.indexOf(":");
+  if (i >= 0) return digits.slice(0, i + 1) + digits.slice(i + 1).replace(/:/g, "").slice(0, 2);
+  return digits.length > 2 ? digits.slice(0, -2) + ":" + digits.slice(-2) : digits;
+};
 document.addEventListener("input", e => {
   const d = e.target.dataset || {};
+  if (d.legf === "dur" || d.stopf === "dur" || d.meetf === "dur") { const c = cleanDur(e.target.value); if (c !== e.target.value) e.target.value = c; }
   if (d.legf) { const o = legOf(e.target), l = o && tripLegs(o.t)[o.i]; if (!l) return; l[d.legf] = e.target.value; }
   else if (d.meetf) { const m = state.info[e.target.closest(".leg").dataset.trip + "Meet"]; if (!m) return; m[d.meetf] = e.target.value; }
-  else if (d.stopf) { const g = e.target.closest(".leg"), l = tripLegs(g.dataset.trip)[g.dataset.stopof]; if (!l || !l.stop) return; l.stop[d.stopf] = e.target.value; }
+  else if (d.stopf) { const g = e.target.closest(".leg"), l = tripLegs(g.dataset.trip)[g.dataset.stopof]; if (!l || !l.stop) return; l.stop[d.stopf] = e.target.value; if (d.stopf === "dur") recalcStop(g.dataset.trip, +g.dataset.stopof); }
   else return;
   save(); updateLegSummary(); updateButtons();
 });
@@ -1168,7 +1300,7 @@ document.addEventListener("click", e => {
     // Start = destination of the previous leg, time = its arrival (rounded up to 5 minutes)
     const arr = arrivals(t)[k];
     const time = prev && arr != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(arr / 5) * 5) : "";
-    legs.splice(k + 1, 0, {from: prev ? ((prev.stop && prev.stop.place) || prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time: prev && prev.stop && prev.stop.until ? prev.stop.until : time, dur: "", to: ""});
+    legs.splice(k + 1, 0, {from: prev ? ((prev.stop && prev.stop.place) || prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time: prev ? (prev.stop && prev.stop.until ? prev.stop.until : time) : meetEnd(meet), dur: "", to: ""});
     save(); render();
     const i = k + 1;
     $(legs[i].from ? `leg-${t}-${i}-to` : `leg-${t}-${i}-from`).focus(); // start known: type the destination next
@@ -1303,7 +1435,7 @@ document.addEventListener("pointerdown", e => {
   const g = h.closest(".leg"), nx = g.nextElementSibling;
   const group = nx && nx.classList.contains("stop") ? [g, nx] : [g]; // a stopover belongs to the leg before it
   ldrag = { g, group, box: g.parentElement, id: e.pointerId, h };
-  h.setPointerCapture(e.pointerId);
+  ldrag.box.setPointerCapture(e.pointerId);
   group.forEach(x => x.classList.add("dragging")); ldrag.box.classList.add("is-dragging");
 });
 document.addEventListener("pointermove", e => {
@@ -1318,10 +1450,12 @@ function endLegDrag(e){
   const { g, box } = ldrag, t = g.dataset.trip, legs = tripLegs(t);
   const order = [...box.querySelectorAll(".leg[data-leg]")].map(x => +x.dataset.leg);
   const moved = legs[+g.dataset.leg];
-  legs.splice(0, legs.length, ...order.map(i => legs[i]));
+  const valid = order.length === legs.length && new Set(order).size === order.length && order.every(i => legs[i]);
+  if (valid) legs.splice(0, legs.length, ...order.map(i => legs[i]));
   ldrag = null; box.classList.remove("is-dragging");
   if (document.activeElement) document.activeElement.blur();
-  save(); render();
+  if (valid) save();
+  render();
   const h = box.querySelector(`.leg[data-leg="${legs.indexOf(moved)}"] [data-lhandle]`); if (h) h.focus({preventScroll: true});
 }
 document.addEventListener("pointerup", endLegDrag);
@@ -1378,7 +1512,7 @@ function fillValue(b){
 // Time a leg can take over from its predecessor: the meeting point's time (first leg), else the stopover's "until" or the previous leg's arrival (rounded up to 5 minutes)
 function timeFillValue(b){
   const g = b.closest(".leg"), t = g.dataset.trip, i = +g.dataset.leg;
-  if (i === 0) { const m = (state.info || {})[t + "Meet"]; return (m && m.time) || ""; }
+  if (i === 0) return meetEnd((state.info || {})[t + "Meet"]);
   const prev = tripLegs(t)[i - 1]; if (!prev) return "";
   if (prev.stop && prev.stop.until) return prev.stop.until;
   const arr = arrivals(t)[i - 1];
@@ -1411,7 +1545,7 @@ function cleanInfo(src){
   const s = v => typeof v === "string" ? v.slice(0, 2000) : "", out = {};
   if (!src || typeof src !== "object") return null;
   STR_KEYS.forEach(k => { if (s(src[k])) out[k] = s(src[k]); });
-  ["outMeet", "retMeet"].forEach(k => { const m = src[k]; if (m && typeof m === "object") out[k] = {place: s(m.place), date: s(m.date), time: s(m.time)}; });
+  ["outMeet", "retMeet"].forEach(k => { const m = src[k]; if (m && typeof m === "object") out[k] = {place: s(m.place), date: s(m.date), time: s(m.time), dur: s(m.dur)}; });
   ["outLegs", "retLegs"].forEach(k => { if (Array.isArray(src[k])) out[k] = src[k].slice(0, 50).filter(l => l && typeof l === "object").map(l => { const o = {from: s(l.from), to: s(l.to), mode: s(l.mode), time: s(l.time), dur: s(String(l.dur ?? ""))}; if (l.stop && typeof l.stop === "object") o.stop = {place: s(l.stop.place), from: s(l.stop.from), until: s(l.stop.until)}; return o; }); });
   return out;
 }
@@ -1421,8 +1555,8 @@ const trimArr = a => { while (a.length && !a[a.length - 1]) a.pop(); return a; }
 function pack(info){
   const i = cleanInfo(info) || {}, c = {};
   Object.entries(SHORT).forEach(([k, s]) => { if (i[k]) c[s] = i[k]; });
-  if (i.outMeet) c.hm = trimArr([i.outMeet.place, i.outMeet.date, i.outMeet.time]);
-  if (i.retMeet) c.rm = trimArr([i.retMeet.place, i.retMeet.date, i.retMeet.time]);
+  if (i.outMeet) c.hm = trimArr([i.outMeet.place, i.outMeet.date, i.outMeet.time, i.outMeet.dur]);
+  if (i.retMeet) c.rm = trimArr([i.retMeet.place, i.retMeet.date, i.retMeet.time, i.retMeet.dur]);
   const legArr = l => trimArr([l.from, l.to, l.mode, l.time, l.dur, l.stop && l.stop.place, l.stop && l.stop.from, l.stop && l.stop.until]); // stopover = elements 6-8
   if (i.outLegs && i.outLegs.length) c.l = i.outLegs.map(legArr);
   if (i.retLegs && i.retLegs.length) c.rl = i.retLegs.map(legArr);
@@ -1432,8 +1566,8 @@ function unpack(c){
   if (!c || typeof c !== "object") return null;
   const i = {}, leg = a => { const o = {from: a[0] || "", to: a[1] || "", mode: a[2] || "", time: a[3] || "", dur: a[4] || ""}; if (a[5] || a[6] || a[7]) o.stop = {place: a[5] || "", from: a[6] || "", until: a[7] || ""}; return o; };
   Object.entries(SHORT).forEach(([k, s]) => { if (c[s]) i[k] = c[s]; });
-  if (Array.isArray(c.hm)) i.outMeet = {place: c.hm[0] || "", date: c.hm[1] || "", time: c.hm[2] || ""};
-  if (Array.isArray(c.rm)) i.retMeet = {place: c.rm[0] || "", date: c.rm[1] || "", time: c.rm[2] || ""};
+  if (Array.isArray(c.hm)) i.outMeet = {place: c.hm[0] || "", date: c.hm[1] || "", time: c.hm[2] || "", dur: c.hm[3] || ""};
+  if (Array.isArray(c.rm)) i.retMeet = {place: c.rm[0] || "", date: c.rm[1] || "", time: c.rm[2] || "", dur: c.rm[3] || ""};
   if (Array.isArray(c.l)) i.outLegs = c.l.filter(Array.isArray).map(leg);
   if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
@@ -1688,7 +1822,7 @@ document.addEventListener("input", e => {
   const t = k === "outDate" ? "out" : k === "retDate" ? "ret" : null, m = t && state.info[t + "Meet"];
   if (m) m.date = e.target.value;   // the meeting point always takes place on the trip date
   state.info[k] = e.target.value;
-  save(); updateCountdown(); updateButtons(); if (t) updateMaps();
+  save(); updateCountdown(); updateButtons(); updateMaps();
 });
 
 // Per section: clear all (with confirmation)
@@ -1792,11 +1926,11 @@ function makeSortable(listId, key){
   const list = $(listId);
   let drag = null;
   list.addEventListener("pointerdown", e => {
-    const h = e.target.closest(".handle"); if (!h) return;
+    const h = e.target.closest(".handle"); if (!h || h.disabled) return;
     e.preventDefault();
     const li = h.closest("li");
     drag = { li, id: e.pointerId };
-    h.setPointerCapture(e.pointerId);
+    list.setPointerCapture(e.pointerId);
     li.classList.add("dragging"); list.classList.add("is-dragging");
   });
   list.addEventListener("pointermove", e => {
@@ -1812,10 +1946,13 @@ function makeSortable(listId, key){
   const end = e => {
     if (!drag || e.pointerId !== drag.id) return;
     const order = [...list.children].map(el => +el.dataset.i);
-    state[key] = order.map(i => state[key][i]);
     const newIdx = order.indexOf(+drag.li.dataset.i);
+    // only commit a real permutation of the entries
+    if (list.contains(drag.li) && order.length === state[key].length && new Set(order).size === order.length && order.every(i => state[key][i])) {
+      state[key] = order.map(i => state[key][i]); save();
+    }
     drag = null; list.classList.remove("is-dragging");
-    save(); render();
+    render();
     const h = list.querySelector(`[data-handle="${newIdx}"]`); if (h) h.focus({preventScroll:true});
   };
   list.addEventListener("pointerup", end);
@@ -1837,15 +1974,16 @@ makeSortable("shopList", "shop");
 let pdrag = null;
 const body = $("packBody");
 body.addEventListener("pointerdown", e => {
-  const h = e.target.closest(".handle"); if (!h) return;
+  const h = e.target.closest(".handle"); if (!h || h.disabled) return;
   e.preventDefault();
   const tr = h.closest("tr");
   pdrag = { tr, id: e.pointerId };
-  h.setPointerCapture(e.pointerId);
+  body.setPointerCapture(e.pointerId);
   tr.classList.add("dragging"); body.classList.add("is-dragging");
 });
 body.addEventListener("pointermove", e => {
   if (!pdrag || e.pointerId !== pdrag.id) return;
+  if (!body.contains(pdrag.tr)) { pdrag = null; body.classList.remove("is-dragging"); return; }   // the list was re-rendered during the drag
   const others = [...body.children].filter(el => el !== pdrag.tr);
   let before = null;
   for (const el of others) {
@@ -1858,17 +1996,27 @@ body.addEventListener("pointermove", e => {
 });
 function endPackDrag(e){
   if (!pdrag || e.pointerId !== pdrag.id) return;
-  const old = state.cats.map(c => c.items);
-  const fresh = state.cats.map(() => []);
-  let cur = 0;
-  for (const tr of body.children) {
-    if (tr.dataset.cat !== undefined) cur = +tr.dataset.cat;
-    else if (tr.dataset.ci !== undefined) fresh[cur].push(old[tr.dataset.ci][tr.dataset.ii]);
-  }
-  const moved = old[pdrag.tr.dataset.ci][pdrag.tr.dataset.ii];
-  state.cats.forEach((c,i) => c.items = fresh[i]);
-  pdrag = null; body.classList.remove("is-dragging");
-  save(); render(); focusItem(moved);
+  const drag = pdrag; pdrag = null; body.classList.remove("is-dragging");
+  let moved = null;
+  try {
+    const old = state.cats.map(c => c.items), total = old.reduce((n, a) => n + a.length, 0);
+    const fresh = state.cats.map(() => []);
+    let cur = 0, ok = body.contains(drag.tr);
+    for (const tr of body.children) {
+      if (tr.dataset.cat !== undefined) cur = +tr.dataset.cat;
+      else if (tr.dataset.ci !== undefined) {
+        const it = (old[tr.dataset.ci] || [])[tr.dataset.ii];
+        if (!it || !fresh[cur]) ok = false; else if (!fresh[cur].includes(it)) fresh[cur].push(it);
+      }
+    }
+    // only commit a result that still has exactly the same items; otherwise keep the old order
+    if (ok && fresh.reduce((n, a) => n + a.length, 0) === total) {
+      moved = (old[drag.tr.dataset.ci] || [])[drag.tr.dataset.ii];
+      state.cats.forEach((c, i) => c.items = fresh[i]);
+      save();
+    }
+  } catch(err) { console.error(err); }
+  render(); if (moved) focusItem(moved);
 }
 function focusItem(item){
   state.cats.forEach((c,ci) => { const ii = c.items.indexOf(item);
@@ -1882,11 +2030,12 @@ body.addEventListener("pointerdown", e => {
   e.preventDefault();
   const tr = h.closest("tr.cat");
   cdrag = { tr, rows: catRows(tr), id: e.pointerId };
-  h.setPointerCapture(e.pointerId);
+  body.setPointerCapture(e.pointerId);
   cdrag.rows.forEach(r => r.classList.add("dragging")); body.classList.add("is-dragging");
 });
 body.addEventListener("pointermove", e => {
   if (!cdrag || e.pointerId !== cdrag.id) return;
+  if (!body.contains(cdrag.tr)) { cdrag = null; body.classList.remove("is-dragging"); return; }
   let before = body.querySelector("tr.newcat");
   for (const head of body.querySelectorAll("tr.cat")) {
     if (head === cdrag.tr) continue;
@@ -1897,12 +2046,19 @@ body.addEventListener("pointermove", e => {
 });
 function endCatDrag(e){
   if (!cdrag || e.pointerId !== cdrag.id) return;
-  const order = [...body.querySelectorAll("tr.cat")].map(t => +t.dataset.cat);
-  const newIdx = order.indexOf(+cdrag.tr.dataset.cat);
-  state.cats = order.map(i => state.cats[i]);
-  cdrag = null; body.classList.remove("is-dragging");
-  save(); render();
-  const h = body.querySelector(`[data-chandle="${newIdx}"]`); if (h) h.focus({preventScroll: true});
+  const drag = cdrag; cdrag = null; body.classList.remove("is-dragging");
+  let newIdx = -1;
+  try {
+    const order = [...body.querySelectorAll("tr.cat")].map(t => +t.dataset.cat);
+    // only commit a real permutation of the categories
+    if (body.contains(drag.tr) && order.length === state.cats.length && new Set(order).size === order.length && order.every(i => state.cats[i])) {
+      newIdx = order.indexOf(+drag.tr.dataset.cat);
+      state.cats = order.map(i => state.cats[i]);
+      save();
+    }
+  } catch(err) { console.error(err); }
+  render();
+  const h = newIdx >= 0 && body.querySelector(`[data-chandle="${newIdx}"]`); if (h) h.focus({preventScroll: true});
 }
 body.addEventListener("pointerup", endCatDrag);
 body.addEventListener("pointercancel", endCatDrag);
@@ -1965,7 +2121,29 @@ document.addEventListener("click", e => {
   if (linkData) showLinkPanel();
 });
 
-render();
+// Start-up with a safety net: a state that cannot be rendered is rolled back to the previous stored version;
+// if that fails as well, a rescue panel shows the raw data (copyable) and offers a reset
+function showRescue(err){
+  const raw = localStorage.getItem(KEY) || "";
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;inset:0;z-index:99;background:#000c;display:grid;place-items:center;padding:16px";
+  d.innerHTML = `<div style="background:#fff;color:#222;border-radius:12px;padding:16px;max-width:520px;width:100%;font:15px system-ui">
+    <b>${T("rescueTitle")}</b><p>${T("rescueText")}</p>
+    <textarea readonly style="width:100%;height:120px;font:12px monospace"></textarea>
+    <p style="display:flex;gap:8px"><button type="button" id="rescueReset" style="padding:8px 14px">${T("rescueReset")}</button></p></div>`;
+  d.querySelector("textarea").value = raw;
+  document.body.appendChild(d);
+  d.querySelector("#rescueReset").onclick = () => { if (confirm(T("rescueConfirm"))) { try { localStorage.setItem(KEY + "-broken", raw); localStorage.removeItem(KEY); } catch(e){} location.reload(); } };
+  console.error(err);
+}
+try { render(); } catch(err) {
+  let ok = false;
+  try {
+    const prev = JSON.parse(localStorage.getItem(KEY + "-prev"));
+    if (prev && typeof prev === "object") { state = sanitize(prev); migrate(state); save(); render(); ok = true; }
+  } catch(e) { console.error(e); }
+  if (!ok) showRescue(err);
+}
 setSync("syncLocal");
 readLink();
 // Install dialog: one header button opens a guide for Android / iPhone / computer; where the browser offers it, the dialog also has a one-tap "Install automatically"
@@ -2025,5 +2203,7 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.
     first = false;
   }, () => setSync("syncLocal"));
 })();
+document.addEventListener("focusin", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) { updateMaps(); updateButtons(); } });
+document.addEventListener("focusout", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place|stop-.*-place)$/.test(e.target.id || "")) setTimeout(() => { updateMaps(); updateButtons(); }); });
 document.addEventListener("focusout", () => { if (needsRender) { needsRender = false; setTimeout(render, 0); } });
 </script>

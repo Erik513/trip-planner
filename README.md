@@ -9,15 +9,15 @@ It works offline, without an account and without a server.
 
 ## Sections
 
-1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
+1. **Trip info** – trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
-2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
-   to the visible list and focuses it (an entry left empty is removed again); the header buttons act on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
+2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button below the list (next to the trash button) appends an empty entry
+   to the visible list and focuses it (an entry left empty is removed again); the trash button below the list acts on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
    Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
 3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Hand luggage, Food, Misc);
    "Load suggestions" adds typical items without quantities.
    The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
-   The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).
+   The last table row "+ New category" (with the trash button for the whole list next to it) appends an empty category and focuses its name (a category left without name and items is removed again).
    Items can be dragged within and across categories; whole categories can be reordered with the handle at the left of the category row
    (drag, or Alt + arrow keys) – the items move with their category.
 
@@ -25,16 +25,19 @@ It works offline, without an account and without a server.
 
 - Card layout (same on phone and desktop): a header row with the number (drag handle) or the meeting point symbol, the **transport** picker (a compact button; it opens the list of common modes `MODES` plus a free "Other …" field, no browser datalist) or the title "Meeting point",
   the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); a map-pin button right of the duration field (shown once a route is known; the meeting point card has one right of its place field) opens a small menu with Google Maps / Apple Maps links plus the apps that fit the transport mode (Waze for car legs, the DB timetable for train legs; `updateMaps()`) (the transport mode is passed on; for public transport with a trip date and leg time Google gets the departure time through its unofficial URL form); the "+ Stopover" button sits right of the arrival field, which fills the whole width once the leg has a stopover.
+  Ticked entries of the to-do, shopping and packing list are locked the same way (text, quantity, handle and delete cross are disabled, only the checkbox works); unticking unlocks them.
+  On wide screens "+ Stopover" and "+ Leg" sit in the same row as time and duration (columns 3 and 4), on phones they follow below; the arrival text is always bottom right.
+  "+ Meeting point" sits right next to the section title ("Outbound" / "Return"), it disappears once there is a meeting point.
   A ticked card (meeting point, leg, stopover) is locked: all its fields and buttons (including the map pin) are disabled except the checkbox; unticking unlocks it again (`updateCurrent()`).
-  The meeting point card has the place with a map-pin button in one row and below it the time plus a "+ Leg" button (inserts a leg after the meeting point). Every leg card has the same button next to "+ Stopover" and inserts the new leg right after itself (start and time are taken over); the stand-alone "+ Leg" under the list only shows while there is neither a meeting point nor a leg; it takes place on the trip date (no separate date field).
-- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
+  The meeting point card has the same layout as a leg: place on top, then time, duration (how long you stay; the first leg continues from time + duration, shown as "Departure approx.") and the map-pin menu, plus the "+ Leg" button (inserts a leg after the meeting point). The duration is part of the export code (4th element of the meeting point). Every leg card has the same button next to "+ Stopover" and inserts the new leg right after itself (start and time are taken over); the stand-alone "+ Leg" under the list only shows while there is neither a meeting point nor a leg; it takes place on the trip date (no separate date field).
+- Duration as `H:MM`: only digits and one colon can be typed (`cleanDur`); without a colon the last two digits become the minutes (`230` → `2:30`, handy on numeric keypads). Arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
   "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy and the field does not already contain it.
   Next to the "Time" label a chip "← End" takes over the predecessor's end time (the stopover's "until", else the previous leg's arrival rounded up to 5 minutes); on the first leg "← ◉" takes the meeting point's time.
-- **Stopover** ("+ Stopover" at the bottom left of a leg card; hidden when the leg's destination is the trip's destination address): a card between two legs with place, "from" and "until" time and the computed waiting time.
+- **Stopover** ("+ Stopover" at the bottom left of a leg card; on the outbound trip hidden when the leg's destination is the trip's destination address; the return trip always shows it): a card between two legs with place (with its own map-pin menu), time and duration (like a leg; "until" = time + duration is derived and shown as "Departure approx." bottom right).
   It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
-  (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand). "Copy from outbound" keeps the stopover
+  (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand: an empty time, the previous "until", the stopover's "from" or the leg's rounded arrival still count as automatic). "Copy from outbound" keeps the stopover
   place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:` format stays compatible).
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
@@ -77,6 +80,7 @@ copy of the HTML file (files opened from the file manager have no reliable stora
 - `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`, theme `trip-planner-theme`) – per browser, device and address.
 - Default categories introduced later (Food, Hand luggage) are added once to existing data by `migrate` (flags `v2cats`, `v3cats`); a deleted one does not come back.
 - `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
+- Safety net: `sanitize(state)` repairs a damaged stored state (null entries, wrong types) before `migrate`; `save()` keeps the previous version under `trip-planner-v1-prev`; if the first `render()` still fails, the app rolls back to that version, otherwise a rescue panel shows the raw data and offers a reset. All drag handlers capture the pointer on their container (the moved row and its handle are re-inserted while dragging, which can detach a touch pointer) and only commit a result that still contains exactly the same entries.
   when changing the data model, extend it there instead of breaking old data.
 - The code also contains a path for the Claude Artifact database (`window.claude.use("db")`). Outside Claude, `window.claude`
   does not exist and this branch is skipped. Do not remove it as long as the Claude version is still used.
@@ -123,6 +127,8 @@ Code comments are written in English.
 - Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
 - Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
+- Layout is grid based: fields that sit side by side must share their top edge. Label rows in a leg card are always as high as a chip (`calc(var(--btn-h) - 10px)`), whether a chip is shown or not; do not add elements that make one cell of a row taller than its neighbours.
+- Buttons share one style (CSS block "Buttons: one style everywhere"): outlined = neutral, light accent fill = "add" actions, accent filled = primary (`.tdone`), icon buttons are square, chips (`.unit`) are the compact variant. The height comes from `--btn-h` (34px, 42px on touch, 40px inside leg cards next to the fields). New buttons must use these classes instead of getting their own sizing.
 - Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they show the question as text, see `refreshClearBtn`),
   "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
