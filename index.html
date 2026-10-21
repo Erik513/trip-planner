@@ -702,10 +702,10 @@ const T = (k, v) => {
 // Label of a "clear" button: the to-do / shopping button names the list it acts on
 const clearLabel = (b, sure) => T(({todos: ["clearTodos", "clearTodosSure"], shop: ["clearShop", "clearShopSure"]}[b.dataset.clear] || ["clearAll", "clearSure"])[sure ? 1 : 0]);
 const ICON_TRASH = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
-// A "clear" button shows a trash icon (name in the tooltip); while the confirmation is pending it shows the question as text
+// A "clear" button shows a trash icon (name in the tooltip); while the confirmation is pending it turns red (like the delete cross of a card)
+// and the question is only in the tooltip / aria-label
 function refreshClearBtn(b){
-  if (b.dataset.armed === "1") { b.textContent = clearLabel(b, true); b.removeAttribute("title"); return; }
-  const l = clearLabel(b);
+  const l = clearLabel(b, b.dataset.armed === "1");
   b.innerHTML = ICON_TRASH; b.title = l; b.setAttribute("aria-label", l);
 }
 const plusDays = d => d ? ` (+${d} ${T(d > 1 ? "dayPl" : "daySg")})` : "";

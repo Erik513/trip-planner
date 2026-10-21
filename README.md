@@ -129,7 +129,7 @@ Code comments are written in English.
 - Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
 - Layout is grid based: fields that sit side by side must share their top edge. Label rows in a leg card are always as high as a chip (`calc(var(--btn-h) - 10px)`), whether a chip is shown or not; do not add elements that make one cell of a row taller than its neighbours.
 - Buttons share one style (CSS block "Buttons: one style everywhere"): outlined = neutral, light accent fill = "add" actions, accent filled = primary (`.tdone`), icon buttons are square, chips (`.unit`) are the compact variant. The height comes from `--btn-h` (34px, 42px on touch, 40px inside leg cards next to the fields). New buttons must use these classes instead of getting their own sizing.
-- Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they show the question as text, see `refreshClearBtn`),
+- Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they only turn red and the question moves into the tooltip, see `refreshClearBtn`),
   "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
