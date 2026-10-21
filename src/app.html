@@ -205,7 +205,12 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .stop-wait:empty{display:none}
 .leg-no{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--surface);font-family:var(--mono);font-size:.78rem;display:grid;place-items:center}
 .leg-grid{min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.leg-grid .c-from,.leg-grid .c-to,.leg-grid .c-arr{grid-column:span 2}
+.leg-grid .c-from,.leg-grid .c-to{grid-column:span 2}
+.leg-grid .c-maps,.leg-grid .c-arrrow{grid-column:1 / -1;min-width:0}
+.c-maps .maps{display:flex;gap:14px}
+.c-arrrow{display:flex;align-items:flex-end;gap:10px}
+.c-arrrow .c-arr{flex:1 1 0;min-width:0}
+.c-arrrow .stop-btn{flex:none;height:40px;padding:0 14px;align-self:flex-end}
 .arr{display:flex;align-items:center;gap:8px;min-height:40px;box-sizing:border-box;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:1rem}
 .arr b{font-family:var(--mono);font-weight:500;font-size:1rem;color:var(--accent);font-variant-numeric:tabular-nums}
 .dur-box{display:flex;align-items:center;gap:4px;padding-block:0;padding-right:4px}
@@ -218,7 +223,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .unit:hover{color:var(--fg);background:var(--hover)}
 @media (max-width:600px){
   .leg-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  .leg-grid .c-from,.leg-grid .c-to,.leg-grid .c-arr{grid-column:1 / -1}
+  .leg-grid .c-from,.leg-grid .c-to{grid-column:1 / -1}
   .unit-lbl{display:none}
   .leg.meet .leg-grid{grid-template-columns:minmax(0,3fr) minmax(0,2fr)} /* date needs more room than the time */
 }
@@ -963,7 +968,7 @@ function updateMaps(){
   const E = encodeURIComponent;
   TRIPS.forEach(t => {
     const box = $("legs-" + t), meet = (state.info || {})[t + "Meet"];
-    const set = (el, g, a) => { if (!el) return; el.hidden = !g; if (g) { el.querySelector('[data-map="g"]').href = g; el.querySelector('[data-map="a"]').href = a; } };
+    const set = (el, g, a) => { if (!el) return; el.hidden = !g; if (el.parentElement.classList.contains("c-maps")) el.parentElement.hidden = !g; if (g) { el.querySelector('[data-map="g"]').href = g; el.querySelector('[data-map="a"]').href = a; } };
     if (meet) { const q = (meet.place || "").trim();
       set(box.querySelector(".meet [data-maps]"), q && `https://www.google.com/maps/search/?api=1&query=${E(q)}`, `https://maps.apple.com/?q=${E(q)}`); }
     tripLegs(t).forEach((l, i) => {
@@ -1034,9 +1039,9 @@ function renderTrips(){
         <div class="f c-to"><div class="lbl-row"><span>${T("legDest")}</span><span class="chips">${toChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}"></div>
         <div class="f"><div class="lbl-row nowrap"><span>${T("time")}</span><span class="chips"><button type="button" class="unit" data-filltime hidden title="${T(i === 0 ? "fillTimeMeetTitle" : "fillTimePrevTitle")}">${T(i === 0 ? "fillTimeMeet" : "fillTimePrev")}</button></span></div><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
         <div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>
-        <div class="f c-arr"><span>${T("arrival")}</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>
+        <div class="c-maps">${MAPS(T("routeLbl"))}</div>
+        <div class="c-arrrow"><div class="f c-arr"><span>${T("arrival")}</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}</div>
       </div>
-      <div class="leg-foot">${MAPS(T("routeLbl"))}${l.stop ? "" : `<button type="button" class="unit" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}</div>
     </div>${l.stop ? stopCard(l, i) : ""}`;
     }).join("");
     setTimeout(updateCurrent);
