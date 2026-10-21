@@ -986,7 +986,12 @@ function updateMaps(){
       set(box.querySelector(".meet [data-maps]"), q && `https://www.google.com/maps/search/?api=1&query=${E(q)}`, `https://maps.apple.com/?q=${E(q)}`); }
     tripLegs(t).forEach((l, i) => {
       const a = (l.from || "").trim(), b = (l.to || "").trim(), [gm, am] = travelMode(l.mode);
-      const g = a && b ? `https://www.google.com/maps/dir/?api=1&origin=${E(a)}&destination=${E(b)}${gm ? `&travelmode=${gm}` : ""}` : "";
+      const date = (state.info || {})[t + "Date"] || "";
+      // Public transport with a known date and time: Google's unofficial path form with a departure time (may stop working; falls back to a plain route)
+      const when = gm === "transit" && /^\d{4}-\d\d-\d\d$/.test(date) && /^\d\d:\d\d$/.test(l.time || "") ? new Date(`${date}T${l.time}`).getTime() / 1000 : NaN;
+      const g = !(a && b) ? "" : Number.isFinite(when)
+        ? `https://www.google.com/maps/dir/${E(a)}/${E(b)}/data=!4m6!4m5!2m3!6e0!7e2!8j${when}!3e3`
+        : `https://www.google.com/maps/dir/?api=1&origin=${E(a)}&destination=${E(b)}${gm ? `&travelmode=${gm}` : ""}`;
       set(box.querySelector(`.leg[data-leg="${i}"] [data-maps]`), g, `https://maps.apple.com/?saddr=${E(a)}&daddr=${E(b)}${am ? `&dirflg=${am}` : ""}`);
     });
   });
@@ -1655,7 +1660,7 @@ document.addEventListener("input", e => {
   const t = k === "outDate" ? "out" : k === "retDate" ? "ret" : null, m = t && state.info[t + "Meet"];
   if (m && (!m.date || m.date === (state.info[k] || ""))) { m.date = e.target.value; const d = $(`meet-${t}-date`); if (d) d.value = m.date; }
   state.info[k] = e.target.value;
-  save(); updateCountdown(); updateButtons();
+  save(); updateCountdown(); updateButtons(); if (t) updateMaps();
 });
 
 // Per section: uncheck all (entries stay) and clear all (with confirmation)
