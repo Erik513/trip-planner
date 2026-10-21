@@ -59,6 +59,7 @@ header .sub{display:block}
 h2{font-family:var(--display);font-weight:600;font-size:1.35rem;margin:0 0 4px}
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
 .count{font-family:var(--mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.count b{color:var(--accent);font-weight:inherit}   /* times in a summary line: green only, same weight as the rest */
 #countdown{color:var(--accent);font-weight:600}   /* the trip countdown stands out in green */
 
 .todos{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
@@ -662,7 +663,7 @@ const I18N = {
     fillPrev: "Vorheriges Ziel", fillPrevTitle: "Ziel der vorherigen Etappe als Start übernehmen", fillDestEnd: "Zieladresse als Ziel übernehmen",
     legsEmptyOut: "Noch keine Etappe. Z. B. von zu Hause zum Bahnhof.", legsEmptyRet: "Noch keine Etappe. Z. B. von der Unterkunft zum Bahnhof.",
     approx: "ca.", daySg: "Tag", dayPl: "Tage", enterTimeDur: "Uhrzeit und Dauer eintragen",
-    totalApprox: "Gesamt ca. {x}", tripRange: "{s} - ca. {a} ({t})", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
+    totalApprox: "Gesamt ca. {x}", tripRange: "{s} <b>-</b> ca. {a} ({t})", arrivalApprox: "Ankunft ca. {x}", hm: "{h} Std {m} Min", hOnly: "{h} Std", mOnly: "{m} Min",
     cdDays: "In {n} Tagen", cdTomorrow: "Morgen", cdToday: "Heute", cdBon: "Gute Reise!", cdDayOf: "Tag {d} von {n}", cdNightLeft: "noch {n} Nacht", cdNightsLeft: "noch {n} Nächte", cdBackToday: "Heute zurück", nightSg: "Nacht", nightPl: "Nächte",
     exportTitle: "Reise-Infos exportieren", qrShow: "QR-Code", qrHint: "Mit der Kamera eines anderen Geräts scannen – der Planer öffnet sich mit diesen Reise-Infos.", qrTooLong: "Zu viele Daten für einen QR-Code",
     exportHint: "Schick diesen Code an deine Mitreisenden. Sie fügen ihn in ihrer Liste über „Importieren“ ein. Abgehakte Etappen werden nicht mitgeschickt.",
@@ -723,7 +724,7 @@ const I18N = {
     fillPrev: "Previous destination", fillPrevTitle: "Use previous segment's destination as start", fillDestEnd: "Use address as destination",
     legsEmptyOut: "No segments yet. E.g. from home to the station.", legsEmptyRet: "No segments yet. E.g. from the accommodation to the station.",
     approx: "approx.", daySg: "day", dayPl: "days", enterTimeDur: "Enter time and duration",
-    totalApprox: "Total approx. {x}", tripRange: "{s} - approx. {a} ({t})", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
+    totalApprox: "Total approx. {x}", tripRange: "{s} <b>-</b> approx. {a} ({t})", arrivalApprox: "Arrival approx. {x}", hm: "{h} h {m} min", hOnly: "{h} h", mOnly: "{m} min",
     cdDays: "In {n} days", cdTomorrow: "Tomorrow", cdToday: "Today", cdBon: "Bon voyage!", cdDayOf: "Day {d} of {n}", cdNightLeft: "{n} night left", cdNightsLeft: "{n} nights left", cdBackToday: "Back today", nightSg: "night", nightPl: "nights",
     exportTitle: "Export trip info", qrShow: "QR code", qrHint: "Scan with the camera of another device – the planner opens with this trip info.", qrTooLong: "Too much data for a QR code",
     exportHint: "Send this code to your fellow travellers. They paste it into their list via “Import”. Checked-off segments are not included.",
@@ -1376,7 +1377,7 @@ function updateLegSummary(){
       if (l.stop) {
         if (l.stop.until) { let u = toMin(l.stop.until); if (arr !== null) while (u < arr) u += 1440; prev = u; }
         const wEl = document.getElementById(`stop-${t}-${i}-wait`);
-        if (wEl) { wEl.hidden = !l.stop.until; if (l.stop.until) wEl.innerHTML = `${T("departApprox", {x: `<b>${l.stop.until}</b>`})}`; }
+        if (wEl) { wEl.hidden = !l.stop.until; if (l.stop.until) wEl.innerHTML = `${T("departApprox", {x: `<b>${esc(l.stop.until)}</b>`})}`; }
       }
       if (el) {
         el.hidden = arr === null;
@@ -1386,17 +1387,17 @@ function updateLegSummary(){
     const total = legs.reduce((s, l) => s + dur(l), 0);
     const fmt = mins => { const hh = Math.floor(mins / 60), mm = mins % 60; return hh && mm ? T("hm", {h: hh, m: mm}) : hh ? T("hOnly", {h: hh}) : T("mOnly", {m: mm}); };
     const out = [];
-    const startT = legs.length && legs[0].time ? legs[0].time : "";
+    const startT = legs.length && /^\d{1,2}:\d{2}$/.test(legs[0].time || "") ? legs[0].time : "";   // only a real time ends up in the HTML below
     if (startT && lastArr !== null) {
       // "10:40 - ca. 14:28 (3 Std 48 Min)": departure of the first segment, arrival of the last one and the time in between (stopovers included)
       let el = lastArr - toMin(startT); while (el < 0) el += 1440;
       const f = fmtT(lastArr);
-      out.push(T("tripRange", {s: startT, a: f.t + plusDays(f.days), t: fmt(el)}));
+      out.push(T("tripRange", {s: `<b>${startT}</b>`, a: `<b>${f.t}</b>` + plusDays(f.days), t: fmt(el)}));
     } else {
       if (total > 0) out.push(T("totalApprox", {x: fmt(total)}));
-      if (legs.length && lastArr !== null) { const f = fmtT(lastArr); out.push(T("arrivalApprox", {x: f.t + plusDays(f.days)})); }
+      if (legs.length && lastArr !== null) { const f = fmtT(lastArr); out.push(T("arrivalApprox", {x: `<b>${f.t}</b>` + plusDays(f.days)})); }
     }
-    $("sum-" + t).textContent = out.join(" · ");
+    $("sum-" + t).innerHTML = out.join(" · ");   // only generated texts (times in <b>), nothing typed by the user
   });
 }
 // Duration: digits and one colon only; on a numeric keypad (no colon) the colon is inserted before the last two digits

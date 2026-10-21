@@ -106,6 +106,14 @@ async function test(name, fn){
     eq(ev('document.getElementById("sum-ret").textContent'), "Gesamt ca. 2 Std", "no start time: the old wording");
   });
 
+  await test("summary and stopover texts never put imported text into the page as HTML", async () => {
+    await load();
+    set('state.info = {outLegs: [{from: "A", to: "B", mode: "Train", time: "<img src=x onerror=window.__pwn=1>", dur: "2:00", stop: {place: "H", from: "10:00", until: "<img src=x onerror=window.__pwn=1>"}}, {from: "B", to: "C", mode: "Car", time: "13:00", dur: "1:00"}], retLegs: []}');
+    await sleep(100);
+    ok(!w.__pwn, "no injected element ran");
+    ok(!ev('document.querySelector("#legs-out img, #sum-out img")'), "no injected element");
+  });
+
   await test("old export codes without the meeting duration still load", async () => {
     await load();
     const o = ev('unpack({hm: ["Hbf", "", "08:00"], l: [["A", "B"]]})');
