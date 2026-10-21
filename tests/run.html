@@ -99,6 +99,21 @@ async function test(name, fn){
     ok(!ev('document.querySelector("#qrImg svg")'), "no SVG for too much data");
   });
 
+  await test("trip summary: start - arrival (duration)", async () => {
+    await load();
+    set('state.info = {outLegs: [{from: "A", to: "B", mode: "Train", time: "10:40", dur: "2:00"}, {from: "B", to: "C", mode: "Train", time: "13:00", dur: "1:28"}], retLegs: [{from: "C", to: "A", mode: "Car", time: "", dur: "2:00"}]}');
+    eq(ev('document.getElementById("sum-out").textContent'), "10:40 - ca. 14:28 (3 Std 48 Min)");
+    eq(ev('document.getElementById("sum-ret").textContent'), "Gesamt ca. 2 Std", "no start time: the old wording");
+  });
+
+  await test("summary and stopover texts never put imported text into the page as HTML", async () => {
+    await load();
+    set('state.info = {outLegs: [{from: "A", to: "B", mode: "Train", time: "<img src=x onerror=window.__pwn=1>", dur: "2:00", stop: {place: "H", from: "10:00", until: "<img src=x onerror=window.__pwn=1>"}}, {from: "B", to: "C", mode: "Car", time: "13:00", dur: "1:00"}], retLegs: []}');
+    await sleep(100);
+    ok(!w.__pwn, "no injected element ran");
+    ok(!ev('document.querySelector("#legs-out img, #sum-out img")'), "no injected element");
+  });
+
   await test("old export codes without the meeting duration still load", async () => {
     await load();
     const o = ev('unpack({hm: ["Hbf", "", "08:00"], l: [["A", "B"]]})');
