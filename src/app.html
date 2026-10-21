@@ -49,7 +49,7 @@ input[type=checkbox]:checked::after{opacity:1}
 @media (prefers-reduced-motion:reduce){input[type=checkbox]{transition:none}}
 .is-done .txt{color:var(--done);text-decoration:line-through}
 .edit{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;width:100%;min-width:0}
-textarea.edit{display:block;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}
+textarea.edit{display:block;box-sizing:border-box;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}   /* border-box: autoGrow() sets the full height */
 .edit:hover{border-bottom-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .edit:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--fg)}
 td.q .edit{font-family:var(--mono);color:var(--muted);width:3ch;text-align:right}
@@ -83,6 +83,8 @@ tr.cat .chandle{flex:none;color:color-mix(in srgb, var(--fg) 55%, var(--accent-s
 tr.newcat td{padding:8px}
 .add-cat{width:100%;font:inherit;font-weight:600;color:var(--accent);background:transparent;border:1.5px dashed var(--line);border-radius:8px;padding:8px;cursor:pointer;transition:background .15s}
 .add-cat:hover{background:var(--hover)}
+.newcat-row{display:flex;gap:8px;align-items:stretch}
+.newcat-row .add-cat{flex:1;width:auto}
 .add-item{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--accent);font:inherit;font-size:1.15rem;font-weight:600;line-height:1;cursor:pointer}
 .add-item:hover{background:var(--hover)}
 .list-tabs{display:flex;align-items:center;gap:6px;margin-bottom:10px}
@@ -90,13 +92,15 @@ tr.newcat td{padding:8px}
 .list-tabs .tab:hover{color:var(--fg);background:var(--hover)}
 .list-tabs .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .tab-count{font-family:var(--mono);font-size:.78rem;opacity:.85;font-variant-numeric:tabular-nums}
-.list-tabs .add-item{margin-left:auto}
 tr.cat .cat-row .edit{font-family:var(--display);font-weight:600;font-size:1rem;flex:1}
 tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .ghost{font:inherit;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:8px 14px;cursor:pointer}
 .ghost:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .ghost[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
+.list-actions{justify-content:flex-start;align-items:center}
+.list-actions .add-item{margin:0;width:32px;height:30px}
+.list-actions .ghost.sm{height:30px;box-sizing:border-box}
 .info-grid{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
 .grp{padding-block:12px}
 .grp:first-child{padding-top:2px}
@@ -201,7 +205,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .chips{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .lbl-row.nowrap{flex-wrap:nowrap}
 /* every label row in a leg card is as tall as one that holds a chip, so neighbouring fields line up */
-.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{display:flex;align-items:center;min-height:22px}
+.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{display:flex;align-items:flex-end;min-height:22px}
 .leg.stop{border-style:dashed}
 .leg.stop .leg-no{background:var(--muted);font-weight:700}
 .stop-wait{font-size:.85rem;color:var(--muted)}
@@ -214,12 +218,19 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .c-meetadd{display:flex;align-items:flex-end}
 .c-meetadd .stop-btn{width:100%;height:40px;padding:0 10px}
 /* the "add" buttons inside a card: a light accent fill, readable on the tinted current card too */
+.stop .c-arrrow{grid-column:auto}
 .c-meetadd .stop-btn,.c-arrrow .stop-btn{color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
 .c-meetadd .stop-btn:hover,.c-arrrow .stop-btn:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
-.leg-grid .c-arrrow{grid-column:span 2;min-width:0}
+.leg-grid .c-arrrow{grid-column:1 / -1;min-width:0}
 .c-durrow{display:flex;align-items:flex-end;gap:10px;min-width:0}
 .c-durrow > .f{flex:1 1 0;min-width:0}
 .map-pick{position:relative;flex:none}
+.lbl-act{display:flex;align-items:center;height:32px}
+.lbl-act .map-pick{display:flex}
+.grp-acts{display:flex;gap:8px;align-items:center;margin-left:auto}
+.lbl-btn,.lbl-act .map-btn{box-sizing:border-box;display:inline-grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);cursor:pointer}
+.lbl-btn:hover,.lbl-act .map-btn:hover{background:var(--hover)}
+.lbl-act .map-pop{left:auto;right:0}
 .map-btn{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--accent);cursor:pointer}
 .map-btn:hover{background:var(--hover)}
 .map-btn[aria-expanded="true"]{border-color:var(--accent)}
@@ -227,9 +238,9 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .map-pop a{padding:9px 12px;border-radius:6px;color:var(--fg);font-weight:600;font-size:.95rem;text-decoration:none}
 .map-pop a:hover{background:var(--hover)}
 .map-pop a::after{content:" ↗";color:var(--accent)}
-.c-arrrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:10px}
-.c-arrrow .arr{grid-column:1 / -1;order:2;text-align:right}   /* buttons on top, the arrival text bottom right */
-.c-arrrow .stop-btn{height:40px;padding:0 10px;min-width:0}
+.c-arrrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}   /* buttons left, the arrival text right (own line on phones) */
+.c-arrrow .stop-btn{flex:0 0 170px;height:40px;padding:0 10px;min-width:0}
+.c-arrrow .arr,.c-arrrow .stop-wait{margin-left:auto;order:2;text-align:right}
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
 .arr{color:var(--fg);font-size:.8rem;align-self:end}   /* plain text, only the time is accented */
@@ -245,6 +256,8 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 @media (max-width:600px){
   .leg-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .leg-grid .c-from,.leg-grid .c-to{grid-column:1 / -1}
+  .c-arrrow .stop-btn{flex:0 0 calc(50% - 5px)}
+  .c-arrrow .arr{flex:1 1 100%;order:2}
   .unit-lbl{display:none}
 }
 .leg .fld{background:var(--surface)}
@@ -269,7 +282,8 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .opt[aria-selected="true"]{background:var(--accent);color:var(--surface)}
 .tfoot{display:flex;justify-content:space-between;gap:6px;border-top:1px solid var(--line);padding-top:6px}
 .tdone{font:inherit;font-size:.8rem;font-weight:600;border:0;border-radius:6px;padding:3px 12px;background:var(--accent);color:var(--surface);cursor:pointer}
-.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}   /* label to box */
+.f > span:first-child,.f > .lbl-row > span:first-child,.f > label > span:first-child{padding-left:6px}   /* labels sit slightly inside the box edge */
 .f.wide{grid-column:1/-1}
 .f span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .fld{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%;box-sizing:border-box}
@@ -362,6 +376,8 @@ td.x{width:40px;text-align:right}
   .mode-opts .opt{padding-top:12px;padding-bottom:12px}
   .unit{padding:7px 10px}
   .map-btn{width:40px;height:40px}
+  .lbl-btn,.lbl-act .map-btn{width:42px;height:42px}
+  .lbl-act{height:42px}
   .map-pop a{padding:12px 14px}
   .grp-head .toggle{padding:8px 0}
   .opt{padding:10px 16px}
@@ -408,10 +424,10 @@ td.x{width:40px;text-align:right}
       <div class="share-foot"><span class="share-msg" id="shareMsg" aria-live="polite"></span><button type="button" class="ghost sm" id="shareCopy" data-i18n="copy">Kopieren</button><button type="button" class="tdone" id="importApply" data-i18n="apply">Übernehmen</button></div>
     </div>
     <div class="info-grid" id="infoGrid">
-      <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3></div><div class="sub">
-        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span><span class="maps" id="wx" hidden><a target="_blank" rel="noopener" id="wxLink" data-i18n="weather">Wetter</a></span></div><input class="fld" id="i-destination" data-info="destination" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
+      <div class="grp" data-col="trip"><div class="grp-head"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="grpTrip">Reise &amp; Unterkunft</span></button></h3><span class="grp-acts"><span class="lbl-act" id="wx" hidden><a class="lbl-btn" target="_blank" rel="noopener" id="wxLink" data-i18n-attr="title:weather;aria-label:weather"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M2.2 3.2l1.1 1.1M1.5 8H3M13.8 3.2l-1.1 1.1"/><path d="M7 20h10a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 11.5 4.25 4.25 0 0 0 7 20z"/></svg></a></span><span class="lbl-act" id="addrActs"></span></span></div><div class="sub">
+        <div class="f"><div class="lbl-row"><span data-i18n="destination">Reisezielort</span></div><input class="fld" id="i-destination" data-info="destination" type="text" data-i18n-attr="aria-label:destination" aria-label="Reisezielort"></div>
         <label class="f"><span data-i18n="lodging">Unterkunft</span><input class="fld" id="i-lodging" data-info="lodging" type="text"></label>
-        <label class="f wide"><span data-i18n="address">Zieladresse</span><input class="fld" id="i-address" data-info="address" type="text"></label>
+        <label class="f wide"><div class="lbl-row"><span data-i18n="address">Zieladresse</span></div><input class="fld" id="i-address" data-info="address" type="text"></label>
         <div class="f"><span data-i18n="checkin">Check-in</span><div class="pair"><input class="fld" id="i-checkin" data-info="checkin" type="date" data-i18n-attr="aria-label:checkinDate" aria-label="Check-in Datum"><input class="fld" id="i-checkin-time" data-info="checkinTime" type="time" data-i18n-attr="aria-label:checkinTime" aria-label="Check-in Uhrzeit"></div></div>
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
         <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld auto-grow" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
@@ -428,18 +444,18 @@ td.x{width:40px;text-align:right}
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listClear" data-clear="todos"></button></div></div></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2></div></div>
     <div class="list-tabs" role="tablist">
       <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
       <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
-      <button type="button" class="add-item" id="addEntry" data-i18n-attr="aria-label:addItem;title:addItem" aria-label="Eintrag hinzufügen" title="Eintrag hinzufügen">+</button>
     </div>
     <ul class="todos" id="todoList"></ul>
     <ul class="todos" id="shopList" hidden></ul>
+    <div class="actions list-actions"><button type="button" class="add-item" id="addEntry" data-i18n-attr="aria-label:addItem;title:addItem" aria-label="Eintrag hinzufügen" title="Eintrag hinzufügen">+</button><button type="button" class="ghost sm" id="listClear" data-clear="todos"></button></div>
   </section>
 
   <section data-col="pack">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest" data-i18n-attr="title:suggestTitle;aria-label:suggestTitle">+ Vorschläge</button><button type="button" class="ghost sm" data-clear="pack"></button></div></div><span class="count" id="packCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest" data-i18n-attr="title:suggestTitle;aria-label:suggestTitle">+ Vorschläge</button></div></div><span class="count" id="packCount"></span></div>
     <div class="table-box">
       <table>
         <colgroup><col class="cc"><col><col class="cq"><col class="cx"></colgroup>
@@ -778,7 +794,7 @@ function render(){
     });
   });
   if (!state.cats.length) rows = `<tr class="ph"><td colspan="4" class="empty">${T("packEmpty")}</td></tr>`;
-  rows += `<tr class="newcat"><td colspan="4"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button></td></tr>`;
+  rows += `<tr class="newcat"><td colspan="4"><div class="newcat-row"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button><button type="button" class="ghost sm" data-clear="pack"></button></div></td></tr>`;
   $("packBody").innerHTML = rows;
   $("packCount").textContent = T("packCount", {d: pd, n: pt});
 
@@ -889,10 +905,10 @@ function updateButtons(){
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
-  // No stopover button once the leg's destination is the trip's destination address (nothing comes after it)
+  // No stopover / add-leg button once the leg's destination is the trip's destination address (nothing comes after it)
   const addr = (info.address || "").trim().toLowerCase();
-  document.querySelectorAll("[data-addstop]").forEach(b => {
-    const l = tripLegs(b.dataset.trip)[+b.dataset.addstop], to = ((l && l.to) || "").trim().toLowerCase();
+  document.querySelectorAll("[data-addstop],[data-addleg][data-after]").forEach(b => {
+    const l = tripLegs(b.dataset.trip || b.dataset.addleg)[+(b.dataset.addstop !== undefined ? b.dataset.addstop : b.dataset.after)], to = ((l && l.to) || "").trim().toLowerCase();
     b.hidden = !!addr && to === addr;
   });
   // The time chip: only when the predecessor has a time to take over and the leg does not have exactly that time yet
@@ -908,7 +924,8 @@ function updateButtons(){
   });
   set("#fromOut", !tripLegs("out").length);
   const dest = (info.destination || "").trim();
-  $("wx").hidden = !dest;
+  // Weather: only once the field has been left (not while typing)
+  $("wx").hidden = !dest || document.activeElement === $("i-destination");
   if (dest) $("wxLink").href = lang === "en" ? `https://www.timeanddate.com/weather/?query=${encodeURIComponent(dest)}` : `https://www.wetter.com/suche/?q=${encodeURIComponent(dest)}`;
   document.querySelectorAll(".sec-btns").forEach(c => { c.hidden = ![...c.children].some(b => !b.hidden); });
 }
@@ -1007,11 +1024,13 @@ function travelMode(mode){
   return ["", ""];
 }
 function updateMaps(){
-  const E = encodeURIComponent;
+  const E = encodeURIComponent, act = document.activeElement;
+  // The pin appears only once the place/route fields have been left, not while typing in them
+  const typing = el => { const g = el.closest(".leg"); return !!act && (act === $("i-address") || (g && g.contains(act) && act.matches('[data-legf="from"],[data-legf="to"],[data-meetf="place"]'))); };
   TRIPS.forEach(t => {
     const box = $("legs-" + t), meet = (state.info || {})[t + "Meet"];
     // links: {g: Google, a: Apple, w: Waze, db: Deutsche Bahn}; an empty value hides that entry (the whole menu when Google has none)
-    const set = (el, links) => { if (!el) return; el.hidden = !links.g; ["g", "a", "w", "db"].forEach(k => { const x = el.querySelector(`[data-map="${k}"]`); x.hidden = !links[k]; if (links[k]) x.href = links[k]; }); };
+    const set = (el, links) => { if (!el) return; el.hidden = !links.g || typing(el); ["g", "a", "w", "db"].forEach(k => { const x = el.querySelector(`[data-map="${k}"]`); x.hidden = !links[k]; if (links[k]) x.href = links[k]; }); };
     if (meet) { const q = (meet.place || "").trim();
       set(box.querySelector(".meet [data-maps]"), q ? {g: `https://www.google.com/maps/search/?api=1&query=${E(q)}`, a: `https://maps.apple.com/?q=${E(q)}`, w: `https://waze.com/ul?q=${E(q)}&navigate=yes`} : {}); }
     tripLegs(t).forEach((l, i) => {
@@ -1032,6 +1051,16 @@ function updateMaps(){
       });
     });
   });
+  // Destination address of the whole trip (menu next to its label)
+  const acts = $("addrActs");
+  if (!acts.firstChild || acts.dataset.lang !== lang) { acts.innerHTML = MAPPICK("mapOpenPlace"); acts.dataset.lang = lang; }
+  const addrQ = ((state.info || {}).address || "").trim(), ael = acts.firstElementChild;
+  ael.hidden = !addrQ || typing(ael);
+  if (addrQ) {
+    ael.querySelector('[data-map="g"]').href = `https://www.google.com/maps/search/?api=1&query=${E(addrQ)}`;
+    ael.querySelector('[data-map="a"]').href = `https://maps.apple.com/?q=${E(addrQ)}`;
+    const w = ael.querySelector('[data-map="w"]'); w.href = `https://waze.com/ul?q=${E(addrQ)}&navigate=yes`; w.hidden = false;
+  }
 }
 function renderTrips(){
   TRIPS.forEach(t => {
@@ -1068,7 +1097,7 @@ function renderTrips(){
         <div class="f"><span>${T("stopFrom")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="from">${pickInner(`stop-${t}-${i}-from`, T("stopFromLabel"))}</div></div>
         <div class="f"><span>${T("stopUntil")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="until">${pickInner(`stop-${t}-${i}-until`, T("stopUntilLabel"))}</div></div>
       </div>
-      <div class="stop-wait" id="stop-${t}-${i}-wait"></div>
+      <div class="c-arrrow"><button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button><div class="stop-wait" id="stop-${t}-${i}-wait"></div></div>
     </div>`;
     html += legs.map((l, i) => {
       const fromChips = i === 0
@@ -1707,7 +1736,7 @@ document.addEventListener("input", e => {
   const t = k === "outDate" ? "out" : k === "retDate" ? "ret" : null, m = t && state.info[t + "Meet"];
   if (m) m.date = e.target.value;   // the meeting point always takes place on the trip date
   state.info[k] = e.target.value;
-  save(); updateCountdown(); updateButtons(); if (t) updateMaps();
+  save(); updateCountdown(); updateButtons(); updateMaps();
 });
 
 // Per section: clear all (with confirmation)
@@ -2088,5 +2117,7 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.
     first = false;
   }, () => setSync("syncLocal"));
 })();
+document.addEventListener("focusin", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place)$/.test(e.target.id || "")) { updateMaps(); updateButtons(); } });
+document.addEventListener("focusout", e => { if (/^(i-address|i-destination|leg-.*-(from|to)|meet-.*-place)$/.test(e.target.id || "")) setTimeout(() => { updateMaps(); updateButtons(); }); });
 document.addEventListener("focusout", () => { if (needsRender) { needsRender = false; setTimeout(render, 0); } });
 </script>

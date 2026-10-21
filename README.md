@@ -9,15 +9,15 @@ It works offline, without an account and without a server.
 
 ## Sections
 
-1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
+1. **Trip info** – trip & accommodation (destination with a weather icon button (appears once the field has been left), accommodation, address with a map-pin menu (also only once the field has been left), check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
-2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
-   to the visible list and focuses it (an entry left empty is removed again); the header buttons act on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
+2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button below the list (next to the trash button) appends an empty entry
+   to the visible list and focuses it (an entry left empty is removed again); the trash button below the list acts on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
    Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
 3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Hand luggage, Food, Misc);
    "Load suggestions" adds typical items without quantities.
    The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
-   The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).
+   The last table row "+ New category" (with the trash button for the whole list next to it) appends an empty category and focuses its name (a category left without name and items is removed again).
    Items can be dragged within and across categories; whole categories can be reordered with the handle at the left of the category row
    (drag, or Alt + arrow keys) – the items move with their category.
 
