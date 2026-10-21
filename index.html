@@ -235,14 +235,10 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .leg-no{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--surface);font-family:var(--mono);font-size:.78rem;display:grid;place-items:center}
 .leg-grid{min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .leg-grid .c-from,.leg-grid .c-to{grid-column:span 2}
-.leg.meet .leg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.leg.meet .c-placerow{grid-column:1 / -1}
-.c-meetadd{display:flex;align-items:flex-end}
-.c-meetadd .stop-btn{width:100%;height:40px;padding:0 10px}
+.leg-grid .c-wide{grid-column:1 / -1}
 /* the "add" buttons inside a card: a light accent fill, readable on the tinted current card too */
-.stop .c-arrrow{grid-column:auto}
-.c-meetadd .stop-btn,.c-arrrow .stop-btn{color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
-.c-meetadd .stop-btn:hover,.c-arrrow .stop-btn:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+.c-arrrow .stop-btn{color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.c-arrrow .stop-btn:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
 .leg-grid .c-arrrow{grid-column:1 / -1;min-width:0}
 .c-durrow{display:flex;align-items:flex-end;gap:10px;min-width:0}
 .c-durrow > .f{flex:1 1 0;min-width:0}
@@ -264,14 +260,13 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .c-arrrow .stop-btn{flex:0 0 170px;height:40px;padding:0 10px;min-width:0}
 .c-arrrow .arr,.c-arrrow .stop-wait{margin-left:auto;order:2;text-align:right}
 .c-arrrow [data-addleg]{margin-left:auto}   /* + Leg is always on the right, + Stopover on the left */
-.stop .c-arrrow .stop-wait{flex:1 1 100%}   /* waiting time bottom right, like the arrival in a leg */
 /* wide screens: the buttons sit in the same row as time and duration (columns 3 and 4), the arrival text below on the right */
 @media (min-width:601px){
-  .leg:not(.stop) .c-arrrow{display:contents}
-  .leg:not(.stop) .c-arrrow .stop-btn{align-self:end;flex:none}
-  .leg:not(.stop) .c-arrrow [data-addstop]{grid-column:3}
-  .leg:not(.stop) .c-arrrow [data-addleg]{grid-column:4}
-  .leg:not(.stop) .c-arrrow .arr{grid-column:1 / -1}
+  .leg .c-arrrow{display:contents}
+  .leg .c-arrrow .stop-btn{align-self:end;flex:none}
+  .leg .c-arrrow [data-addstop]{grid-column:3}
+  .leg .c-arrrow [data-addleg]{grid-column:4}
+  .leg .c-arrrow .arr{grid-column:1 / -1}
 }
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
@@ -626,7 +621,7 @@ const I18N = {
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
     shareFail: "Nicht möglich", rescueTitle: "Die gespeicherten Daten konnten nicht geladen werden", rescueText: "Kopiere den Text unten zur Sicherheit, bevor du neu startest.", rescueReset: "Neu starten", rescueConfirm: "Gespeicherte Daten verwerfen und neu starten?", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
-    stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
+    stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", departApprox: "Abfahrt ca. {x}", stopDurLabel: "Zwischenstopp Dauer", meetDurLabel: "Treffpunkt Dauer", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
     installIos1: "Öffne die Seite in Safari.", installIos2: "Tippe auf „Teilen“", installIos3: "Tippe auf „Zum Home-Bildschirm“.", installIosTip: "Nur als App auf dem Home-Bildschirm bleiben deine Daten dauerhaft gespeichert.",
@@ -685,7 +680,7 @@ const I18N = {
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
     shareFail: "Not possible", rescueTitle: "The saved data could not be loaded", rescueText: "Copy the text below for safety before you start over.", rescueReset: "Start over", rescueConfirm: "Discard the saved data and start over?", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
-    stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
+    stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", departApprox: "Departure approx. {x}", stopDurLabel: "Stopover duration", meetDurLabel: "Meeting point duration", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
     installIos1: "Open this page in Safari.", installIos2: "Tap “Share”", installIos3: "Tap “Add to Home Screen”.", installIosTip: "Only as an app on your Home Screen does your data stay stored for good.",
@@ -1032,13 +1027,9 @@ function setT(p, v){
   state.info = state.info || {};
   if (p.dataset.meet) { const m = state.info[p.dataset.meet + "Meet"]; if (m) m.time = v; }
   else if (p.dataset.stop) {
-    const legs = tripLegs(p.dataset.trip), l = legs[p.dataset.leg]; if (!l || !l.stop) return;
-    const prevVal = l.stop[p.dataset.stop]; l.stop[p.dataset.stop] = v;
-    // "until" is the next leg's departure: it fills (and then follows) the next leg's time as long as that was not set by hand
-    const next = legs[+p.dataset.leg + 1];
-    // "set by hand" = anything but empty, the previous "until", the stopover's "from" or the leg's rounded arrival (the values it gets automatically)
-    const a = arrivals(p.dataset.trip)[+p.dataset.leg], auto = a != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(a / 5) * 5) : "";
-    if (p.dataset.stop === "until" && v && next && (!next.time || next.time === prevVal || next.time === l.stop.from || next.time === auto)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
+    const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (!l || !l.stop) return;
+    if (p.dataset.stop === "until") setStopUntil(p.dataset.trip, +p.dataset.leg, v);
+    else { l.stop[p.dataset.stop] = v; recalcStop(p.dataset.trip, +p.dataset.leg); }   // "from" moves "until" along (same duration)
   }
   else if (p.dataset.leg !== undefined) { const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (l) l.time = v; }
   else state.info[p.dataset.time] = v;
@@ -1158,9 +1149,10 @@ function renderTrips(){
         <button class="del" type="button" data-delmeet="${t}" aria-label="${T("removeMeet")}" title="${T("removeMeet")}">×</button>
       </div>
       <div class="leg-grid">
-        <div class="c-durrow c-placerow"><div class="f"><span>${T("place")}</span><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="f c-wide"><span>${T("place")}</span><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>
         <div class="f"><span>${T("time")}</span><div class="tpick" data-meet="${t}">${pickInner(`meet-${t}-time`, T("meetTime"))}</div></div>
-        <div class="c-meetadd"><button type="button" class="unit stop-btn" data-addleg="${t}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
+        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" inputmode="numeric" maxlength="6" placeholder="0:00" autocomplete="off" id="meet-${t}-dur" data-meetf="dur" value="${esc(durOf(meet.dur))}" aria-label="${T("meetDurLabel")}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="c-arrrow"><div class="arr" id="meet-${t}-dep" aria-live="polite" hidden></div><button type="button" class="unit stop-btn" data-addleg="${t}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
     </div>`;
     const stopCard = (l, i) => `
@@ -1172,11 +1164,11 @@ function renderTrips(){
         <button class="del" type="button" data-delstop="${i}" aria-label="${T("removeStop")}" title="${T("removeStop")}">×</button>
       </div>
       <div class="leg-grid">
-        <div class="f c-from"><span>${T("place")}</span><input class="fld" type="text" id="stop-${t}-${i}-place" data-stopf="place" value="${esc(l.stop.place || "")}" aria-label="${T("stopPlace")}"></div>
-        <div class="f"><span>${T("stopFrom")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="from">${pickInner(`stop-${t}-${i}-from`, T("stopFromLabel"))}</div></div>
-        <div class="c-durrow"><div class="f"><span>${T("stopUntil")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="until">${pickInner(`stop-${t}-${i}-until`, T("stopUntilLabel"))}</div></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="f c-wide"><span>${T("place")}</span><input class="fld" type="text" id="stop-${t}-${i}-place" data-stopf="place" value="${esc(l.stop.place || "")}" aria-label="${T("stopPlace")}"></div>
+        <div class="f"><span>${T("time")}</span><div class="tpick" data-trip="${t}" data-leg="${i}" data-stop="from">${pickInner(`stop-${t}-${i}-from`, T("stopFromLabel"))}</div></div>
+        <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" inputmode="numeric" maxlength="6" placeholder="0:00" autocomplete="off" id="stop-${t}-${i}-dur" data-stopf="dur" value="${esc(stopDurText(l.stop))}" aria-label="${T("stopDurLabel")}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenPlace")}</div>
+        <div class="c-arrrow"><div class="arr" id="stop-${t}-${i}-wait" aria-live="polite" hidden></div><button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
-      <div class="c-arrrow"><button type="button" class="unit stop-btn" data-addleg="${t}" data-after="${i}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button><div class="stop-wait" id="stop-${t}-${i}-wait"></div></div>
     </div>`;
     html += legs.map((l, i) => {
       const fromChips = i === 0
@@ -1222,14 +1214,40 @@ function parseDur(s, unit){
   return null;
 }
 const fmtHM = mins => `${Math.floor(mins / 60)}:${pad(mins % 60)}`;
+const durOf = v => { const m = parseDur(v); return v == null || v === "" ? "" : m === null ? String(v) : fmtHM(m); };
+const addMin = (hhmm, m) => { const [h, mi] = hhmm.split(":").map(Number), v = (((h * 60 + mi + m) % 1440) + 1440) % 1440; return `${pad(Math.floor(v / 60))}:${pad(v % 60)}`; };
+// A stopover stores its duration (`dur`); "until" is derived (from + dur). Older data only has from/until: the duration is the difference
+function stopDurText(st){
+  if (st.dur != null && st.dur !== "") return durOf(st.dur);
+  if (st.from && st.until) { let w = toMinHM(st.until) - toMinHM(st.from); if (w < 0) w += 1440; return fmtHM(w); }
+  return "";
+}
+const toMinHM = x => { const [h, m] = x.split(":").map(Number); return h * 60 + m; };
+// Meeting point: end time = time + duration (the first leg continues from it)
+const meetEnd = m => !m || !m.time ? "" : (parseDur(m.dur) ? addMin(m.time, parseDur(m.dur)) : m.time);
+// Set the stopover's "until" and let the next leg follow it as long as its time was not set by hand
+function setStopUntil(t, i, v){
+  const legs = tripLegs(t), l = legs[i]; if (!l || !l.stop) return;
+  const prevVal = l.stop.until; l.stop.until = v;
+  const next = legs[i + 1];
+  // "set by hand" = anything but empty, the previous "until", the stopover's "from" or the leg's rounded arrival (the values it gets automatically)
+  const a = arrivals(t)[i], auto = a != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(a / 5) * 5) : "";
+  if (v && next && (!next.time || next.time === prevVal || next.time === l.stop.from || next.time === auto)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
+}
+function recalcStop(t, i){
+  const l = tripLegs(t)[i], d = l && l.stop ? parseDur(l.stop.dur) : null;
+  if (l && l.stop && l.stop.from && d !== null) setStopUntil(t, i, addMin(l.stop.from, d));
+}
 function durText(l){ const m = parseDur(l.dur, l.unit); return m === null ? String(l.dur ?? "") : fmtHM(m); }
 const legOf = el => { const g = el.closest(".leg"); return g ? { t: g.dataset.trip, i: g.dataset.leg } : null; };
 document.addEventListener("focusout", e => {
-  if (!e.target.dataset || e.target.dataset.legf !== "dur") return;
-  const o = legOf(e.target), l = o && tripLegs(o.t)[o.i]; if (!l) return;
-  const m = parseDur(e.target.value, l.unit);
-  if (m !== null) { l.dur = fmtHM(m); e.target.value = l.dur; }
-  delete l.unit; save(); updateLegSummary();
+  const d = e.target.dataset; if (!d || (d.legf !== "dur" && d.stopf !== "dur" && d.meetf !== "dur")) return;
+  const g = e.target.closest(".leg"); if (!g) return;
+  const holder = d.legf ? tripLegs(g.dataset.trip)[g.dataset.leg] : d.stopf ? (tripLegs(g.dataset.trip)[g.dataset.stopof] || {}).stop : (state.info || {})[g.dataset.trip + "Meet"];
+  if (!holder) return;
+  const m = parseDur(e.target.value, holder.unit);
+  if (m !== null) { holder.dur = fmtHM(m); e.target.value = holder.dur; }
+  delete holder.unit; save(); updateLegSummary();
 });
 function updateLegSummary(){
   updateMaps();
@@ -1240,6 +1258,8 @@ function updateLegSummary(){
     const dur = l => { const m = parseDur(l.dur, l.unit); return m === null ? 0 : m; };
     // Arrival per leg: own time + duration, otherwise arrival of the previous leg (or meeting point) + duration
     let prev = meet && meet.time ? toMin(meet.time) : null, endArr = null, lastArr = null;
+    const depEl = document.getElementById(`meet-${t}-dep`), mEnd = meetEnd(meet);
+    if (depEl) { depEl.hidden = !(meet && meet.time && parseDur(meet.dur)); if (!depEl.hidden) depEl.innerHTML = T("departApprox", {x: `<b>${mEnd}</b>`}); }
     legs.forEach((l, i) => {
       const el = document.getElementById(`leg-${t}-${i}-arr`);
       const start = l.time ? toMin(l.time) : null; // only the leg's own departure time counts
@@ -1249,10 +1269,7 @@ function updateLegSummary(){
       if (l.stop) {
         if (l.stop.until) { let u = toMin(l.stop.until); if (arr !== null) while (u < arr) u += 1440; prev = u; }
         const wEl = document.getElementById(`stop-${t}-${i}-wait`);
-        if (wEl) {
-          if (l.stop.from && l.stop.until) { let wait = toMin(l.stop.until) - toMin(l.stop.from); if (wait < 0) wait += 1440; wEl.textContent = T("stopWait", {x: fmtHM(wait)}); }
-          else wEl.textContent = "";
-        }
+        if (wEl) { wEl.hidden = !l.stop.until; if (l.stop.until) wEl.innerHTML = `${T("departApprox", {x: `<b>${l.stop.until}</b>`})}`; }
       }
       if (el) {
         el.hidden = arr === null;
@@ -1275,10 +1292,10 @@ const cleanDur = v => {
 };
 document.addEventListener("input", e => {
   const d = e.target.dataset || {};
-  if (d.legf === "dur") { const c = cleanDur(e.target.value); if (c !== e.target.value) e.target.value = c; }
+  if (d.legf === "dur" || d.stopf === "dur" || d.meetf === "dur") { const c = cleanDur(e.target.value); if (c !== e.target.value) e.target.value = c; }
   if (d.legf) { const o = legOf(e.target), l = o && tripLegs(o.t)[o.i]; if (!l) return; l[d.legf] = e.target.value; }
   else if (d.meetf) { const m = state.info[e.target.closest(".leg").dataset.trip + "Meet"]; if (!m) return; m[d.meetf] = e.target.value; }
-  else if (d.stopf) { const g = e.target.closest(".leg"), l = tripLegs(g.dataset.trip)[g.dataset.stopof]; if (!l || !l.stop) return; l.stop[d.stopf] = e.target.value; }
+  else if (d.stopf) { const g = e.target.closest(".leg"), l = tripLegs(g.dataset.trip)[g.dataset.stopof]; if (!l || !l.stop) return; l.stop[d.stopf] = e.target.value; if (d.stopf === "dur") recalcStop(g.dataset.trip, +g.dataset.stopof); }
   else return;
   save(); updateLegSummary(); updateButtons();
 });
@@ -1300,7 +1317,7 @@ document.addEventListener("click", e => {
     // Start = destination of the previous leg, time = its arrival (rounded up to 5 minutes)
     const arr = arrivals(t)[k];
     const time = prev && arr != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(arr / 5) * 5) : "";
-    legs.splice(k + 1, 0, {from: prev ? ((prev.stop && prev.stop.place) || prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time: prev && prev.stop && prev.stop.until ? prev.stop.until : time, dur: "", to: ""});
+    legs.splice(k + 1, 0, {from: prev ? ((prev.stop && prev.stop.place) || prev.to || "") : (meet ? (meet.place || "") : ""), mode: "", time: prev ? (prev.stop && prev.stop.until ? prev.stop.until : time) : meetEnd(meet), dur: "", to: ""});
     save(); render();
     const i = k + 1;
     $(legs[i].from ? `leg-${t}-${i}-to` : `leg-${t}-${i}-from`).focus(); // start known: type the destination next
@@ -1512,7 +1529,7 @@ function fillValue(b){
 // Time a leg can take over from its predecessor: the meeting point's time (first leg), else the stopover's "until" or the previous leg's arrival (rounded up to 5 minutes)
 function timeFillValue(b){
   const g = b.closest(".leg"), t = g.dataset.trip, i = +g.dataset.leg;
-  if (i === 0) { const m = (state.info || {})[t + "Meet"]; return (m && m.time) || ""; }
+  if (i === 0) return meetEnd((state.info || {})[t + "Meet"]);
   const prev = tripLegs(t)[i - 1]; if (!prev) return "";
   if (prev.stop && prev.stop.until) return prev.stop.until;
   const arr = arrivals(t)[i - 1];
@@ -1545,7 +1562,7 @@ function cleanInfo(src){
   const s = v => typeof v === "string" ? v.slice(0, 2000) : "", out = {};
   if (!src || typeof src !== "object") return null;
   STR_KEYS.forEach(k => { if (s(src[k])) out[k] = s(src[k]); });
-  ["outMeet", "retMeet"].forEach(k => { const m = src[k]; if (m && typeof m === "object") out[k] = {place: s(m.place), date: s(m.date), time: s(m.time)}; });
+  ["outMeet", "retMeet"].forEach(k => { const m = src[k]; if (m && typeof m === "object") out[k] = {place: s(m.place), date: s(m.date), time: s(m.time), dur: s(m.dur)}; });
   ["outLegs", "retLegs"].forEach(k => { if (Array.isArray(src[k])) out[k] = src[k].slice(0, 50).filter(l => l && typeof l === "object").map(l => { const o = {from: s(l.from), to: s(l.to), mode: s(l.mode), time: s(l.time), dur: s(String(l.dur ?? ""))}; if (l.stop && typeof l.stop === "object") o.stop = {place: s(l.stop.place), from: s(l.stop.from), until: s(l.stop.until)}; return o; }); });
   return out;
 }
@@ -1555,8 +1572,8 @@ const trimArr = a => { while (a.length && !a[a.length - 1]) a.pop(); return a; }
 function pack(info){
   const i = cleanInfo(info) || {}, c = {};
   Object.entries(SHORT).forEach(([k, s]) => { if (i[k]) c[s] = i[k]; });
-  if (i.outMeet) c.hm = trimArr([i.outMeet.place, i.outMeet.date, i.outMeet.time]);
-  if (i.retMeet) c.rm = trimArr([i.retMeet.place, i.retMeet.date, i.retMeet.time]);
+  if (i.outMeet) c.hm = trimArr([i.outMeet.place, i.outMeet.date, i.outMeet.time, i.outMeet.dur]);
+  if (i.retMeet) c.rm = trimArr([i.retMeet.place, i.retMeet.date, i.retMeet.time, i.retMeet.dur]);
   const legArr = l => trimArr([l.from, l.to, l.mode, l.time, l.dur, l.stop && l.stop.place, l.stop && l.stop.from, l.stop && l.stop.until]); // stopover = elements 6-8
   if (i.outLegs && i.outLegs.length) c.l = i.outLegs.map(legArr);
   if (i.retLegs && i.retLegs.length) c.rl = i.retLegs.map(legArr);
@@ -1566,8 +1583,8 @@ function unpack(c){
   if (!c || typeof c !== "object") return null;
   const i = {}, leg = a => { const o = {from: a[0] || "", to: a[1] || "", mode: a[2] || "", time: a[3] || "", dur: a[4] || ""}; if (a[5] || a[6] || a[7]) o.stop = {place: a[5] || "", from: a[6] || "", until: a[7] || ""}; return o; };
   Object.entries(SHORT).forEach(([k, s]) => { if (c[s]) i[k] = c[s]; });
-  if (Array.isArray(c.hm)) i.outMeet = {place: c.hm[0] || "", date: c.hm[1] || "", time: c.hm[2] || ""};
-  if (Array.isArray(c.rm)) i.retMeet = {place: c.rm[0] || "", date: c.rm[1] || "", time: c.rm[2] || ""};
+  if (Array.isArray(c.hm)) i.outMeet = {place: c.hm[0] || "", date: c.hm[1] || "", time: c.hm[2] || "", dur: c.hm[3] || ""};
+  if (Array.isArray(c.rm)) i.retMeet = {place: c.rm[0] || "", date: c.rm[1] || "", time: c.rm[2] || "", dur: c.rm[3] || ""};
   if (Array.isArray(c.l)) i.outLegs = c.l.filter(Array.isArray).map(leg);
   if (Array.isArray(c.rl)) i.retLegs = c.rl.filter(Array.isArray).map(leg);
   return cleanInfo(i);
