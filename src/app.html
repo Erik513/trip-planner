@@ -744,8 +744,8 @@ const SUGGEST = [
   [["Gesundheit", "Health"], [[["Eigene Medikamente", "Own medication"]], [["Schmerztabletten", "Painkillers"]], [["Pflaster", "Plasters"]]]],
   [["Technik", "Tech"], [[["Handy + Ladekabel", "Phone + charging cable"]], [["Powerbank", "Power bank"]], [["Kopfhörer", "Headphones"]]]],
   [["Dokumente & Geld", "Documents & money"], [[["Personalausweis", "ID card / passport"]], [["Bankkarte & etwas Bargeld", "Bank card & some cash"]], [["Krankenkassenkarte", "Health insurance card"]], [["Buchungsbestätigung", "Booking confirmation"]], [["Führerschein", "Driver's licence"]]]],
-  [["Handgepäck", "Hand luggage"], [[["Flüssigkeiten im Klarsichtbeutel (max. 100 ml)", "Liquids in a clear bag (max. 100 ml)"]], [["Nackenkissen", "Neck pillow"]], [["Schlafmaske & Ohrstöpsel", "Sleep mask & earplugs"]], [["Wechselkleidung", "Spare clothes"]], [["Leere Trinkflasche", "Empty water bottle"]], [["Buch / E-Reader", "Book / e-reader"]]]],
   [["Lebensmittel", "Food"], [[["Snacks für die Fahrt", "Snacks for the trip"]], [["Wasserflasche / Getränke", "Water bottle / drinks"]], [["Obst", "Fruit"]], [["Brotdose / Proviant", "Lunch box / packed meal"]], [["Kaffee / Tee", "Coffee / tea"]], [["Frühstücksvorrat", "Breakfast supplies"]]]],
+  [["Handgepäck", "Hand luggage"], [[["Flüssigkeiten im Klarsichtbeutel (max. 100 ml)", "Liquids in a clear bag (max. 100 ml)"]], [["Nackenkissen", "Neck pillow"]], [["Schlafmaske & Ohrstöpsel", "Sleep mask & earplugs"]], [["Wechselkleidung", "Spare clothes"]], [["Leere Trinkflasche", "Empty water bottle"]], [["Buch / E-Reader", "Book / e-reader"]]]],
   [["Sonstiges", "Misc"], [[["Tagesrucksack", "Daypack"]], [["Beutel für Schmutzwäsche", "Bag for dirty laundry"]], [["Regenschirm", "Umbrella"]]]]
 ];
 // Transport modes for the suggestion list of the "Transport" field [de, en]
@@ -1163,7 +1163,7 @@ function migrate(s){
   // [flag, German name, English name, names it is inserted in front of]
   if (Array.isArray(s.cats)) [
     ["v2cats", "Lebensmittel", "Food", ["sonstiges", "misc"]],
-    ["v3cats", "Handgepäck", "Hand luggage", ["lebensmittel", "food", "sonstiges", "misc"]]
+    ["v3cats", "Handgepäck", "Hand luggage", ["sonstiges", "misc"]]
   ].forEach(([flag, de, en, before]) => {
     if (s[flag]) return;
     const norm = x => (x || "").trim().toLowerCase();
