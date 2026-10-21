@@ -543,7 +543,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    shareFail: "Nicht möglich", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
+    shareFail: "Nicht möglich", rescueTitle: "Die gespeicherten Daten konnten nicht geladen werden", rescueText: "Kopiere den Text unten zur Sicherheit, bevor du neu startest.", rescueReset: "Neu starten", rescueConfirm: "Gespeicherte Daten verwerfen und neu starten?", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
     stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
@@ -602,7 +602,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    shareFail: "Not possible", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
+    shareFail: "Not possible", rescueTitle: "The saved data could not be loaded", rescueText: "Copy the text below for safety before you start over.", rescueReset: "Start over", rescueConfirm: "Discard the saved data and start over?", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
     stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
@@ -669,14 +669,31 @@ const defaults = {
 
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY)); } catch(e) { state = null; }
-if (!state || !state.todos || !state.cats) state = structuredClone(defaults);
+if (!state || typeof state !== "object" || !state.todos || !state.cats) state = structuredClone(defaults);
+// Bring a stored state into the expected shape so that one broken entry cannot take the whole page down
+function sanitize(st){
+  const arr = v => Array.isArray(v) ? v : [], obj = v => v && typeof v === "object" && !Array.isArray(v);
+  const entry = x => ({...x, t: String(x.t == null ? "" : x.t), d: !!x.d});
+  st.todos = arr(st.todos).filter(obj).map(entry);
+  st.shop = arr(st.shop).filter(obj).map(entry);
+  st.cats = arr(st.cats).filter(obj).map(c => ({...c, name: String(c.name == null ? "" : c.name), items: arr(c.items).filter(obj).map(entry)}));
+  if (!obj(st.info)) st.info = {};
+  ["outLegs", "retLegs"].forEach(k => { if (k in st.info) st.info[k] = arr(st.info[k]).filter(obj).map(l => ({...l, stop: obj(l.stop) ? l.stop : undefined})); });
+  if (!obj(st.collapsed)) delete st.collapsed;
+  return st;
+}
+try { sanitize(state); } catch(e) { console.error(e); state = structuredClone(defaults); }
 // Saving: immediately to localStorage, plus automatically to the Artifact database (across devices)
 let synced = null; // last known state in the database (for partial updates)
 let dbRef = null, writing = false, dirty = false, timer = null, needsRender = false;
 let syncKey = "";
 const setSync = k => { syncKey = k; const el = document.getElementById("sync"); if (el) el.textContent = k ? T(k) : ""; };
 const save = () => {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+  try {
+    const now = JSON.stringify(state), before = localStorage.getItem(KEY);
+    if (before && before !== now) localStorage.setItem(KEY + "-prev", before);
+    localStorage.setItem(KEY, now);
+  } catch(e){}
   if (!dbRef) return;
   dirty = true; setSync("syncSaving");
   clearTimeout(timer); timer = setTimeout(flush, 500);
@@ -1846,6 +1863,7 @@ body.addEventListener("pointerdown", e => {
 });
 body.addEventListener("pointermove", e => {
   if (!pdrag || e.pointerId !== pdrag.id) return;
+  if (!body.contains(pdrag.tr)) { pdrag = null; body.classList.remove("is-dragging"); return; }   // the list was re-rendered during the drag
   const others = [...body.children].filter(el => el !== pdrag.tr);
   let before = null;
   for (const el of others) {
@@ -1858,17 +1876,27 @@ body.addEventListener("pointermove", e => {
 });
 function endPackDrag(e){
   if (!pdrag || e.pointerId !== pdrag.id) return;
-  const old = state.cats.map(c => c.items);
-  const fresh = state.cats.map(() => []);
-  let cur = 0;
-  for (const tr of body.children) {
-    if (tr.dataset.cat !== undefined) cur = +tr.dataset.cat;
-    else if (tr.dataset.ci !== undefined) fresh[cur].push(old[tr.dataset.ci][tr.dataset.ii]);
-  }
-  const moved = old[pdrag.tr.dataset.ci][pdrag.tr.dataset.ii];
-  state.cats.forEach((c,i) => c.items = fresh[i]);
-  pdrag = null; body.classList.remove("is-dragging");
-  save(); render(); focusItem(moved);
+  const drag = pdrag; pdrag = null; body.classList.remove("is-dragging");
+  let moved = null;
+  try {
+    const old = state.cats.map(c => c.items), total = old.reduce((n, a) => n + a.length, 0);
+    const fresh = state.cats.map(() => []);
+    let cur = 0, ok = body.contains(drag.tr);
+    for (const tr of body.children) {
+      if (tr.dataset.cat !== undefined) cur = +tr.dataset.cat;
+      else if (tr.dataset.ci !== undefined) {
+        const it = (old[tr.dataset.ci] || [])[tr.dataset.ii];
+        if (!it || !fresh[cur]) ok = false; else if (!fresh[cur].includes(it)) fresh[cur].push(it);
+      }
+    }
+    // only commit a result that still has exactly the same items; otherwise keep the old order
+    if (ok && fresh.reduce((n, a) => n + a.length, 0) === total) {
+      moved = (old[drag.tr.dataset.ci] || [])[drag.tr.dataset.ii];
+      state.cats.forEach((c, i) => c.items = fresh[i]);
+      save();
+    }
+  } catch(err) { console.error(err); }
+  render(); if (moved) focusItem(moved);
 }
 function focusItem(item){
   state.cats.forEach((c,ci) => { const ii = c.items.indexOf(item);
@@ -1887,6 +1915,7 @@ body.addEventListener("pointerdown", e => {
 });
 body.addEventListener("pointermove", e => {
   if (!cdrag || e.pointerId !== cdrag.id) return;
+  if (!body.contains(cdrag.tr)) { cdrag = null; body.classList.remove("is-dragging"); return; }
   let before = body.querySelector("tr.newcat");
   for (const head of body.querySelectorAll("tr.cat")) {
     if (head === cdrag.tr) continue;
@@ -1897,12 +1926,19 @@ body.addEventListener("pointermove", e => {
 });
 function endCatDrag(e){
   if (!cdrag || e.pointerId !== cdrag.id) return;
-  const order = [...body.querySelectorAll("tr.cat")].map(t => +t.dataset.cat);
-  const newIdx = order.indexOf(+cdrag.tr.dataset.cat);
-  state.cats = order.map(i => state.cats[i]);
-  cdrag = null; body.classList.remove("is-dragging");
-  save(); render();
-  const h = body.querySelector(`[data-chandle="${newIdx}"]`); if (h) h.focus({preventScroll: true});
+  const drag = cdrag; cdrag = null; body.classList.remove("is-dragging");
+  let newIdx = -1;
+  try {
+    const order = [...body.querySelectorAll("tr.cat")].map(t => +t.dataset.cat);
+    // only commit a real permutation of the categories
+    if (body.contains(drag.tr) && order.length === state.cats.length && new Set(order).size === order.length && order.every(i => state.cats[i])) {
+      newIdx = order.indexOf(+drag.tr.dataset.cat);
+      state.cats = order.map(i => state.cats[i]);
+      save();
+    }
+  } catch(err) { console.error(err); }
+  render();
+  const h = newIdx >= 0 && body.querySelector(`[data-chandle="${newIdx}"]`); if (h) h.focus({preventScroll: true});
 }
 body.addEventListener("pointerup", endCatDrag);
 body.addEventListener("pointercancel", endCatDrag);
@@ -1965,7 +2001,29 @@ document.addEventListener("click", e => {
   if (linkData) showLinkPanel();
 });
 
-render();
+// Start-up with a safety net: a state that cannot be rendered is rolled back to the previous stored version;
+// if that fails as well, a rescue panel shows the raw data (copyable) and offers a reset
+function showRescue(err){
+  const raw = localStorage.getItem(KEY) || "";
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;inset:0;z-index:99;background:#000c;display:grid;place-items:center;padding:16px";
+  d.innerHTML = `<div style="background:#fff;color:#222;border-radius:12px;padding:16px;max-width:520px;width:100%;font:15px system-ui">
+    <b>${T("rescueTitle")}</b><p>${T("rescueText")}</p>
+    <textarea readonly style="width:100%;height:120px;font:12px monospace"></textarea>
+    <p style="display:flex;gap:8px"><button type="button" id="rescueReset" style="padding:8px 14px">${T("rescueReset")}</button></p></div>`;
+  d.querySelector("textarea").value = raw;
+  document.body.appendChild(d);
+  d.querySelector("#rescueReset").onclick = () => { if (confirm(T("rescueConfirm"))) { try { localStorage.setItem(KEY + "-broken", raw); localStorage.removeItem(KEY); } catch(e){} location.reload(); } };
+  console.error(err);
+}
+try { render(); } catch(err) {
+  let ok = false;
+  try {
+    const prev = JSON.parse(localStorage.getItem(KEY + "-prev"));
+    if (prev && typeof prev === "object") { state = sanitize(prev); migrate(state); save(); render(); ok = true; }
+  } catch(e) { console.error(e); }
+  if (!ok) showRescue(err);
+}
 setSync("syncLocal");
 readLink();
 // Install dialog: one header button opens a guide for Android / iPhone / computer; where the browser offers it, the dialog also has a one-tap "Install automatically"
