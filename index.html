@@ -263,6 +263,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .c-arrrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}   /* buttons left, the arrival text right (own line on phones) */
 .c-arrrow .stop-btn{flex:0 0 170px;height:40px;padding:0 10px;min-width:0}
 .c-arrrow .arr,.c-arrrow .stop-wait{margin-left:auto;order:2;text-align:right}
+.stop .c-arrrow .stop-wait{flex:1 1 100%}   /* waiting time bottom right, like the arrival in a leg */
 /* wide screens: the buttons sit in the same row as time and duration (columns 3 and 4), the arrival text below on the right */
 @media (min-width:601px){
   .leg:not(.stop) .c-arrrow{display:contents}
