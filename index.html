@@ -252,7 +252,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .c-arrrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:10px}
 .c-arrrow .stop-btn{grid-column:1;grid-row:1}   /* the stopover button always sits left, the arrival text bottom right */
 .c-arrrow .arr{grid-column:2;grid-row:1;text-align:right}
-.c-arrrow:not(:has(.stop-btn)):has(.arr[hidden]){display:none}
+.c-arrrow:not(:has(.stop-btn:not([hidden]))):has(.arr[hidden]){display:none}
 .c-arrrow .stop-btn{height:40px;padding:0 10px;min-width:0}
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
@@ -898,6 +898,12 @@ function updateButtons(){
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
+  // No stopover button once the leg's destination is the trip's destination address (nothing comes after it)
+  const addr = (info.address || "").trim().toLowerCase();
+  document.querySelectorAll("[data-addstop]").forEach(b => {
+    const l = tripLegs(b.dataset.trip)[+b.dataset.addstop], to = ((l && l.to) || "").trim().toLowerCase();
+    b.hidden = !!addr && to === addr;
+  });
   // The time chip: only when the predecessor has a time to take over and the leg does not have exactly that time yet
   document.querySelectorAll("[data-filltime]").forEach(b => {
     const o = legOf(b), l = o && tripLegs(o.t)[o.i], v = timeFillValue(b);
