@@ -506,7 +506,7 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2></div></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2></div><span class="count" id="listCount"></span></div>
     <div class="list-tabs" role="tablist">
       <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
       <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
@@ -595,7 +595,7 @@ const I18N = {
     move: "Verschieben (Alt + Pfeiltasten)", dragTitle: "Ziehen zum Sortieren", done: "Erledigt",
     editTodo: "To-do bearbeiten", removeTodo: "To-do entfernen", todoEmpty: "Noch keine To-dos. Tippe auf +, um das erste hinzuzufügen.",
     bought: "Gekauft", editShop: "Einkauf bearbeiten", removeShop: "Einkauf entfernen", shopEmpty: "Noch nichts auf der Liste. Tippe auf +.",
-    packCount: "{d} / {n} gepackt",
+    packCount: "{d}/{n}",
     renameCat: "Kategorie umbenennen", delCat: "Kategorie mit Inhalt löschen", delCatTitle: "Kategorie löschen",
     clickAgain: "Nochmal klicken zum Löschen", stillEmpty: "Noch leer", packedAria: "{x} gepackt",
     editItem: "Gegenstand bearbeiten", editQty: "Anzahl bearbeiten", removeItem: "Gegenstand entfernen",
@@ -654,7 +654,7 @@ const I18N = {
     move: "Move (Alt + arrow keys)", dragTitle: "Drag to reorder", done: "Done",
     editTodo: "Edit to-do", removeTodo: "Remove to-do", todoEmpty: "No to-dos yet. Tap + to add the first one.",
     bought: "Bought", editShop: "Edit shopping item", removeShop: "Remove shopping item", shopEmpty: "Nothing on the list yet. Tap +.",
-    packCount: "{d} / {n} packed",
+    packCount: "{d}/{n}",
     renameCat: "Rename category", delCat: "Delete category and its items", delCatTitle: "Delete category",
     clickAgain: "Click again to delete", stillEmpty: "Still empty", packedAria: "{x} packed",
     editItem: "Edit item", editQty: "Edit quantity", removeItem: "Remove item",
@@ -861,6 +861,7 @@ function render(){
   rows += `<tr class="newcat"><td colspan="4"><div class="newcat-row"><button class="add-cat" type="button" data-addcat>+ ${T("catPh")}</button><button type="button" class="ghost sm" data-clear="pack"></button></div></td></tr>`;
   $("packBody").innerHTML = rows;
   $("packCount").textContent = T("packCount", {d: pd, n: pt});
+  $("listCount").textContent = `${td + sd}/${state.todos.length + st}`;   // to-dos and shopping together
 
   const all = state.todos.length + pt + st, allDone = td + pd + sd;
   // Trip info
