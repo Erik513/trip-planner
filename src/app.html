@@ -1012,7 +1012,9 @@ function setT(p, v){
     const prevVal = l.stop[p.dataset.stop]; l.stop[p.dataset.stop] = v;
     // "until" is the next leg's departure: it fills (and then follows) the next leg's time as long as that was not set by hand
     const next = legs[+p.dataset.leg + 1];
-    if (p.dataset.stop === "until" && v && next && (!next.time || next.time === prevVal)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
+    // "set by hand" = anything but empty, the previous "until", the stopover's "from" or the leg's rounded arrival (the values it gets automatically)
+    const a = arrivals(p.dataset.trip)[+p.dataset.leg], auto = a != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(a / 5) * 5) : "";
+    if (p.dataset.stop === "until" && v && next && (!next.time || next.time === prevVal || next.time === l.stop.from || next.time === auto)) { next.time = v; document.querySelectorAll(".tpick").forEach(syncPick); }
   }
   else if (p.dataset.leg !== undefined) { const l = tripLegs(p.dataset.trip)[p.dataset.leg]; if (l) l.time = v; }
   else state.info[p.dataset.time] = v;

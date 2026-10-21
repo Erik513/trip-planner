@@ -36,7 +36,7 @@ It works offline, without an account and without a server.
   Next to the "Time" label a chip "← End" takes over the predecessor's end time (the stopover's "until", else the previous leg's arrival rounded up to 5 minutes); on the first leg "← ◉" takes the meeting point's time.
 - **Stopover** ("+ Stopover" at the bottom left of a leg card; hidden when the leg's destination is the trip's destination address): a card between two legs with place, "from" and "until" time and the computed waiting time.
   It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
-  (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand). "Copy from outbound" keeps the stopover
+  (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand: an empty time, the previous "until", the stopover's "from" or the leg's rounded arrival still count as automatic). "Copy from outbound" keeps the stopover
   place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:` format stays compatible).
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
