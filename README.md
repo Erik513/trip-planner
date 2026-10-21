@@ -25,6 +25,7 @@ It works offline, without an account and without a server.
 
 - Card layout (same on phone and desktop): a header row with the number (drag handle) or the meeting point symbol, the **transport** picker (a compact button; it opens the list of common modes `MODES` plus a free "Other …" field, no browser datalist) or the title "Meeting point",
   the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); a map-pin button right of the duration field (shown once a route is known; the meeting point card has one right of its place field) opens a small menu with Google Maps / Apple Maps links (the transport mode is passed on; for public transport with a trip date and leg time Google gets the departure time through its unofficial URL form); the "+ Stopover" button sits right of the arrival field, which fills the whole width once the leg has a stopover.
+  A ticked card (meeting point, leg, stopover) is locked: all its fields and buttons (including the map pin) are disabled except the checkbox; unticking unlocks it again (`updateCurrent()`).
   The meeting point card has the place with a map-pin button in one row and below it the time plus a "+ Leg" button (adds the next leg); it takes place on the trip date (no separate date field).
 - Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
@@ -123,7 +124,7 @@ Code comments are written in English.
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
 - Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
 - Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they show the question as text, see `refreshClearBtn`),
-  "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "uncheck all" is "− ✓", "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
+  "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.

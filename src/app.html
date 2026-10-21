@@ -110,6 +110,7 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .leg.current{background:var(--accent-soft);border-color:var(--accent)}
 .leg.current .leg-no{background:var(--accent)}
 .leg.is-done{opacity:.55}
+.leg.is-done :disabled{cursor:not-allowed}
 .leg.is-done .leg-no{background:var(--done)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .leg-handle{border:0;padding:0;cursor:grab;touch-action:none}
@@ -226,13 +227,15 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .map-pop a{padding:9px 12px;border-radius:6px;color:var(--fg);font-weight:600;font-size:.95rem;text-decoration:none}
 .map-pop a:hover{background:var(--hover)}
 .map-pop a::after{content:" ↗";color:var(--accent)}
-.c-arrrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:10px}
-.c-arrrow .c-arr:last-child{grid-column:1 / -1}   /* no stopover button: the arrival fills the width */
+.c-arrrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:10px}
+.c-arrrow .stop-btn{grid-column:1;grid-row:1}   /* the stopover button always sits left, the arrival text bottom right */
+.c-arrrow .arr{grid-column:2;grid-row:1;text-align:right}
+.c-arrrow:not(:has(.stop-btn)):has(.arr[hidden]){display:none}
 .c-arrrow .stop-btn{height:40px;padding:0 10px;min-width:0}
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
-.arr{display:flex;align-items:center;gap:8px;min-height:40px;box-sizing:border-box;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:1rem}
-.arr b{font-family:var(--mono);font-weight:500;font-size:1rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.arr{color:var(--fg);font-size:.8rem;align-self:end}   /* plain text, only the time is accented */
+.arr b{font-family:var(--mono);font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums}
 .dur-box{display:flex;align-items:center;gap:4px;padding-block:0;padding-right:4px}
 .dur-box input{flex:1;min-width:0;height:100%;font:inherit;line-height:normal;color:var(--fg);background:transparent;border:0;padding:0;font-variant-numeric:tabular-nums}
 .leg .fld{box-sizing:border-box;height:40px}
@@ -415,11 +418,11 @@ td.x{width:40px;text-align:right}
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
         <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld auto-grow" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
-      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="out" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
+      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
         <div class="legs" id="legs-out"></div>
         <div class="actions"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
-      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button><button type="button" class="ghost sm" data-uncheck="ret" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
+      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
         <div class="legs" id="legs-ret"></div>
         <div class="actions"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
@@ -427,7 +430,7 @@ td.x{width:40px;text-align:right}
   </section>
 
   <section data-col="todos">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listUncheck" data-uncheck="todos" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button><button type="button" class="ghost sm" id="listClear" data-clear="todos"></button></div></div></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="todosShop">To-dos &amp; Einkauf</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="listClear" data-clear="todos"></button></div></div></div>
     <div class="list-tabs" role="tablist">
       <button type="button" role="tab" class="tab" data-tab="todos"><span data-i18n="tabTodos">To-dos</span> <span class="tab-count" id="todoTabCount"></span></button>
       <button type="button" role="tab" class="tab" data-tab="shop"><span data-i18n="tabShop">Einkauf</span> <span class="tab-count" id="shopTabCount"></span></button>
@@ -438,7 +441,7 @@ td.x{width:40px;text-align:right}
   </section>
 
   <section data-col="pack">
-    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest" data-i18n-attr="title:suggestTitle;aria-label:suggestTitle">+ Vorschläge</button><button type="button" class="ghost sm" data-uncheck="pack" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button><button type="button" class="ghost sm" data-clear="pack"></button></div></div><span class="count" id="packCount"></span></div>
+    <div class="sec-head"><div class="title-row"><h2><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="pack">Packliste</span></button></h2><div class="sec-btns"><button type="button" class="ghost sm" id="suggest" data-i18n="suggest" data-i18n-attr="title:suggestTitle;aria-label:suggestTitle">+ Vorschläge</button><button type="button" class="ghost sm" data-clear="pack"></button></div></div><span class="count" id="packCount"></span></div>
     <div class="table-box">
       <table>
         <colgroup><col class="cc"><col><col class="cq"><col class="cx"></colgroup>
@@ -505,7 +508,7 @@ const I18N = {
     grpTrip: "Reise & Unterkunft", destination: "Reisezielort", lodging: "Unterkunft", address: "Zieladresse",
     checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in Datum", checkinTime: "Check-in Uhrzeit",
     checkoutDate: "Check-out Datum", checkoutTime: "Check-out Uhrzeit", notes: "Notizen", weather: "Wetter",
-    outbound: "Hinfahrt", ret: "Rückfahrt", date: "Datum", uncheck: "Haken entfernen", unchecked: "Haken entfernt ✓",
+    outbound: "Hinfahrt", ret: "Rückfahrt", date: "Datum",
     addMeet: "+ Treffpunkt", addLeg: "+ Etappe", fromOut: "⇄ Hinfahrt", replaceRet: "Rückfahrt ersetzen?",
     add: "Hinzufügen", 
     
@@ -542,7 +545,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    shareFail: "Nicht möglich", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", uncheckShort: "− ✓", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
+    shareFail: "Nicht möglich", mapOpenRoute: "Route in Karten-App öffnen", mapOpenPlace: "Ort in Karten-App öffnen", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
     stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
@@ -564,7 +567,7 @@ const I18N = {
     grpTrip: "Trip & accommodation", destination: "Destination", lodging: "Accommodation", address: "Address",
     checkin: "Check-in", checkout: "Check-out", checkinDate: "Check-in date", checkinTime: "Check-in time",
     checkoutDate: "Check-out date", checkoutTime: "Check-out time", notes: "Notes", weather: "Weather",
-    outbound: "Outbound trip", ret: "Return trip", date: "Date", uncheck: "Uncheck all", unchecked: "Unchecked ✓",
+    outbound: "Outbound trip", ret: "Return trip", date: "Date",
     addMeet: "+ Meeting point", addLeg: "+ Leg", fromOut: "⇄ Outbound", replaceRet: "Replace return trip?",
     add: "Add", 
     
@@ -601,7 +604,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    shareFail: "Not possible", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", uncheckShort: "− ✓", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
+    shareFail: "Not possible", mapOpenRoute: "Open route in maps app", mapOpenPlace: "Open place in maps app", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
     stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
@@ -735,7 +738,7 @@ function render(){
   $("todoTabCount").textContent = `${td}/${state.todos.length}`; $("shopTabCount").textContent = `${sd}/${st}`;
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
   $("todoList").hidden = tab !== "todos"; $("shopList").hidden = tab !== "shop";
-  $("listUncheck").dataset.uncheck = tab; $("listClear").dataset.clear = tab;
+  $("listClear").dataset.clear = tab;
   refreshClearBtn($("listClear"));
 
   // Packing list
@@ -863,9 +866,6 @@ function updateButtons(){
   const items = state.cats.flatMap(c => c.items), shop = state.shop || [], info = state.info || {};
   const norm = s => s.trim().toLowerCase();
   const activeList = state.tab === "shop" ? shop : state.todos;
-  set("#listUncheck", !activeList.some(x => x.d));
-  set('[data-uncheck="pack"]', !items.some(x => x.d));
-  ["out", "ret"].forEach(t => set(`[data-uncheck="${t}"]`, !(tripLegs(t).some(x => x.d || (x.stop && x.stop.d)) || (info[t + "Meet"] && info[t + "Meet"].d))));
   // "Clear all" only if something is actually entered (also inside legs/meeting point)
   const has = v => typeof v === "string" ? !!v.trim() : Array.isArray(v) ? v.some(has) : v && typeof v === "object" ? Object.values(v).some(has) : v === true;
   set('[data-clear="info"]', !has(info));
@@ -1064,7 +1064,7 @@ function renderTrips(){
         <div class="f c-to"><div class="lbl-row"><span>${T("legDest")}</span><span class="chips">${toChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}"></div>
         <div class="f"><div class="lbl-row nowrap"><span>${T("time")}</span><span class="chips"><button type="button" class="unit" data-filltime hidden title="${T(i === 0 ? "fillTimeMeetTitle" : "fillTimePrevTitle")}">${T(i === 0 ? "fillTimeMeet" : "fillTimePrev")}</button></span></div><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
         <div class="c-durrow"><div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>${MAPPICK("mapOpenRoute")}</div>
-        <div class="c-arrrow"><div class="f c-arr"><span>${T("arrival")}</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}</div>
+        <div class="c-arrrow"><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite" hidden></div>${l.stop ? "" : `<button type="button" class="unit stop-btn" data-addstop="${i}" data-trip="${t}" title="${T("addStopTitle")}">+ ${T("stopTitle")}</button>`}</div>
       </div>
     </div>${l.stop ? stopCard(l, i) : ""}`;
     }).join("");
@@ -1117,8 +1117,8 @@ function updateLegSummary(){
         }
       }
       if (el) {
-        if (arr === null) { el.textContent = "–"; el.title = T("enterTimeDur"); }
-        else { const f = fmtT(arr); el.innerHTML = `${T("approx")} <b>${f.t}</b>${plusDays(f.days)}`; el.title = ""; }
+        el.hidden = arr === null;
+        if (arr !== null) { const f = fmtT(arr); el.innerHTML = `${T("arrival")} ${T("approx")} <b>${f.t}</b>${plusDays(f.days)}`; }
       }
     });
     const total = legs.reduce((s, l) => s + dur(l), 0);
@@ -1244,6 +1244,12 @@ function updateCurrent(){
       const done = g.querySelector(".leg-chk").checked;
       g.classList.toggle("is-done", done);
       g.classList.toggle("current", !done && !found);
+      // A ticked card is locked: everything but its checkbox is disabled
+      g.querySelectorAll("input,button,select,textarea").forEach(el => {
+        if (el.classList.contains("leg-chk")) return;
+        if (done) { if (!el.disabled) { el.disabled = true; el.dataset.locked = "1"; } }
+        else if (el.dataset.locked) { el.disabled = false; delete el.dataset.locked; }
+      });
       if (!done) found = true;
     });
   });
@@ -1278,7 +1284,7 @@ document.addEventListener("click", e => {
 // Reorder legs by drag (handle = number), the meeting point stays on top
 let ldrag = null;
 document.addEventListener("pointerdown", e => {
-  const h = e.target.closest && e.target.closest("[data-lhandle]"); if (!h) return;
+  const h = e.target.closest && e.target.closest("[data-lhandle]"); if (!h || h.disabled) return;
   e.preventDefault();
   const g = h.closest(".leg"), nx = g.nextElementSibling;
   const group = nx && nx.classList.contains("stop") ? [g, nx] : [g]; // a stopover belongs to the leg before it
@@ -1671,20 +1677,9 @@ document.addEventListener("input", e => {
   save(); updateCountdown(); updateButtons(); if (t) updateMaps();
 });
 
-// Per section: uncheck all (entries stay) and clear all (with confirmation)
+// Per section: clear all (with confirmation)
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-uncheck],[data-clear]"); if (!b) return;
-  if (b.dataset.uncheck) {
-    const k = b.dataset.uncheck;
-    if (k === "todos") state.todos.forEach(x => x.d = false);
-    if (k === "shop") (state.shop || []).forEach(x => x.d = false);
-    if (k === "pack") state.cats.forEach(c => c.items.forEach(x => x.d = false));
-    if (k === "out" || k === "ret") { tripLegs(k).forEach(x => { x.d = false; if (x.stop) x.stop.d = false; }); const m = state.info[k + "Meet"]; if (m) m.d = false; }
-    save(); render();
-    const nb = document.querySelector(`[data-uncheck="${k}"]`);
-    nb.textContent = T("unchecked"); setTimeout(() => nb.textContent = T("uncheckShort"), 2000);
-    return;
-  }
+  const b = e.target.closest("[data-clear]"); if (!b) return;
   const k = b.dataset.clear;
   if (b.dataset.armed !== "1") {
     b.dataset.armed = "1"; refreshClearBtn(b);
