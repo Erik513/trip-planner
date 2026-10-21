@@ -216,6 +216,9 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .mode-other:focus{outline:none;border-color:var(--accent)}
 .leg-head .leg-chk{flex:none;margin:0 0 0 auto}
 .chips{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.lbl-row.nowrap{flex-wrap:nowrap}
+/* every label row in a leg card is as tall as one that holds a chip, so neighbouring fields line up */
+.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row{display:flex;align-items:center;min-height:22px}
 .leg-foot{display:flex;justify-content:space-between;align-items:center;gap:8px 14px;flex-wrap:wrap}
 .leg-foot .maps{gap:14px}
 .leg.stop{border-style:dashed}
@@ -351,6 +354,8 @@ td.x{width:40px;text-align:right}
   input[type=checkbox]{width:26px;height:26px}
   .leg-no{width:30px;height:30px}
   .leg-mode{height:40px}
+  .leg-grid .unit{padding:5px 10px}
+  .leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row{min-height:31px}
   .mode-opts .opt{padding-top:12px;padding-bottom:12px}
   .unit{padding:7px 10px}
   .maps a{padding:8px 3px}
@@ -536,7 +541,7 @@ const I18N = {
     uTodo: "To-do gelöscht", uShop: "Einkauf gelöscht", uItem: "Gegenstand gelöscht", uCat: "Kategorie gelöscht", uLeg: "Etappe gelöscht",
     uMeet: "Treffpunkt gelöscht", uClear: "Inhalt geleert", uImport: "Reise-Infos importiert", uRet: "Rückfahrt ersetzt",
     dateDefault: "Datum", choose: "{x} wählen", datePh: "TT.MM.JJJJ",
-    shareFail: "Nicht möglich", uncheckShort: "− ✓", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
+    shareFail: "Nicht möglich", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Uhrzeit des Treffpunkts übernehmen", fillTimePrev: "← Ende", fillTimePrevTitle: "Ankunftszeit der vorherigen Etappe übernehmen", uncheckShort: "− ✓", addMeetTitle: "Treffpunkt hinzufügen", addLegTitle: "Etappe hinzufügen", suggestTitle: "Vorschläge laden", fromOutTitle: "Aus Hinfahrt übernehmen", stopTitle: "Zwischenstopp", addStopTitle: "Zwischenstopp nach dieser Etappe hinzufügen", removeStop: "Zwischenstopp entfernen", stopDone: "Zwischenstopp erledigt",
     stopPlace: "Ort des Zwischenstopps", stopFrom: "Von", stopUntil: "Bis", stopFromLabel: "Zwischenstopp Uhrzeit von", stopUntilLabel: "Zwischenstopp Uhrzeit bis", stopWait: "Wartezeit {x}", themeToDark: "Zum dunklen Modus wechseln", themeToLight: "Zum hellen Modus wechseln", todosShop: "To-dos & Einkauf", tabTodos: "To-dos", tabShop: "Einkauf", addItem: "Eintrag hinzufügen",
     installShort: "Installieren", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "App installieren", installIntro: "Mit der App startest du den Reiseplaner direkt vom Startbildschirm – auch offline. Wähle dein Gerät:", or: "oder", installNow: "Automatisch installieren", installUnavailable: "Dein Browser bietet die Installation gerade nicht an. Nutze die Schritte unten oder öffne die Seite in Chrome.",
@@ -595,7 +600,7 @@ const I18N = {
     uTodo: "To-do deleted", uShop: "Shopping item deleted", uItem: "Item deleted", uCat: "Category deleted", uLeg: "Leg deleted",
     uMeet: "Meeting point deleted", uClear: "Cleared", uImport: "Trip info imported", uRet: "Return trip replaced",
     dateDefault: "Date", choose: "Choose {x}", datePh: "Select date",
-    shareFail: "Not possible", uncheckShort: "− ✓", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
+    shareFail: "Not possible", fillTimeMeet: "← ◉", fillTimeMeetTitle: "Use the meeting point's time", fillTimePrev: "← End", fillTimePrevTitle: "Use the previous leg's arrival time", uncheckShort: "− ✓", addMeetTitle: "Add meeting point", addLegTitle: "Add leg", suggestTitle: "Load suggestions", fromOutTitle: "Copy from outbound", stopTitle: "Stopover", addStopTitle: "Add a stopover after this leg", removeStop: "Remove stopover", stopDone: "Stopover done",
     stopPlace: "Stopover place", stopFrom: "From", stopUntil: "Until", stopFromLabel: "Stopover time from", stopUntilLabel: "Stopover time until", stopWait: "Waiting time {x}", themeToDark: "Switch to dark mode", themeToLight: "Switch to light mode", todosShop: "To-dos & shopping", tabTodos: "To-dos", tabShop: "Shopping", addItem: "Add item",
     installShort: "Install", tabAndroid: "Android", tabIos: "iPhone / iPad", tabDesktop: "Computer",
     install: "Install app", installIntro: "With the app you open the trip planner right from your home screen – even offline. Choose your device:", or: "or", installNow: "Install automatically", installUnavailable: "Your browser does not offer the installation right now. Use the steps below or open this page in Chrome.",
@@ -868,6 +873,11 @@ function updateButtons(){
   set('[data-clear="pack"]', !items.length);
   set("#suggest", SUGGEST.every(([, its]) => its.every(([t]) => items.some(x => norm(x.t) === norm(t[li()])))));
   // Only show the "use" buttons in legs when there is something to copy
+  // The time chip: only when the predecessor has a time to take over and the leg does not have exactly that time yet
+  document.querySelectorAll("[data-filltime]").forEach(b => {
+    const o = legOf(b), l = o && tripLegs(o.t)[o.i], v = timeFillValue(b);
+    b.hidden = !v || (l && l.time === v);
+  });
   // ... and not when the field already has that content
   document.querySelectorAll("[data-fill]").forEach(b => {
     const v = fillValue(b).trim().toLowerCase(), o = legOf(b), l = o && tripLegs(o.t)[o.i];
@@ -1046,7 +1056,7 @@ function renderTrips(){
       <div class="leg-grid">
         <div class="f c-from"><div class="lbl-row"><span>${T("start")}</span><span class="chips">${fromChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-from" data-legf="from" value="${esc(l.from || "")}" aria-label="${T("legStart", {n: i + 1})}"></div>
         <div class="f c-to"><div class="lbl-row"><span>${T("legDest")}</span><span class="chips">${toChips}</span></div><input class="fld" type="text" id="leg-${t}-${i}-to" data-legf="to" value="${esc(l.to || "")}" aria-label="${T("legTo", {n: i + 1})}"></div>
-        <div class="f"><span>${T("time")}</span><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
+        <div class="f"><div class="lbl-row nowrap"><span>${T("time")}</span><span class="chips"><button type="button" class="unit" data-filltime hidden title="${T(i === 0 ? "fillTimeMeetTitle" : "fillTimePrevTitle")}">${T(i === 0 ? "fillTimeMeet" : "fillTimePrev")}</button></span></div><div class="tpick" data-trip="${t}" data-leg="${i}">${pickInner(`leg-${t}-${i}-time`, T("legTime", {n: i + 1}))}</div></div>
         <div class="f"><span>${T("duration")}</span><div class="fld dur-box"><input type="text" placeholder="0:00" autocomplete="off" id="leg-${t}-${i}-dur" data-legf="dur" value="${esc(durText(l))}" aria-label="${T("legDur", {n: i + 1})}" title="${T("durTitle")}"><span class="unit-lbl" aria-hidden="true">${T("unitLbl")}</span></div></div>
         <div class="f c-arr"><span>${T("arrival")}</span><div class="arr" id="leg-${t}-${i}-arr" aria-live="polite"></div></div>
       </div>
@@ -1324,6 +1334,21 @@ function fillValue(b){
   if (b.dataset.fill === "prev") return (tripLegs(t)[+g.dataset.leg - 1] || {}).to || "";
   return info.address || "";
 }
+
+// Time a leg can take over from its predecessor: the meeting point's time (first leg), else the stopover's "until" or the previous leg's arrival (rounded up to 5 minutes)
+function timeFillValue(b){
+  const g = b.closest(".leg"), t = g.dataset.trip, i = +g.dataset.leg;
+  if (i === 0) { const m = (state.info || {})[t + "Meet"]; return (m && m.time) || ""; }
+  const prev = tripLegs(t)[i - 1]; if (!prev) return "";
+  if (prev.stop && prev.stop.until) return prev.stop.until;
+  const arr = arrivals(t)[i - 1];
+  return arr != null ? (m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`)(Math.ceil(arr / 5) * 5) : "";
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-filltime]"); if (!b) return;
+  const o = legOf(b), l = o && tripLegs(o.t)[o.i], v = l && timeFillValue(b); if (!v) return;
+  l.time = v; save(); document.querySelectorAll(".tpick").forEach(syncPick); updateLegSummary(); updateButtons();
+});
 
 // Arrival times (minutes) of all legs of a trip; null where they cannot be calculated
 function arrivals(t){

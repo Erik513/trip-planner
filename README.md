@@ -30,6 +30,7 @@ It works offline, without an account and without a server.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
   "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy and the field does not already contain it.
+  Next to the "Time" label a chip "← End" takes over the predecessor's end time (the stopover's "until", else the previous leg's arrival rounded up to 5 minutes); on the first leg "← ◉" takes the meeting point's time.
 - **Stopover** ("+ Stopover" at the bottom of a leg card): a card between two legs with place, "from" and "until" time and the computed waiting time.
   It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
   (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand). "Copy from outbound" keeps the stopover
