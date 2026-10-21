@@ -1,6 +1,6 @@
 # Trip Planner
 
-Trip info, shopping list, to-dos and packing list in one page – available in English and German (English by default, switch with the "EN | DE" toggle).
+Trip info, to-dos, shopping list and packing list in one page – available in English and German (English by default, switch with the "EN | DE" toggle).
 
 **Live:** https://erik513.github.io/trip-planner/
 
@@ -12,9 +12,9 @@ It works offline, without an account and without a server.
 1. **Trip info** – trip & accommodation (destination with weather link, accommodation, address, check-in/-out, collapsible notes),
    **outbound trip** and **return trip** (date, optional meeting point, legs). Export/import as a code (see "Sharing").
 2. **To-dos & shopping** – one section with two tabs ("To-dos" and "Shopping", each with its done/total counter). The "+" button right of the tabs appends an empty entry
-   to the visible list and focuses it (an entry left empty is removed again); "Uncheck all" and "Clear all" in the section header act on the visible list.
+   to the visible list and focuses it (an entry left empty is removed again); the header buttons act on the visible list only and are named after it ("Clear to-dos" / "Clear shopping", with a matching confirmation).
    Entries can be reordered by dragging the handle (or Alt + arrow keys), shared code: `makeSortable`. The chosen tab is remembered (`state.tab`).
-3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Food, Misc);
+3. **Packing list** – table grouped by category (default: Clothing, Toiletries, Health, Tech, Documents & money, Hand luggage, Food, Misc);
    "Load suggestions" adds typical items without quantities.
    The "+" button in the category row (next to the counter, away from the drag handle) appends an empty item at the bottom of that category and focuses it (an item left empty is removed again).
    The last table row "+ New category" appends an empty category and focuses its name (a category left without name and items is removed again).
@@ -24,18 +24,24 @@ It works offline, without an account and without a server.
 ### Legs (outbound/return trip)
 
 - Card layout (same on phone and desktop): a header row with the number (drag handle) or the meeting point symbol, the **transport** picker (a compact button; it opens the list of common modes `MODES` plus a free "Other …" field, no browser datalist) or the title "Meeting point",
-  the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); Google Maps / Apple Maps links at the bottom of the card.
-  The meeting point card has place, date and time (date and time in one row).
-- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = own time, or arrival of the previous leg/meeting point + duration.
+  the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); a map-pin button right of the duration field (shown once a route is known; the meeting point card has one right of its place field) opens a small menu with Google Maps / Apple Maps links plus the apps that fit the transport mode (Waze for car legs, the DB timetable for train legs; `updateMaps()`) (the transport mode is passed on; for public transport with a trip date and leg time Google gets the departure time through its unofficial URL form); the "+ Stopover" button sits right of the arrival field, which fills the whole width once the leg has a stopover.
+  A ticked card (meeting point, leg, stopover) is locked: all its fields and buttons (including the map pin) are disabled except the checkbox; unticking unlocks it again (`updateCurrent()`).
+  The meeting point card has the place with a map-pin button in one row and below it the time plus a "+ Leg" button (inserts a leg after the meeting point). Every leg card has the same button next to "+ Stopover" and inserts the new leg right after itself (start and time are taken over); the stand-alone "+ Leg" under the list only shows while there is neither a meeting point nor a leg; it takes place on the trip date (no separate date field).
+- Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
-  "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy.
+  "Previous destination"; on the outbound trip "Destination" at the destination. The chips only show when there is something to copy and the field does not already contain it.
+  Next to the "Time" label a chip "← End" takes over the predecessor's end time (the stopover's "until", else the previous leg's arrival rounded up to 5 minutes); on the first leg "← ◉" takes the meeting point's time.
+- **Stopover** ("+ Stopover" at the bottom left of a leg card; hidden when the leg's destination is the trip's destination address): a card between two legs with place, "from" and "until" time and the computed waiting time.
+  It is stored on the leg it follows (`leg.stop = {place, from, until, d}`), so it moves with that leg when legs are reordered. Place and "from" are pre-filled
+  (destination and arrival of the leg); the stopover's "until" time fills the next leg's time (and keeps it in sync until that time is set by hand). "Copy from outbound" keeps the stopover
+  place between the reversed legs (times are cleared). In the export code a stopover is stored as elements 6–8 of the leg array (the `TRIP:` format stays compatible).
 - Tick off each box; the first open box is highlighted green – across the whole outbound trip first, then the return trip.
 - "Copy from outbound" creates the return trip in reverse. Reorder by dragging the number (Alt + arrow keys).
 
 ## Sharing
 
-- Header: small buttons to the left of the progress tag – "EN | DE" and share (chain icon). Deliberately small and subtle
+- Header: small buttons of equal height to the left of the progress tag – install, "EN | DE", light/dark (moon/sun) and share (chain icon). Deliberately small and subtle
   (`.langsw`, `.icon-btn`), not styled like the progress tag.
 - **Share button:** shares the page address via `navigator.share`, otherwise copies it to the clipboard. The address always carries
   the chosen language (`#lang=de`) and, if trip info exists, the export code (`#lang=de&TRIP:…`). (Sharing needs the page to be served over http(s); a locally opened file cannot share.)
@@ -43,7 +49,7 @@ It works offline, without an account and without a server.
   replaced (with "Undo"), then the hash is removed.
 - **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
   (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
-- Only the trip info is shared; shopping list, to-dos and packing list stay local. There is no synchronisation between devices –
+- Only the trip info is shared; to-dos, shopping list and packing list stay local. There is no synchronisation between devices –
   whoever changes something shares again. Backup/export of the other lists and real-time sync are intentionally not provided.
 
 ## Install as an app (PWA)
@@ -68,7 +74,8 @@ copy of the HTML file (files opened from the file manager have no reliable stora
 
 ## Storage
 
-- `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`) – per browser, device and address.
+- `localStorage` in the browser (key `trip-planner-v1`, language `trip-planner-lang`, theme `trip-planner-theme`) – per browser, device and address.
+- Default categories introduced later (Food, Hand luggage) are added once to existing data by `migrate` (flags `v2cats`, `v3cats`); a deleted one does not come back.
 - `migrate(state)` upgrades old data (including the former German data keys such as `ziel`/`rueck` and the old storage key `packliste-v2`) –
   when changing the data model, extend it there instead of breaking old data.
 - The code also contains a path for the Claude Artifact database (`window.claude.use("db")`). Outside Claude, `window.claude`
@@ -94,6 +101,8 @@ Code comments are written in English.
 - Static HTML texts: `data-i18n="key"` (text content) or `data-i18n-attr="aria-label:key;title:key"`;
   `applyStatic()` applies them (runs on every `render()`).
 - Chosen language: `localStorage` `trip-planner-lang`; default = English.
+- Light/dark mode: follows the device until the moon/sun button is used; the choice is stored per browser (`trip-planner-theme`) and only affects this app
+  (`data-theme` on `<html>`, applied by a tiny script in the `<head>` of `index.html` to avoid a flash; the CSS tokens live in `:root`).
 - `SUGGEST` (default categories + packing suggestions) and `MODES` (transport modes) are bilingual lists `[de, en]`;
   `translateDefaults()` translates default names on language switch, anything typed by the user stays.
 - Data format, storage key `trip-planner-v1` and export prefix `TRIP:` are language-independent and must not change.
@@ -113,6 +122,9 @@ Code comments are written in English.
   The trip notes are a multi-line textarea that also grows with its content (`.auto-grow`, no manual resize handle), at least 3 lines high.
 - Trip info fields (single-line inputs in `#infoGrid`) whose text is longer than the field scroll back and forth (`refreshMarquee`/`marqueeTick`, driven by `scrollLeft`);
   the effect only runs while the field is not focused and is off with `prefers-reduced-motion`.
+- Text fields of the lists use `enterkeyhint="done"`, so the phone keyboard confirms instead of jumping to the next field.
+- Buttons are kept short to save space: "clear" buttons show a trash icon (the name is in the tooltip/`aria-label`; while a confirmation is pending they show the question as text, see `refreshClearBtn`),
+  "add" buttons start with "+" ("+ Leg", "+ Meeting point", "+ Suggestions"), "copy from outbound" is "⇄ Outbound"; the full text is always the tooltip and `aria-label`.
 - Touch devices (`@media (pointer:coarse)`): the tap targets are bigger (buttons, handles, checkboxes, delete crosses); desktop keeps the compact look.
 - Consistent design: colours only via CSS variables in `:root` (light + dark mode), custom checkboxes,
   small buttons `.ghost.sm`. Must work on a phone (390 px) without horizontal scrolling.
