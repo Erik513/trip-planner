@@ -1320,7 +1320,7 @@ document.addEventListener("pointerdown", e => {
   const g = h.closest(".leg"), nx = g.nextElementSibling;
   const group = nx && nx.classList.contains("stop") ? [g, nx] : [g]; // a stopover belongs to the leg before it
   ldrag = { g, group, box: g.parentElement, id: e.pointerId, h };
-  h.setPointerCapture(e.pointerId);
+  ldrag.box.setPointerCapture(e.pointerId);
   group.forEach(x => x.classList.add("dragging")); ldrag.box.classList.add("is-dragging");
 });
 document.addEventListener("pointermove", e => {
@@ -1335,10 +1335,12 @@ function endLegDrag(e){
   const { g, box } = ldrag, t = g.dataset.trip, legs = tripLegs(t);
   const order = [...box.querySelectorAll(".leg[data-leg]")].map(x => +x.dataset.leg);
   const moved = legs[+g.dataset.leg];
-  legs.splice(0, legs.length, ...order.map(i => legs[i]));
+  const valid = order.length === legs.length && new Set(order).size === order.length && order.every(i => legs[i]);
+  if (valid) legs.splice(0, legs.length, ...order.map(i => legs[i]));
   ldrag = null; box.classList.remove("is-dragging");
   if (document.activeElement) document.activeElement.blur();
-  save(); render();
+  if (valid) save();
+  render();
   const h = box.querySelector(`.leg[data-leg="${legs.indexOf(moved)}"] [data-lhandle]`); if (h) h.focus({preventScroll: true});
 }
 document.addEventListener("pointerup", endLegDrag);
@@ -1813,7 +1815,7 @@ function makeSortable(listId, key){
     e.preventDefault();
     const li = h.closest("li");
     drag = { li, id: e.pointerId };
-    h.setPointerCapture(e.pointerId);
+    list.setPointerCapture(e.pointerId);
     li.classList.add("dragging"); list.classList.add("is-dragging");
   });
   list.addEventListener("pointermove", e => {
@@ -1829,10 +1831,13 @@ function makeSortable(listId, key){
   const end = e => {
     if (!drag || e.pointerId !== drag.id) return;
     const order = [...list.children].map(el => +el.dataset.i);
-    state[key] = order.map(i => state[key][i]);
     const newIdx = order.indexOf(+drag.li.dataset.i);
+    // only commit a real permutation of the entries
+    if (list.contains(drag.li) && order.length === state[key].length && new Set(order).size === order.length && order.every(i => state[key][i])) {
+      state[key] = order.map(i => state[key][i]); save();
+    }
     drag = null; list.classList.remove("is-dragging");
-    save(); render();
+    render();
     const h = list.querySelector(`[data-handle="${newIdx}"]`); if (h) h.focus({preventScroll:true});
   };
   list.addEventListener("pointerup", end);
@@ -1858,7 +1863,7 @@ body.addEventListener("pointerdown", e => {
   e.preventDefault();
   const tr = h.closest("tr");
   pdrag = { tr, id: e.pointerId };
-  h.setPointerCapture(e.pointerId);
+  body.setPointerCapture(e.pointerId);
   tr.classList.add("dragging"); body.classList.add("is-dragging");
 });
 body.addEventListener("pointermove", e => {
@@ -1910,7 +1915,7 @@ body.addEventListener("pointerdown", e => {
   e.preventDefault();
   const tr = h.closest("tr.cat");
   cdrag = { tr, rows: catRows(tr), id: e.pointerId };
-  h.setPointerCapture(e.pointerId);
+  body.setPointerCapture(e.pointerId);
   cdrag.rows.forEach(r => r.classList.add("dragging")); body.classList.add("is-dragging");
 });
 body.addEventListener("pointermove", e => {
