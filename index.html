@@ -27,17 +27,17 @@
 /* Layout: one narrow column – to-dos on top, packing table by category below, progress shown as a luggage tag */
 :root{
   --bg:#eef2f3; --surface:#ffffff; --fg:#17262b; --muted:#5d7178; --line:#d3dde0;
-  --accent:#0f7c74; --accent-soft:#d6ece9; --done:#8a9ca1;
+  --accent:#0f7c74; --accent-soft:#d6ece9; --hover:#a4d4cd; --done:#8a9ca1;
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --body:"Figtree", "Segoe UI", system-ui, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#111a1d; --surface:#18252a; --fg:#e4eef0; --muted:#93a7ad; --line:#2a3b41;
-  --accent:#4fc2b6; --accent-soft:#1d3a39; --done:#62777d; color-scheme:dark}}
+  --accent:#4fc2b6; --accent-soft:#1d3a39; --hover:#2a5653; --done:#62777d; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#111a1d; --surface:#18252a; --fg:#e4eef0; --muted:#93a7ad; --line:#2a3b41;
-  --accent:#4fc2b6; --accent-soft:#1d3a39; --done:#62777d; color-scheme:dark}
+  --accent:#4fc2b6; --accent-soft:#1d3a39; --hover:#2a5653; --done:#62777d; color-scheme:dark}
 
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
   padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:32px 56px}
@@ -70,7 +70,7 @@ input[type=checkbox]:checked::after{opacity:1}
 .is-done .txt{color:var(--done);text-decoration:line-through}
 .edit{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;width:100%;min-width:0}
 textarea.edit{display:block;resize:none;overflow:hidden;line-height:1.35;vertical-align:middle}
-.edit:hover{border-bottom-color:var(--line)}
+.edit:hover{border-bottom-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .edit:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft);text-decoration:none;color:var(--fg)}
 td.q .edit{font-family:var(--mono);color:var(--muted);width:3ch;text-align:right}
 td.q .edit::placeholder{color:var(--done);opacity:.7}
@@ -102,19 +102,19 @@ tr.cat .cat-row{display:flex;align-items:center;gap:8px}
 tr.cat .chandle{flex:none;color:color-mix(in srgb, var(--fg) 55%, var(--accent-soft))}
 tr.newcat td{padding:8px}
 .add-cat{width:100%;font:inherit;font-weight:600;color:var(--accent);background:transparent;border:1.5px dashed var(--line);border-radius:8px;padding:8px;cursor:pointer;transition:background .15s}
-.add-cat:hover{background:var(--accent-soft)}
+.add-cat:hover{background:var(--hover)}
 .add-item{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--accent);font:inherit;font-size:1.15rem;font-weight:600;line-height:1;cursor:pointer}
-.add-item:hover{background:var(--accent-soft)}
+.add-item:hover{background:var(--hover)}
 .list-tabs{display:flex;align-items:center;gap:6px;margin-bottom:10px}
 .list-tabs .tab{font:inherit;font-size:.9rem;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}
-.list-tabs .tab:hover{color:var(--fg);background:var(--accent-soft)}
+.list-tabs .tab:hover{color:var(--fg);background:var(--hover)}
 .list-tabs .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .tab-count{font-family:var(--mono);font-size:.78rem;opacity:.85;font-variant-numeric:tabular-nums}
 .list-tabs .add-item{margin-left:auto}
 tr.cat .cat-row .edit{font-family:var(--display);font-weight:600;font-size:1rem;flex:1}
 tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .ghost{font:inherit;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:8px 14px;cursor:pointer}
-.ghost:hover{color:var(--fg);background:var(--accent-soft)}
+.ghost:hover{color:var(--fg);background:var(--hover);border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
 .ghost[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:flex-end}
 .info-grid{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
@@ -160,7 +160,7 @@ tr.cat .count{font-family:var(--mono);font-weight:500;white-space:nowrap}
 .langsw{display:inline-flex;align-self:flex-start;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .langsw button{font:inherit;font-size:.72rem;font-weight:600;line-height:1;border:0;background:transparent;color:var(--muted);padding:6px 8px;cursor:pointer;transition:background .15s, color .15s}
 .langsw button + button{border-left:1px solid var(--line)}
-.langsw button:hover{color:var(--fg);background:var(--accent-soft)}
+.langsw button:hover{color:var(--fg);background:var(--hover)}
 .langsw button[aria-pressed="true"]{background:var(--accent-soft);color:var(--fg)}
 dialog#installDialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:0;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto}
 dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
@@ -170,7 +170,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .dlg-body p{margin:0;color:var(--muted);font-size:.92rem}
 .dlg-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .dlg-tabs button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--line);color:var(--muted);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer}
-.dlg-tabs button:hover{color:var(--fg);background:var(--accent-soft)}
+.dlg-tabs button:hover{color:var(--fg);background:var(--hover)}
 .dlg-tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .dlg-panel{display:flex;flex-direction:column;gap:10px}
 .dlg-panel ol{margin:0;padding-left:1.3rem;font-size:.95rem}
@@ -234,7 +234,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .dur-box:focus-within{border-color:var(--accent)}
 .unit-lbl{flex:none;font-size:.72rem;color:var(--muted);white-space:nowrap}
 .unit{flex:none;font:inherit;font-size:.78rem;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:6px;padding:2px 7px;cursor:pointer}
-.unit:hover{color:var(--fg);background:var(--accent-soft)}
+.unit:hover{color:var(--fg);background:var(--hover)}
 @media (max-width:600px){
   .leg-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .leg-grid .c-from,.leg-grid .c-to,.leg-grid .c-arr{grid-column:1 / -1}
@@ -259,7 +259,7 @@ dialog#installDialog::backdrop{background:rgba(0,0,0,.55)}
 .tcol + .tcol{border-left:1px solid var(--line);padding-left:6px}
 .tcol-head{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:2px 10px}
 .opt{font:inherit;font-variant-numeric:tabular-nums;border:0;background:none;padding:6px 14px;border-radius:6px;color:var(--fg);cursor:pointer;flex:none}
-.opt:hover{background:var(--accent-soft)}
+.opt:hover{background:var(--hover)}
 .opt[aria-selected="true"]{background:var(--accent);color:var(--surface)}
 .tfoot{display:flex;justify-content:space-between;gap:6px;border-top:1px solid var(--line);padding-top:6px}
 .tdone{font:inherit;font-size:.8rem;font-weight:600;border:0;border-radius:6px;padding:3px 12px;background:var(--accent);color:var(--surface);cursor:pointer}
@@ -308,9 +308,9 @@ td.x{width:40px;text-align:right}
 .add button[type=submit]:hover{background:color-mix(in srgb, var(--accent) 82%, var(--fg))}
 .reset{transition:background .15s, color .15s}
 .ghost{transition:background .15s, color .15s}
-.reset:hover{color:var(--fg);background:var(--accent-soft)}
+.reset:hover{color:var(--fg);background:var(--hover)}
 .add .ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
-.add .ghost:hover{color:var(--fg);background:var(--accent-soft)}
+.add .ghost:hover{color:var(--fg);background:var(--hover)}
 .reset[data-armed="1"]{color:#fff;background:#b8443a;border-color:#b8443a}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 
