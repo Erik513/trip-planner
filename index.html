@@ -227,7 +227,7 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .chips{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .lbl-row.nowrap{flex-wrap:nowrap}
 /* every label row in a leg card is as tall as one that holds a chip, so neighbouring fields line up */
-.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{display:flex;align-items:flex-end;min-height:22px}
+.leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{display:flex;align-items:flex-end;min-height:calc(var(--btn-h) - 10px)}   /* as high as a chip, so fields stay level whether a chip is shown or not */
 .leg.stop{border-style:dashed}
 .leg.stop .leg-no{background:var(--muted);font-weight:700}
 .stop-wait{font-size:.85rem;color:var(--muted)}
@@ -263,6 +263,14 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .c-arrrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}   /* buttons left, the arrival text right (own line on phones) */
 .c-arrrow .stop-btn{flex:0 0 170px;height:40px;padding:0 10px;min-width:0}
 .c-arrrow .arr,.c-arrrow .stop-wait{margin-left:auto;order:2;text-align:right}
+/* wide screens: the buttons sit in the same row as time and duration (columns 3 and 4), the arrival text below on the right */
+@media (min-width:601px){
+  .leg:not(.stop) .c-arrrow{display:contents}
+  .leg:not(.stop) .c-arrrow .stop-btn{align-self:end;flex:none}
+  .leg:not(.stop) .c-arrrow [data-addstop]{grid-column:3}
+  .leg:not(.stop) .c-arrrow [data-addleg]{grid-column:4}
+  .leg:not(.stop) .c-arrrow .arr{grid-column:1 / -1}
+}
 .c-durrow .map-btn{width:40px;height:40px}
 .c-durrow .map-pop{left:auto;right:0}
 .arr{color:var(--fg);font-size:.8rem;align-self:end}   /* plain text, only the time is accented */
@@ -427,7 +435,6 @@ tr.cat .add-item{width:28px;height:28px;font-size:1.05rem}   /* compact variant 
   .leg-no{width:30px;height:30px}
   .leg-mode{height:40px}
   .leg-grid .unit{padding:5px 10px}
-  .leg-grid > .f > span:first-child,.leg-grid > .f > .lbl-row,.c-durrow > .f > span:first-child{min-height:31px}
   .mode-opts .opt{padding-top:12px;padding-bottom:12px}
   .unit{padding:7px 10px}
   .lbl-act{height:42px}
