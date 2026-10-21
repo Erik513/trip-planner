@@ -175,7 +175,11 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .grp-head h3{margin:0!important}
 .note-col > .grp-head{margin:0}
 .note-col .toggle{gap:4px}
-[data-col="out"] > .grp-head, [data-col="ret"] > .grp-head{flex-direction:column;align-items:flex-start;gap:4px}
+[data-col="out"] > .grp-head, [data-col="ret"] > .grp-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px 12px}
+[data-col="out"] > .grp-head .title-row, [data-col="ret"] > .grp-head .title-row,[data-col="out"] > .grp-head .count, [data-col="ret"] > .grp-head .count{grid-column:1}
+.grp-head .trip-date{grid-column:2;grid-row:1 / span 2;margin:0;width:200px}   /* date to the right of the title on wide screens */
+.is-collapsed .grp-head .trip-date{display:none}
+@media (max-width:600px){.grp-head .trip-date{grid-column:1;grid-row:auto;width:auto;max-width:220px;margin-top:6px}}
 [data-col="out"] > .grp-head .count:empty, [data-col="ret"] > .grp-head .count:empty{display:none}
 .legs{display:flex;flex-direction:column;gap:8px}
 .leg{display:flex;flex-direction:column;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
@@ -204,6 +208,13 @@ header .tag{grid-column:2;grid-row:1 / span 2}
 .leg-no{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--surface);font-family:var(--mono);font-size:.78rem;display:grid;place-items:center}
 .leg-grid{min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .leg-grid .c-from,.leg-grid .c-to{grid-column:span 2}
+.leg.meet .leg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.leg.meet .c-placerow{grid-column:1 / -1}
+.c-meetadd{display:flex;align-items:flex-end}
+.c-meetadd .stop-btn{width:100%;height:40px;padding:0 10px}
+/* the "add" buttons inside a card: a light accent fill, readable on the tinted current card too */
+.c-meetadd .stop-btn,.c-arrrow .stop-btn{color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.c-meetadd .stop-btn:hover,.c-arrrow .stop-btn:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
 .leg-grid .c-arrrow{grid-column:span 2;min-width:0}
 .c-durrow{display:flex;align-items:flex-end;gap:10px;min-width:0}
 .c-durrow > .f{flex:1 1 0;min-width:0}
@@ -234,7 +245,6 @@ header .tag{grid-column:2;grid-row:1 / span 2}
   .leg-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .leg-grid .c-from,.leg-grid .c-to{grid-column:1 / -1}
   .unit-lbl{display:none}
-  .leg.meet .leg-grid{grid-template-columns:minmax(0,3fr) minmax(0,2fr)} /* date needs more room than the time */
 }
 .leg .fld{background:var(--surface)}
 .leg .del{align-self:center}
@@ -364,7 +374,7 @@ td.x{width:40px;text-align:right}
   <header>
     <div>
       <h1 data-i18n="title">Reiseplaner</h1>
-      <p class="sub" data-i18n="subtitle">Reise, Einkauf, To-dos und Koffer an einem Ort</p>
+      <p class="sub" data-i18n="subtitle">Reise, To-dos, Einkauf und Koffer an einem Ort</p>
     </div>
     <div class="head-right">
     <div class="head-tools">
@@ -405,13 +415,11 @@ td.x{width:40px;text-align:right}
         <div class="f"><span data-i18n="checkout">Check-out</span><div class="pair"><input class="fld" id="i-checkout" data-info="checkout" type="date" data-i18n-attr="aria-label:checkoutDate" aria-label="Check-out Datum"><input class="fld" id="i-checkout-time" data-info="checkoutTime" type="time" data-i18n-attr="aria-label:checkoutTime" aria-label="Check-out Uhrzeit"></div></div>
         <div class="f wide note-col" data-col="notes"><div class="grp-head"><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="notes">Notizen</span></button></div><textarea class="fld auto-grow" id="i-notes" data-info="notes" rows="3" data-i18n-attr="aria-label:notes" aria-label="Notizen"></textarea></div>
       </div></div>
-      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="out" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button></div></div><span class="count" id="sum-out"></span></div>
-        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label>
+      <div class="grp" data-col="out"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="outbound">Hinfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" data-uncheck="out" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button></div></div><span class="count" id="sum-out"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-out-date" data-info="outDate" type="date"></label></div>
         <div class="legs" id="legs-out"></div>
         <div class="actions"><button type="button" class="ghost sm" data-addmeet="out" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="out" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
-      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button><button type="button" class="ghost sm" data-uncheck="ret" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button></div></div><span class="count" id="sum-ret"></span></div>
-        <label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label>
+      <div class="grp" data-col="ret"><div class="grp-head"><div class="title-row"><h3><button type="button" class="toggle" aria-expanded="true"><span class="chev" aria-hidden="true">▾</span><span data-i18n="ret">Rückfahrt</span></button></h3><div class="sec-btns"><button type="button" class="ghost sm" id="fromOut" data-i18n="fromOut" data-i18n-attr="title:fromOutTitle;aria-label:fromOutTitle">⇄ Hinfahrt</button><button type="button" class="ghost sm" data-uncheck="ret" data-i18n="uncheckShort" data-i18n-attr="title:uncheck;aria-label:uncheck">− ✓</button></div></div><span class="count" id="sum-ret"></span><label class="f trip-date"><span data-i18n="date">Datum</span><input class="fld" id="i-ret-date" data-info="retDate" type="date"></label></div>
         <div class="legs" id="legs-ret"></div>
         <div class="actions"><button type="button" class="ghost sm" data-addmeet="ret" data-i18n="addMeet" data-i18n-attr="title:addMeetTitle;aria-label:addMeetTitle">+ Treffpunkt</button><button type="button" class="ghost sm" data-addleg="ret" data-i18n="addLeg" data-i18n-attr="title:addLegTitle;aria-label:addLegTitle">+ Etappe</button></div>
       </div>
@@ -487,8 +495,8 @@ if (adoptHashLang) { langStored = lang; try { localStorage.setItem(LANG_KEY, lan
 const li = () => lang === "en" ? 1 : 0; // index into bilingual lists [de, en]
 const I18N = {
   de: {
-    title: "Reiseplaner", subtitle: "Reise, Einkauf, To-dos und Koffer an einem Ort", lang: "Sprache",
-    share: "Teilen", shareTitle: "Reiseplaner teilen", shareText: "Mein Reiseplaner – Reise, Einkauf, To-dos und Packliste an einem Ort", shareCopied: "Link kopiert ✓",
+    title: "Reiseplaner", subtitle: "Reise, To-dos, Einkauf und Koffer an einem Ort", lang: "Sprache",
+    share: "Teilen", shareTitle: "Reiseplaner teilen", shareText: "Mein Reiseplaner – Reise, To-dos, Einkauf und Packliste an einem Ort", shareCopied: "Link kopiert ✓",
     linkTitle: "Reise-Infos im Link", linkHint: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Übernehmen?",
     linkHintReplace: "Dieser Link enthält Reise-Infos (Reise, Unterkunft, Hin- und Rückfahrt). Deine aktuellen Reise-Infos werden dabei ersetzt. Übernehmen?", dismiss: "Verwerfen",
     progress: "Fortschritt gesamt",
@@ -546,8 +554,8 @@ const I18N = {
     syncSaving: "Speichert …", syncSaved: "Gespeichert ✓", syncFail: "Speichern fehlgeschlagen – neuer Versuch …", syncLocal: "Auf diesem Gerät gespeichert"
   },
   en: {
-    title: "Trip Planner", subtitle: "Trip, shopping, to-dos and luggage in one place", lang: "Language",
-    share: "Share", shareTitle: "Share trip planner", shareText: "My trip planner – trip, shopping, to-dos and packing list in one place", shareCopied: "Link copied ✓",
+    title: "Trip Planner", subtitle: "Trip, to-dos, shopping and luggage in one place", lang: "Language",
+    share: "Share", shareTitle: "Share trip planner", shareText: "My trip planner – trip, to-dos, shopping and packing list in one place", shareCopied: "Link copied ✓",
     linkTitle: "Trip info in link", linkHint: "This link contains trip info (trip, accommodation, outbound and return trip). Apply it?",
     linkHintReplace: "This link contains trip info (trip, accommodation, outbound and return trip). Your current trip info will be replaced. Apply it?", dismiss: "Dismiss",
     progress: "Overall progress",
@@ -1008,14 +1016,13 @@ function renderTrips(){
       <div class="leg-head">
         <span class="leg-no" aria-hidden="true">◉</span>
         <span class="leg-title">${T("meet")}</span>
-        ${MAPPICK("mapOpenPlace")}
         <input type="checkbox" class="leg-chk" id="meet-${t}-done" data-legdone ${meet.d ? "checked" : ""} aria-label="${T("meetReached")}" title="${T("done")}">
         <button class="del" type="button" data-delmeet="${t}" aria-label="${T("removeMeet")}" title="${T("removeMeet")}">×</button>
       </div>
       <div class="leg-grid">
-        <div class="f c-from"><span>${T("place")}</span><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>
-        <label class="f"><span>${T("date")}</span><input class="fld" type="date" id="meet-${t}-date" data-meetf="date" value="${esc(meet.date || "")}"></label>
+        <div class="c-durrow c-placerow"><div class="f"><span>${T("place")}</span><input class="fld" type="text" id="meet-${t}-place" data-meetf="place" value="${esc(meet.place || "")}" aria-label="${T("meetPlace")}"></div>${MAPPICK("mapOpenPlace")}</div>
         <div class="f"><span>${T("time")}</span><div class="tpick" data-meet="${t}">${pickInner(`meet-${t}-time`, T("meetTime"))}</div></div>
+        <div class="c-meetadd"><button type="button" class="unit stop-btn" data-addleg="${t}" title="${T("addLegTitle")}" aria-label="${T("addLegTitle")}">${T("addLeg")}</button></div>
       </div>
     </div>`;
     const stopCard = (l, i) => `
@@ -1162,7 +1169,8 @@ document.addEventListener("click", e => {
   // Remove: if filled in, first click arms (red), second click deletes
   const t = b.closest(".leg").dataset.trip;
   const obj = d.delmeet ? state.info[t + "Meet"] : d.delstop !== undefined ? (tripLegs(t)[+d.delstop] || {}).stop : tripLegs(t)[d.delleg];
-  const filled = obj && Object.values(obj).some(v => v && String(v).trim());
+  // A stopover always asks (it is prefilled with values the user did not type)
+  const filled = d.delstop !== undefined ? !!obj : obj && Object.values(obj).some(v => v && String(v).trim());
   if (filled && d.armed !== "1") {
     d.armed = "1"; b.title = T("clickAgain");
     setTimeout(() => { if (b.isConnected) { d.armed = "0"; b.title = d.delmeet ? T("removeMeet") : d.delstop !== undefined ? T("removeStop") : T("removeLegTitle"); } }, 3000);
@@ -1656,9 +1664,9 @@ function updateCountdown(){
 document.addEventListener("input", e => {
   const k = e.target.dataset && e.target.dataset.info; if (!k) return;
   state.info = state.info || {};
-  // Trip date changes: carry the meeting point date along as long as it was not deliberately set differently
+  // Trip date changes: the meeting point follows
   const t = k === "outDate" ? "out" : k === "retDate" ? "ret" : null, m = t && state.info[t + "Meet"];
-  if (m && (!m.date || m.date === (state.info[k] || ""))) { m.date = e.target.value; const d = $(`meet-${t}-date`); if (d) d.value = m.date; }
+  if (m) m.date = e.target.value;   // the meeting point always takes place on the trip date
   state.info[k] = e.target.value;
   save(); updateCountdown(); updateButtons(); if (t) updateMaps();
 });

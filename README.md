@@ -1,6 +1,6 @@
 # Trip Planner
 
-Trip info, shopping list, to-dos and packing list in one page – available in English and German (English by default, switch with the "EN | DE" toggle).
+Trip info, to-dos, shopping list and packing list in one page – available in English and German (English by default, switch with the "EN | DE" toggle).
 
 **Live:** https://erik513.github.io/trip-planner/
 
@@ -24,8 +24,8 @@ It works offline, without an account and without a server.
 ### Legs (outbound/return trip)
 
 - Card layout (same on phone and desktop): a header row with the number (drag handle) or the meeting point symbol, the **transport** picker (a compact button; it opens the list of common modes `MODES` plus a free "Other …" field, no browser datalist) or the title "Meeting point",
-  the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); a map-pin button right of the duration field (shown once a route is known; the meeting point card has one in its header for its place) opens a small menu with Google Maps / Apple Maps links (the transport mode is passed on; for public transport with a trip date and leg time Google gets the departure time through its unofficial URL form); the "+ Stopover" button sits right of the arrival field, which fills the whole width once the leg has a stopover.
-  The meeting point card has place, date and time (date and time in one row).
+  the done checkbox and the delete cross; below start and destination (on phones stacked), time and duration, and the **arrival** field (a normal box, the time in the accent colour); a map-pin button right of the duration field (shown once a route is known; the meeting point card has one right of its place field) opens a small menu with Google Maps / Apple Maps links (the transport mode is passed on; for public transport with a trip date and leg time Google gets the departure time through its unofficial URL form); the "+ Stopover" button sits right of the arrival field, which fills the whole width once the leg has a stopover.
+  The meeting point card has the place with a map-pin button in one row and below it the time plus a "+ Leg" button (adds the next leg); it takes place on the trip date (no separate date field).
 - Duration as `H:MM` (also understands `1,5`, `90m`, `2h 15m`); arrival = the leg's own time + duration; without a time of its own a leg shows no arrival.
 - A new leg takes the destination and the arrival of the previous one (rounded up to 5 minutes) as start/time.
 - "Use" chips next to the "Start"/"Destination" labels: leg 1 "Meeting point" (+ "Destination" at the start of the return trip), from leg 2 on
@@ -48,7 +48,7 @@ It works offline, without an account and without a server.
   replaced (with "Undo"), then the hash is removed.
 - **Export/import:** code `TRIP:` + lz-string `compressToEncodedURIComponent` of a compact JSON. The earlier German-era formats
   (`URLAUB:`, `URLAUB-INFO:`, `URLAUB-B:`) are still accepted on import. Ticks are not included.
-- Only the trip info is shared; shopping list, to-dos and packing list stay local. There is no synchronisation between devices –
+- Only the trip info is shared; to-dos, shopping list and packing list stay local. There is no synchronisation between devices –
   whoever changes something shares again. Backup/export of the other lists and real-time sync are intentionally not provided.
 
 ## Install as an app (PWA)
